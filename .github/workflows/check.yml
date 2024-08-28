@@ -1,0 +1,102 @@
+name: check
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ "*" ]
+    types: [synchronize, opened, reopened, edited]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        compilation_mode:
+          - 'fastbuild'
+          - 'opt'
+        toolchain:
+          - 'gcc12'
+          - 'clang18'
+    env:
+      PROFILE: profile-${{ matrix.compilation_mode }}-${{ matrix.toolchain }}.gz
+    steps:
+    - uses: actions/checkout@v4
+    - uses: ./.github/actions/ci-env-setup
+      with:
+        buildbuddy-api-key: ${{ secrets.BUILDBUDDY_API_KEY }}
+    - run: |
+        bazel \
+          test \
+          --profile=$PROFILE \
+          --compilation_mode=${{ matrix.compilation_mode }} \
+          --extra_toolchains=//tools:${{ matrix.toolchain }}_toolchain \
+          //...
+
+        bazel analyze-profile $PROFILE
+    - uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.PROFILE }}
+        path : ${{ env.PROFILE }}
+
+  coverage:
+    runs-on: ubuntu-latest
+    env:
+      PROFILE: profile-coverage.gz
+    steps:
+    - uses: actions/checkout@v4
+    - uses: ./.github/actions/ci-env-setup
+      with:
+        buildbuddy-api-key: ${{ secrets.BUILDBUDDY_API_KEY }}
+    - run: |
+        bazel coverage --profile=$PROFILE \
+          --cxxopt='-fno-exceptions' \
+          --instrumentation_filter=//${{ github.event.repository.name }} \
+          --combined_report=lcov \
+          --experimental_generate_llvm_lcov \
+          //test/...
+
+        bazel analyze-profile $PROFILE
+    - uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.PROFILE }}
+        path : ${{ env.PROFILE }}
+    - uses: codecov/codecov-action@v4
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: ./bazel-out/_coverage/_coverage_report.dat
+        fail_ci_if_error: true
+
+  format:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: ./.github/actions/ci-env-setup
+      with:
+        buildbuddy-api-key: ${{ secrets.BUILDBUDDY_API_KEY }}
+    - run: |
+        bazel run //tools:format.check
+
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: ./.github/actions/ci-env-setup
+      with:
+        buildbuddy-api-key: ${{ secrets.BUILDBUDDY_API_KEY }}
+    - run: |
+        bazel run //tools:lint
+
+  all:
+    runs-on: ubuntu-latest
+    if: ${{ github.base_ref == 'main' }}
+    needs:
+      - test
+      - coverage
+      - format
+      - lint
+    steps:
+    - run: true

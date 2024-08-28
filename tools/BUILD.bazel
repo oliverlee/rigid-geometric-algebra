@@ -1,6 +1,16 @@
 load("@buildifier_prebuilt//:rules.bzl", "buildifier")
 load("@rules_multirun//:defs.bzl", "multirun")
 
+alias(
+    name = "gcc12_toolchain",
+    actual = "@gcc12_toolchain//:toolchain",
+)
+
+alias(
+    name = "clang18_toolchain",
+    actual = "@llvm18_toolchain//:cc-toolchain-x86_64-linux",
+)
+
 buildifier(
     name = "buildifier.check",
     lint_mode = "warn",
