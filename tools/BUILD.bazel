@@ -1,0 +1,83 @@
+load("@buildifier_prebuilt//:rules.bzl", "buildifier")
+load("@rules_multirun//:defs.bzl", "multirun")
+
+buildifier(
+    name = "buildifier.check",
+    lint_mode = "warn",
+    mode = "check",
+)
+
+buildifier(
+    name = "buildifier",
+    lint_mode = "warn",
+    mode = "fix",
+)
+
+genrule(
+    name = "gen-clang-format",
+    outs = ["clang-format.sh"],
+    cmd = """
+echo "#!/bin/bash" > $@
+echo "cd \\$$BUILD_WORKSPACE_DIRECTORY" >> $@
+echo "exec bazel build \\$$@ //..." >> $@
+""",
+)
+
+sh_binary(
+    name = "clang-format.check",
+    srcs = ["clang-format.sh"],
+    args = [
+        "--aspects=@bazel_clang_format//:defs.bzl%check_aspect",
+        "--output_groups=report",
+        "--keep_going",
+    ],
+)
+
+sh_binary(
+    name = "clang-format",
+    srcs = ["clang-format.sh"],
+    args = [
+        "--aspects=@bazel_clang_format//:defs.bzl%fix_aspect",
+        "--output_groups=report",
+        "--keep_going",
+        "--use_action_cache=false",
+    ],
+)
+
+multirun(
+    name = "format.check",
+    commands = [
+        ":buildifier.check",
+        ":clang-format.check",
+    ],
+)
+
+multirun(
+    name = "format",
+    commands = [
+        ":buildifier",
+        ":clang-format",
+    ],
+)
+
+genrule(
+    name = "gen-clang-tidy",
+    outs = ["clang-tidy.sh"],
+    cmd = """
+echo "#!/bin/bash" > $@
+echo "cd \\$$BUILD_WORKSPACE_DIRECTORY" >> $@
+echo "exec bazel build \\$$@ -- //..." >> $@
+""",
+)
+
+sh_binary(
+    name = "lint",
+    srcs = ["clang-tidy.sh"],
+    args = [
+        "--extra_toolchains=@llvm18_toolchain//:cc-toolchain-x86_64-linux",
+        "--aspects=@rules_clang_tidy//:aspects.bzl%check",
+        "--output_groups=report",
+        "--keep_going",
+        "--verbose_failures",
+    ],
+)

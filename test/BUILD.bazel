@@ -1,0 +1,13 @@
+load("@rules_cc//cc:defs.bzl", "cc_test")
+
+package(default_visibility = ["//:__subpackages__"])
+
+cc_test(
+    name = "dummy_test",
+    size = "small",
+    srcs = ["dummy_test.cpp"],
+    deps = [
+        "//rigid-geometric-algebra",
+        "@skytest",
+    ],
+)

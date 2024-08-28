@@ -1,0 +1,4 @@
+bazel-rigid-geometric-algebra
+bazel-bin
+bazel-out
+bazel-testlog
