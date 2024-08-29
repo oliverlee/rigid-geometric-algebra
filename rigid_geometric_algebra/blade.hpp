@@ -75,7 +75,7 @@ struct blade
   {
     constexpr auto even = [](std::size_t value) { return value % 2UZ == 0UZ; };
     using maybe_negate = std::conditional_t<
-        even(detail::swaps_to_sorted_dimensions<Is...>()),
+        even(detail::swaps_to_sorted_dimensions(Is...)),
         std::identity,
         std::negate<>>;
 
@@ -117,26 +117,17 @@ struct blade
   ///
   /// @{
 
-  template <
-      std::size_t... Js,
-      // NOLINTNEXTLINE(modernize-use-constraints)
-      class = std::enable_if_t<detail::unique_dimensions<Is..., Js...>()>>
+  template <std::size_t... Js>
   friend constexpr auto
   operator^(const blade& lhs, const blade<A, Js...>& rhs) ->
       typename blade<A, Is..., Js...>::canonical_type
   {
-    constexpr auto even = [](std::size_t value) { return value % 2UZ == 0UZ; };
-    using maybe_negate = std::conditional_t<
-        even(detail::swaps_to_sorted_dimensions(Is...)),
-        std::identity,
-        std::negate<>>;
-
     return blade<A, Is..., Js...>{lhs.coefficient * rhs.coefficient}
         .canonical();
   }
 
   template <std::size_t... Js>
-    requires (not detail::unique_dimensions<Is..., Js...>())
+    requires (not detail::unique_dimensions(Is..., Js...))
   friend constexpr auto
   operator^(const blade&, const blade<A, Js...>&) -> blade<A>
   {
