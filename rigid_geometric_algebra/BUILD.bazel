@@ -1,7 +1,7 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
 cc_library(
-    name = "rigid-geometric-algebra",
-    hdrs = ["rigid-geometric-algebra.hpp"],
+    name = "rigid_geometric_algebra",
+    hdrs = ["rigid_geometric_algebra.hpp"],
     visibility = ["//:__subpackages__"],
 )

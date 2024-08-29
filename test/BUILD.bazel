@@ -7,7 +7,7 @@ cc_test(
     size = "small",
     srcs = ["dummy_test.cpp"],
     deps = [
-        "//rigid-geometric-algebra",
+        "//rigid_geometric_algebra",
         "@skytest",
     ],
 )

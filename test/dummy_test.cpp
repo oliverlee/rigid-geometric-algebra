@@ -1,4 +1,4 @@
-#include "rigid-geometric-algebra/rigid-geometric-algebra.hpp"
+#include "rigid_geometric_algebra/rigid_geometric_algebra.hpp"
 #include "skytest/skytest.hpp"
 
 namespace rga = ::rigid_geometric_algebra;
