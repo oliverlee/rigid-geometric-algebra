@@ -64,6 +64,24 @@ struct blade
   ///
   value_type coefficient{};
 
+  /// obtain the blade with indices in canonical form
+  ///
+  /// Returns same blade expressed in canonical form - i.e. with indices in
+  /// increasing order. The blade coefficient is negated if sorting the indices
+  /// requires an odd number of swaps.
+  ///
+  template <class Self>
+  constexpr auto canonical(this Self&& self) -> canonical_type
+  {
+    constexpr auto even = [](std::size_t value) { return value % 2UZ == 0UZ; };
+    using maybe_negate = std::conditional_t<
+        even(detail::swaps_to_sorted_dimensions<Is...>()),
+        std::identity,
+        std::negate<>>;
+
+    return {maybe_negate{}(std::forward<Self>(self).coefficient)};
+  }
+
   /// negation
   ///
   template <class Self>
@@ -95,14 +113,17 @@ struct blade
     return {lhs * rhs.coefficient};
   }
 
-  /// obtain the blade with indices in canonical form
+  /// wedge product
   ///
-  /// Returns same blade expressed in canonical form - i.e. with indices in
-  /// increasing order. The blade coefficient is negated if sorting the
-  /// indices requires an odd number of swaps.
-  ///
-  template <class Self>
-  constexpr auto canonical(this Self&& self) -> canonical_type
+  /// @{
+
+  template <
+      std::size_t... Js,
+      // NOLINTNEXTLINE(modernize-use-constraints)
+      class = std::enable_if_t<detail::unique_dimensions<Is..., Js...>()>>
+  friend constexpr auto
+  operator^(const blade& lhs, const blade<A, Js...>& rhs) ->
+      typename blade<A, Is..., Js...>::canonical_type
   {
     constexpr auto even = [](std::size_t value) { return value % 2UZ == 0UZ; };
     using maybe_negate = std::conditional_t<
@@ -110,8 +131,19 @@ struct blade
         std::identity,
         std::negate<>>;
 
-    return {maybe_negate{}(std::forward<Self>(self).coefficient)};
+    return blade<A, Is..., Js...>{lhs.coefficient * rhs.coefficient}
+        .canonical();
   }
+
+  template <std::size_t... Js>
+    requires (not detail::unique_dimensions<Is..., Js...>())
+  friend constexpr auto
+  operator^(const blade&, const blade<A, Js...>&) -> blade<A>
+  {
+    return {};
+  }
+
+  /// @}
 
   /// equality comparison
   ///

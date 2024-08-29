@@ -14,3 +14,4 @@ namespace rigid_geometric_algebra {}  // namespace rigid_geometric_algebra
 #include "rigid_geometric_algebra/algebra_field.hpp"
 #include "rigid_geometric_algebra/algebra_fwd.hpp"
 #include "rigid_geometric_algebra/blade.hpp"
+#include "rigid_geometric_algebra/wedge.hpp"

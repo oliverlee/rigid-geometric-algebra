@@ -114,4 +114,24 @@ auto main() -> int
         eq(rga::blade<>{2}, 2 * rga::blade<>{1}) and
         eq(rga::blade<>{2}, 2.0 * rga::blade<>{1}));
   };
+
+  "wedge product with unique dimensions"_test = [] {
+    return expect(
+        eq(rga::blade<>{1}, rga::blade<>{1} ^ rga::blade<>{1}) and
+        eq(rga::blade<0>{1}, rga::blade<>{1} ^ rga::blade<0>{1}) and
+        eq(rga::blade<0>{1}, rga::blade<0>{1} ^ rga::blade<>{1}) and
+        eq(rga::blade<1>{1}, rga::blade<>{1} ^ rga::blade<1>{1}) and
+        eq(rga::blade<2>{1}, rga::blade<>{1} ^ rga::blade<2>{1}) and
+        eq(rga::blade<2, 1>{1}, rga::blade<2>{1} ^ rga::blade<1>{1}) and
+        eq(rga::blade<1, 2>{1}, rga::blade<1>{1} ^ rga::blade<2>{1}));
+  };
+
+  "wedge product with repeated dimensions"_test = [] {
+    const auto zero = rga::blade<>{};
+
+    return expect(
+        eq(zero, rga::blade<0>{1} ^ rga::blade<0>{1}) and
+        eq(zero, rga::blade<1>{1} ^ rga::blade<1>{1}) and
+        eq(zero, rga::blade<0, 1>{1} ^ rga::blade<1, 2>{1}));
+  };
 }
