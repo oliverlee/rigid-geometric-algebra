@@ -2,6 +2,14 @@ load("@rules_cc//cc:defs.bzl", "cc_library")
 
 cc_library(
     name = "rigid_geometric_algebra",
+    srcs = [
+        "algebra.hpp",
+        "algebra_dimension.hpp",
+        "algebra_field.hpp",
+        "algebra_fwd.hpp",
+        "blade.hpp",
+        "detail/unique_dimensions.hpp",
+    ],
     hdrs = ["rigid_geometric_algebra.hpp"],
     visibility = ["//:__subpackages__"],
 )
