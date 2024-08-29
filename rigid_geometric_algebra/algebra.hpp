@@ -1,6 +1,7 @@
 #pragma once
 
 #include "rigid_geometric_algebra/blade.hpp"
+#include "rigid_geometric_algebra/zero_constant.hpp"
 
 #include <cstddef>
 #include <type_traits>
@@ -21,6 +22,9 @@ struct algebra
 {
   template <std::size_t... Is>
   using blade = ::rigid_geometric_algebra::blade<algebra, Is...>;
+
+  static constexpr auto zero =
+      ::rigid_geometric_algebra::zero_constant<algebra>{};
 };
 
 }  // namespace rigid_geometric_algebra

@@ -12,6 +12,7 @@ cc_library(
         "detail/swaps_to_sorted_dimensions.hpp",
         "detail/unique_dimensions.hpp",
         "wedge.hpp",
+        "zero_constant.hpp",
     ],
     hdrs = ["rigid_geometric_algebra.hpp"],
     visibility = ["//:__subpackages__"],

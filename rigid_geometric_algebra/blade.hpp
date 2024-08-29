@@ -6,6 +6,7 @@
 #include "rigid_geometric_algebra/detail/sorted_dimensions.hpp"
 #include "rigid_geometric_algebra/detail/swaps_to_sorted_dimensions.hpp"
 #include "rigid_geometric_algebra/detail/unique_dimensions.hpp"
+#include "rigid_geometric_algebra/zero_constant.hpp"
 
 #include <cstddef>
 #include <functional>
@@ -44,6 +45,10 @@ template <class A, std::size_t... Is>
            (detail::unique_dimensions(Is...))
 struct blade
 {
+  /// algebra this blade belongs to
+  ///
+  using algebra_type = A;
+
   /// number of factors
   ///
   static constexpr auto grade = sizeof...(Is);
@@ -129,7 +134,7 @@ struct blade
   template <std::size_t... Js>
     requires (not detail::unique_dimensions(Is..., Js...))
   friend constexpr auto
-  operator^(const blade&, const blade<A, Js...>&) -> blade<A>
+  operator^(const blade&, const blade<A, Js...>&) -> zero_constant<A>
   {
     return {};
   }
