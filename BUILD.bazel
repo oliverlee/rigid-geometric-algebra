@@ -9,3 +9,13 @@ filegroup(
     name = "tidy-config",
     srcs = [".clang-tidy"],
 )
+
+alias(
+    name = "rigid-geometric-algebra",
+    actual = "//rigid_geometric_algebra",
+)
+
+alias(
+    name = "rigid_geometric_algebra",
+    actual = "//rigid_geometric_algebra",
+)
