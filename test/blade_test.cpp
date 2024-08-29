@@ -127,11 +127,9 @@ auto main() -> int
   };
 
   "wedge product with repeated dimensions"_test = [] {
-    const auto zero = rga::blade<>{};
-
     return expect(
-        eq(zero, rga::blade<0>{1} ^ rga::blade<0>{1}) and
-        eq(zero, rga::blade<1>{1} ^ rga::blade<1>{1}) and
-        eq(zero, rga::blade<0, 1>{1} ^ rga::blade<1, 2>{1}));
+        eq(rga::zero, rga::blade<0>{1} ^ rga::blade<0>{1}) and
+        eq(rga::zero, rga::blade<1>{1} ^ rga::blade<1>{1}) and
+        eq(rga::zero, rga::blade<0, 1>{1} ^ rga::blade<1, 2>{1}));
   };
 }
