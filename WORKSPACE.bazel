@@ -168,11 +168,11 @@ http_archive(
     url = "https://github.com/keith/rules_multirun/releases/download/0.9.0/rules_multirun.0.9.0.tar.gz",
 )
 
-SKYTEST_COMMIT = "0976682003a6b1e082ad13638ed77a0aaba94da6"
+SKYTEST_COMMIT = "306be7acbf16b4a37d8d03ec4e3957b029a6ec79"
 
 http_archive(
     name = "skytest",
-    integrity = "sha256-sw+hTyqPGiJByzsgYZ5Sso9mOi/0QVb0z4F+Zjo8oG8=",
+    integrity = "sha256-OCEcHYDUL8nQA8dZyLpb+oIDK4nmRN5dzBUPr+sYUzk=",
     strip_prefix = "skytest-{commit}".format(
         commit = SKYTEST_COMMIT,
     ),
