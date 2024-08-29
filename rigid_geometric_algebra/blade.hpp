@@ -72,6 +72,29 @@ struct blade
     return {-std::forward<Self>(self).coefficient};
   }
 
+  /// addition
+  ///
+  friend constexpr auto operator+(const blade& lhs, const blade& rhs) -> blade
+  {
+    return {lhs.coefficient + rhs.coefficient};
+  }
+
+  /// subtraction
+  ///
+  friend constexpr auto operator-(const blade& lhs, const blade& rhs) -> blade
+  {
+    return {lhs.coefficient - rhs.coefficient};
+  }
+
+  /// scalar multiplication
+  ///
+  template <class T>
+    requires std::is_invocable_r_v<value_type, std::multiplies<>, T, value_type>
+  friend constexpr auto operator*(const T& lhs, const blade& rhs) -> blade
+  {
+    return {lhs * rhs.coefficient};
+  }
+
   /// obtain the blade with indices in canonical form
   ///
   /// Returns same blade expressed in canonical form - i.e. with indices in
