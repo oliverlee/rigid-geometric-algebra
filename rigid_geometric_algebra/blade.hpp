@@ -3,9 +3,14 @@
 #include "rigid_geometric_algebra/algebra_dimension.hpp"
 #include "rigid_geometric_algebra/algebra_field.hpp"
 #include "rigid_geometric_algebra/algebra_fwd.hpp"
+#include "rigid_geometric_algebra/detail/sorted_dimensions.hpp"
+#include "rigid_geometric_algebra/detail/swaps_to_sorted_dimensions.hpp"
 #include "rigid_geometric_algebra/detail/unique_dimensions.hpp"
 
 #include <cstddef>
+#include <functional>
+#include <type_traits>
+#include <utility>
 
 namespace rigid_geometric_algebra {
 
@@ -24,11 +29,12 @@ namespace rigid_geometric_algebra {
 /// `blade<A, 1>{1}` is often expressed as `e1`.
 ///
 /// `blade<A, 1, 2>` is a blade with grade 2 and contains the factors
-/// `blade<A, 1>` and `blade<A, 2>`. A grade 2 blade is also called a bivector.
+/// `blade<A, 1>` and `blade<A, 2>`. A grade 2 blade is also called a
+/// bivector.
 ///
-/// A blade cannot contain repeated index-vector values. The index-vector values
-/// must be less than the algebra's projected dimension. This differs from
-/// the standard Lengyel notation which is 1-based and not 0-based; 0
+/// A blade cannot contain repeated index-vector values. The index-vector
+/// values must be less than the algebra's projected dimension. This differs
+/// from the standard Lengyel notation which is 1-based and not 0-based; 0
 /// corresponds to the projected dimension.
 ///
 /// @see https://terathon.com/foundations_pga_lengyel.pdf
@@ -38,14 +44,68 @@ template <class A, std::size_t... Is>
            (detail::unique_dimensions(Is...))
 struct blade
 {
-
+  /// number of factors
+  ///
   static constexpr auto grade = sizeof...(Is);
 
+  /// blade scalar type
+  ///
   using value_type = algebra_field_t<A>;
 
+  /// blade type with indices in canonical form
+  ///
+  using canonical_type =
+      decltype([]<std::size_t... Js>(
+                   std::index_sequence<Js...>) -> blade<A, Js...> {
+        return {};
+      }(detail::sorted_dimensions<Is...>{}));
+
+  /// blade scalar coefficient
+  ///
   value_type coefficient{};
 
+  /// negation
+  ///
+  template <class Self>
+  constexpr auto operator-(this Self&& self) -> blade
+  {
+    return {-std::forward<Self>(self).coefficient};
+  }
+
+  /// obtain the blade with indices in canonical form
+  ///
+  /// Returns same blade expressed in canonical form - i.e. with indices in
+  /// increasing order. The blade coefficient is negated if sorting the
+  /// indices requires an odd number of swaps.
+  ///
+  template <class Self>
+  constexpr auto canonical(this Self&& self) -> canonical_type
+  {
+    constexpr auto even = [](std::size_t value) { return value % 2UZ == 0UZ; };
+    using maybe_negate = std::conditional_t<
+        even(detail::swaps_to_sorted_dimensions(Is...)),
+        std::identity,
+        std::negate<>>;
+
+    return {maybe_negate{}(std::forward<Self>(self).coefficient)};
+  }
+
+  /// equality comparison
+  ///
+  /// @{
+
   friend auto operator==(const blade&, const blade&) -> bool = default;
+
+  template <std::size_t... Js>
+    requires (std::is_same_v<typename blade::canonical_type,
+                             typename blade<A, Js...>::canonical_type>)
+  friend constexpr auto
+  operator==(const blade& lhs, const blade<A, Js...>& rhs) -> bool
+  {
+    return lhs.canonical() == rhs.canonical();
+  }
+
+  /// @}
 };
 
 }  // namespace rigid_geometric_algebra
