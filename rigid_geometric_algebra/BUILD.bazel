@@ -8,6 +8,8 @@ cc_library(
         "algebra_field.hpp",
         "algebra_fwd.hpp",
         "blade.hpp",
+        "detail/sorted_dimensions.hpp",
+        "detail/swaps_to_sorted_dimensions.hpp",
         "detail/unique_dimensions.hpp",
     ],
     hdrs = ["rigid_geometric_algebra.hpp"],

@@ -18,7 +18,7 @@ jobs:
           - 'fastbuild'
           - 'opt'
         toolchain:
-          - 'gcc12'
+          #- 'gcc12' # GCC12 has missing support for C++23
           - 'clang18'
     env:
       PROFILE: profile-${{ matrix.compilation_mode }}-${{ matrix.toolchain }}.gz
