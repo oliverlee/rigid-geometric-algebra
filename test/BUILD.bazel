@@ -13,6 +13,16 @@ cc_test(
 )
 
 cc_test(
+    name = "multivector_test",
+    size = "small",
+    srcs = ["multivector_test.cpp"],
+    deps = [
+        "//rigid_geometric_algebra",
+        "@skytest",
+    ],
+)
+
+cc_test(
     name = "zero_constant_test",
     size = "small",
     srcs = ["zero_constant_test.cpp"],
