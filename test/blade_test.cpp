@@ -86,4 +86,32 @@ auto main() -> int
         eq(rga3::blade<0, 1, 2, 3>{1}, rga3::blade<1, 0, 3, 2>{1}) and
         eq(rga3::blade<0, 1, 2, 3>{1}, rga3::blade<3, 2, 1, 0>{1}));
   };
+
+  "addition"_test = [] {
+    const auto b0 = rga::blade<>{};
+    const auto b1 = rga::blade<>{1};
+    const auto b2 = rga::blade<>{2};
+
+    return expect(
+        eq(b0, b0 + b0) and eq(b1, b0 + b1) and eq(b2, b0 + b2) and
+        eq(b1, b1 + b0) and eq(b2, b2 + b0) and eq(b2, b1 + b1) and
+        eq(b2, b2 + b0 + b0));
+  };
+
+  "subtraction"_test = [] {
+    const auto b0 = rga::blade<>{};
+    const auto b1 = rga::blade<>{1};
+    const auto b2 = rga::blade<>{2};
+
+    return expect(
+        eq(b0, b0 - b0) and eq(-b1, b0 - b1) and eq(-b2, b0 - b2) and
+        eq(b1, b1 - b0) and eq(b2, b2 - b0) and eq(b0, b1 - b1) and
+        eq(b2, b2 - b0 - b0));
+  };
+
+  "scalar multiplication"_test = [] {
+    return expect(
+        eq(rga::blade<>{2}, 2 * rga::blade<>{1}) and
+        eq(rga::blade<>{2}, 2.0 * rga::blade<>{1}));
+  };
 }
