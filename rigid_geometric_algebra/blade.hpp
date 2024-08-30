@@ -3,6 +3,7 @@
 #include "rigid_geometric_algebra/algebra_dimension.hpp"
 #include "rigid_geometric_algebra/algebra_field.hpp"
 #include "rigid_geometric_algebra/algebra_fwd.hpp"
+#include "rigid_geometric_algebra/detail/derive_subtraction.hpp"
 #include "rigid_geometric_algebra/detail/derive_vector_space_operations.hpp"
 #include "rigid_geometric_algebra/detail/sorted_dimensions.hpp"
 #include "rigid_geometric_algebra/detail/swaps_to_sorted_dimensions.hpp"
@@ -57,11 +58,12 @@ struct get_coefficient
 ///
 template <class A, std::size_t... Is>
   requires ((Is < algebra_dimension_v<A>) and ...) and
-           (detail::unique_dimensions(Is...))
+               (detail::unique_dimensions(Is...))
 struct blade
     : detail::derive_vector_space_operations<
           blade<A, Is...>,
-          detail::get_coefficient>
+          detail::get_coefficient>,
+      detail::derive_subtraction<blade<A, Is...>>
 {
   /// algebra this blade belongs to
   ///
