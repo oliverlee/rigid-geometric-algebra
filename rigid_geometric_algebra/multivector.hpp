@@ -73,7 +73,9 @@ multivector(const B0&, const Bs&...)
 /// @{
 
 template <class B1, class B2>
-  requires std::is_same_v<typename B1::algebra_type, typename B2::algebra_type>
+  requires std::is_same_v<typename B1::algebra_type,
+                          typename B2::algebra_type> and
+               (not std::is_same_v<B1, B2>)
 constexpr auto operator+(const B1& b1, const B2& b2)
     -> multivector<typename B1::algebra_type, B1, B2>
 {
