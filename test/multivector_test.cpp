@@ -43,4 +43,19 @@ auto main() -> int
         std::is_same_v<B&&, std::invoke_result_t<F, V&&>> and
         std::is_same_v<const B&&, std::invoke_result_t<F, const V&&>>);
   };
+
+  "constructible from a narrower multivector"_test = [] {
+    using B1 = rga::blade<1>;
+    using B2 = rga::blade<2>;
+
+    using V1 = multivector<rga, B1>;
+    using V2 = multivector<rga, B1, B2>;
+
+    const auto v1 = V1{B1{1}};
+    const auto v2 = V2{v1};
+
+    using ::rigid_geometric_algebra::get;
+
+    return expect(eq(get<B1>(v1), get<B1>(v2)) and eq(B2{}, get<B2>(v2)));
+  };
 }

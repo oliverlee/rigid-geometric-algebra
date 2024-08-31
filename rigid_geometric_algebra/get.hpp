@@ -9,6 +9,11 @@
 namespace rigid_geometric_algebra {
 
 /// multivector element access
+/// @tparam B blade type to access
+/// @tparam V multivector type
+/// @param v multivector
+///
+/// returns a reference to blade `B` in `v`
 ///
 /// @{
 
@@ -18,13 +23,12 @@ template <class B>
 class get_fn
 {
 public:
-  template <class Multivector, class D = std::remove_cvref_t<Multivector>>
-    requires (is_specialization_of_v<D, multivector> and
-              D::template contains<B>)
-  constexpr static auto operator()(Multivector&& v) noexcept
-      -> decltype(std::get<B>(std::forward<Multivector>(v)))
+  template <class V, class D = std::remove_cvref_t<V>>
+    requires (is_multivector_v<D> and D::template contains<B>)
+  constexpr static auto
+  operator()(V&& v) noexcept -> decltype(std::get<B>(std::forward<V>(v)))
   {
-    return std::get<B>(std::forward<Multivector>(v));
+    return std::get<B>(std::forward<V>(v));
   }
 };
 

@@ -9,6 +9,13 @@
 
 namespace rigid_geometric_algebra {
 
+// forward declaration
+//
+namespace detail {
+template <class>
+class get_or_fn;
+}
+
 /// linear combination of basis elements of a geometric algebra
 /// @tparam A specialization of `algebra`
 /// @tparam Bs blades
@@ -21,9 +28,24 @@ template <class A, class... Bs>
            (detail::unique_types<Bs...>())
 struct multivector : std::tuple<Bs...>
 {
+  /// algebra this blade belongs to
+  ///
+  using algebra_type = A;
+
+  /// blade scalar type
+  ///
+  using value_type = algebra_field_t<A>;
+
   /// inherited constructors from std::tuple
   ///
   using std::tuple<Bs...>::tuple;
+
+  /// non-narrowing construction from a different multivector
+  ///
+  template <class... Cs>
+  constexpr explicit multivector(const multivector<Cs...>& other)
+      : std::tuple<Bs...>{detail::get_or_fn<Bs>{}(other, Bs{})...}
+  {}
 
   /// checks if a blade is contained in the multivector
   ///

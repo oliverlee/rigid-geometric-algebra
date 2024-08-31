@@ -15,6 +15,7 @@ namespace rigid_geometric_algebra {}  // namespace rigid_geometric_algebra
 #include "rigid_geometric_algebra/algebra_fwd.hpp"
 #include "rigid_geometric_algebra/blade.hpp"
 #include "rigid_geometric_algebra/get.hpp"
+#include "rigid_geometric_algebra/get_or.hpp"
 #include "rigid_geometric_algebra/is_algebra.hpp"
 #include "rigid_geometric_algebra/is_blade.hpp"
 #include "rigid_geometric_algebra/is_multivector.hpp"
