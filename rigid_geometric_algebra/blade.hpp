@@ -3,6 +3,7 @@
 #include "rigid_geometric_algebra/algebra_dimension.hpp"
 #include "rigid_geometric_algebra/algebra_field.hpp"
 #include "rigid_geometric_algebra/algebra_fwd.hpp"
+#include "rigid_geometric_algebra/detail/derive_vector_space_operations.hpp"
 #include "rigid_geometric_algebra/detail/sorted_dimensions.hpp"
 #include "rigid_geometric_algebra/detail/swaps_to_sorted_dimensions.hpp"
 #include "rigid_geometric_algebra/detail/unique_dimensions.hpp"
@@ -14,6 +15,20 @@
 #include <utility>
 
 namespace rigid_geometric_algebra {
+
+namespace detail {
+struct get_coefficient
+{
+  template <class Self>
+  constexpr static auto
+  operator()(Self&& self) -> decltype(std::forward<Self>(self).coefficient)
+  {
+    // false positive, no error with member call operator
+    // NOLINTNEXTLINE(clang-analyzer-core.uninitialized.UndefReturn)
+    return std::forward<Self>(self).coefficient;
+  }
+};
+}  // namespace detail
 
 /// basis element of a geometric algebra
 /// @tparam A specialization of `algebra`
@@ -44,6 +59,9 @@ template <class A, std::size_t... Is>
   requires ((Is < algebra_dimension_v<A>) and ...) and
            (detail::unique_dimensions(Is...))
 struct blade
+    : detail::derive_vector_space_operations<
+          blade<A, Is...>,
+          detail::get_coefficient>
 {
   /// algebra this blade belongs to
   ///
@@ -69,6 +87,19 @@ struct blade
   ///
   value_type coefficient{};
 
+  /// default constructor
+  ///
+  /// constructs a blade with a zero coefficient
+  ///
+  blade() = default;
+
+  /// coefficient constructor
+  /// @param value coefficient value
+  ///
+  /// constructs a blade with coefficient specified by value
+  ///
+  constexpr blade(value_type value) : coefficient{std::move(value)} {}
+
   /// obtain the blade with indices in canonical form
   ///
   /// Returns same blade expressed in canonical form - i.e. with indices in
@@ -85,37 +116,6 @@ struct blade
         std::negate<>>;
 
     return {maybe_negate{}(std::forward<Self>(self).coefficient)};
-  }
-
-  /// negation
-  ///
-  template <class Self>
-  constexpr auto operator-(this Self&& self) -> blade
-  {
-    return {-std::forward<Self>(self).coefficient};
-  }
-
-  /// addition
-  ///
-  friend constexpr auto operator+(const blade& lhs, const blade& rhs) -> blade
-  {
-    return {lhs.coefficient + rhs.coefficient};
-  }
-
-  /// subtraction
-  ///
-  friend constexpr auto operator-(const blade& lhs, const blade& rhs) -> blade
-  {
-    return {lhs.coefficient - rhs.coefficient};
-  }
-
-  /// scalar multiplication
-  ///
-  template <class T>
-    requires std::is_invocable_r_v<value_type, std::multiplies<>, T, value_type>
-  friend constexpr auto operator*(const T& lhs, const blade& rhs) -> blade
-  {
-    return {lhs * rhs.coefficient};
   }
 
   /// wedge product

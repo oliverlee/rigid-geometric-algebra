@@ -8,6 +8,7 @@ cc_library(
         "algebra_field.hpp",
         "algebra_fwd.hpp",
         "blade.hpp",
+        "detail/derive_vector_space_operations.hpp",
         "detail/is_specialization_of.hpp",
         "detail/sorted_dimensions.hpp",
         "detail/swaps_to_sorted_dimensions.hpp",
