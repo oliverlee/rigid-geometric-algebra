@@ -2,6 +2,7 @@
 
 #include <functional>
 #include <type_traits>
+#include <utility>
 
 namespace rigid_geometric_algebra::detail {
 

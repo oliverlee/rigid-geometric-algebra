@@ -114,6 +114,11 @@ auto main() -> int
         eq(b2, b2 - b0 - b0));
   };
 
+  "subtraction of blades with same canonical form"_test = [] {
+    return expect(
+        eq(rga::blade<1, 2>{3}, rga::blade<1, 2>{1} - rga::blade<2, 1>{2}));
+  };
+
   "scalar multiplication"_test = [] {
     return expect(
         eq(rga::blade<>{2}, 2 * rga::blade<>{1}) and
