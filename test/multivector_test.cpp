@@ -19,6 +19,14 @@ auto main() -> int
     return expect(eq(multivector{a, b}, a + b));
   };
 
+  "uses canonical blade form"_test = [] {
+    const auto a = rga::blade<1>{1};
+    const auto b = rga::blade<2>{2};
+
+    // TODO handle b + a
+    return expect(eq(multivector{a, b}, a + b));
+  };
+
   "elements gettable"_test = [] {
     const auto a = rga::blade<1>{1};
     const auto v = multivector{a};

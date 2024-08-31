@@ -3,9 +3,39 @@ load("@rules_cc//cc:defs.bzl", "cc_test")
 package(default_visibility = ["//:__subpackages__"])
 
 cc_test(
+    name = "common_algebra_type_test",
+    size = "small",
+    srcs = ["common_algebra_type_test.cpp"],
+    deps = [
+        "//rigid_geometric_algebra",
+        "@skytest",
+    ],
+)
+
+cc_test(
     name = "blade_test",
     size = "small",
     srcs = ["blade_test.cpp"],
+    deps = [
+        "//rigid_geometric_algebra",
+        "@skytest",
+    ],
+)
+
+cc_test(
+    name = "blade_ordering_test",
+    size = "small",
+    srcs = ["blade_ordering_test.cpp"],
+    deps = [
+        "//rigid_geometric_algebra",
+        "@skytest",
+    ],
+)
+
+cc_test(
+    name = "is_canonical_blade_order_test",
+    size = "small",
+    srcs = ["is_canonical_blade_order_test.cpp"],
     deps = [
         "//rigid_geometric_algebra",
         "@skytest",
