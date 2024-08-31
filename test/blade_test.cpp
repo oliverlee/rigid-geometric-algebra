@@ -98,6 +98,11 @@ auto main() -> int
         eq(b2, b2 + b0 + b0));
   };
 
+  "addition of blades with same canonical form"_test = [] {
+    return expect(
+        eq(rga::blade<1, 2>{-1}, rga::blade<1, 2>{1} + rga::blade<2, 1>{2}));
+  };
+
   "subtraction"_test = [] {
     const auto b0 = rga::blade<>{};
     const auto b1 = rga::blade<>{1};

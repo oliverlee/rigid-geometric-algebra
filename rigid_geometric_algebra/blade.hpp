@@ -118,6 +118,26 @@ struct blade
     return {maybe_negate{}(std::forward<Self>(self).coefficient)};
   }
 
+  /// addition
+  ///
+  /// @{
+
+  /// add different blades types with the same canonical type
+  ///
+  template <class T, class B>
+    requires std::is_same_v<blade, std::remove_cvref_t<T>> and
+                 (not std::is_same_v<std::remove_cvref_t<B>,
+                                     std::remove_cvref_t<T>>) and
+                 std::is_same_v<typename blade::canonical_type,
+                                typename std::remove_cvref_t<B>::canonical_type>
+  friend constexpr auto
+  operator+(T&& lhs, B&& rhs) -> typename blade::canonical_type
+  {
+    return std::forward<T>(lhs).canonical() + std::forward<B>(rhs).canonical();
+  }
+
+  /// @}
+
   /// wedge product
   ///
   /// @{
