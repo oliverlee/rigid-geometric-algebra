@@ -1,8 +1,8 @@
 #pragma once
 
-#include "rigid_geometric_algebra/detail/unique_types.hpp"
+#include "rigid_geometric_algebra/common_algebra_type.hpp"
 #include "rigid_geometric_algebra/is_algebra.hpp"
-#include "rigid_geometric_algebra/is_blade.hpp"
+#include "rigid_geometric_algebra/is_canonical_blade_order.hpp"
 
 #include <tuple>
 #include <type_traits>
@@ -23,9 +23,8 @@ class get_or_fn;
 /// @see https://terathon.com/foundations_pga_lengyel.pdf
 ///
 template <class A, class... Bs>
-  requires is_algebra_v<A> and ((is_blade_v<Bs>) and ...) and
-           (std::is_same_v<A, typename Bs::algebra_type> and ...) and
-           (detail::unique_types<Bs...>())
+  requires is_algebra_v<A> and (is_canonical_blade_order<Bs...>()) and
+           std::is_same_v<A, common_algebra_type_t<Bs...>>
 struct multivector : std::tuple<Bs...>
 {
   /// algebra this blade belongs to
@@ -72,15 +71,28 @@ multivector(const B0&, const Bs&...)
 ///
 /// @{
 
+/// add different blade types to form a multivector
+///
+// TODO allow either B1/B2 order
 template <class B1, class B2>
-  requires std::is_same_v<typename B1::algebra_type,
-                          typename B2::algebra_type> and
-               (not std::is_same_v<B1, B2>)
-constexpr auto operator+(const B1& b1, const B2& b2)
-    -> multivector<typename B1::algebra_type, B1, B2>
+  requires is_blade_v<std::remove_cvref_t<B1>> and
+           is_blade_v<std::remove_cvref_t<B2>> and
+           std::is_same_v<typename std::remove_cvref_t<B1>::algebra_type,
+                          typename std::remove_cvref_t<B2>::algebra_type> and
+           (not std::is_same_v<
+               typename std::remove_cvref_t<B1>::canonical_type,
+               typename std::remove_cvref_t<B2>::canonical_type>)
+constexpr auto operator+(B1&& b1, B2&& b2)
 {
-  return {b1, b2};
+  // NOTE hard error if specified as return type
+  // but this needs to handled by allowing determining B1/B2 order
+  return multivector<
+      typename std::remove_cvref_t<B1>::algebra_type,
+      std::remove_cvref_t<B1>,
+      std::remove_cvref_t<B2>>{std::forward<B1>(b1), std::forward<B2>(b2)};
 }
+
+// TODO define -: B X B -> V
 
 /// @}
 
