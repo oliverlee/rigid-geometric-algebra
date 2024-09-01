@@ -7,7 +7,9 @@ on:
 
 jobs:
   refresh-workflow-repo-cache:
-    runs-on: ubuntu-latest
+    runs-on:
+      - ubuntu-latest
+      - macos-latest
     permissions:
       actions: write
       contents: read
@@ -65,4 +67,4 @@ jobs:
           ~/bazel_cache/install_base
           ~/bazel_cache/output_base/external
           ~/bazel_cache/repository_cache
-        key: bazel-external-cache
+        key: bazel-external-cache-${{ runner.os }}

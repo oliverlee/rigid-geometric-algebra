@@ -22,6 +22,11 @@ COMMON_CXX_WARNINGS = [
     "-Wimplicit-fallthrough",
 ]
 
+# TODO update skytest to avoid using sprintf
+MACOS_CXX_OPTS = [
+    "-Wno-deprecated-declarations",
+]
+
 # toolchains_llvm also loads rules_cc but possibly an older version
 http_archive(
     name = "rules_cc",
@@ -30,11 +35,11 @@ http_archive(
     urls = ["https://github.com/bazelbuild/rules_cc/releases/download/0.0.9/rules_cc-0.0.9.tar.gz"],
 )
 
-TOOLCHAINS_LLVM_COMMIT = "d04aad361261b1720da07c845aa666331500045c"
+TOOLCHAINS_LLVM_COMMIT = "b1a6c86b42ee2373574d0e6862d9d9d5405c3146"
 
 http_archive(
     name = "toolchains_llvm",
-    integrity = "sha256-is2aQChtDd4j48BZ0edA+Pdy/fZT7qjylvFRlhSKUgg=",
+    integrity = "sha256-hdEfwQEvZaPD/gp6A9iDSIxxKOBYrn+ttFYjAHfFby8=",
     strip_prefix = "bazel-toolchain-{commit}".format(
         commit = TOOLCHAINS_LLVM_COMMIT,
     ),
@@ -58,6 +63,12 @@ llvm_toolchain(
             "-stdlib=libc++",
             "-Wshadow",
         ] + COMMON_CXX_WARNINGS + CXX_STANDARD,
+        # TODO this key is unnecessary after updating skytest
+        "darwin-aarch64": [
+            "-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE",
+            "-stdlib=libc++",
+            "-Wshadow",
+        ] + COMMON_CXX_WARNINGS + CXX_STANDARD + MACOS_CXX_OPTS,
     },
     # Link UBSan C++ runtime libraries if the `ubsan` feature is enabled
     # https://github.com/bazelbuild/bazel/issues/12797#issuecomment-980641064
@@ -111,11 +122,11 @@ register_toolchains(
     "@gcc12_toolchain//:toolchain",
 )
 
-BAZEL_CLANG_FORMAT_COMMIT = "b6473887d54512becb88bd1985bca110d0193fd3"
+BAZEL_CLANG_FORMAT_COMMIT = "1fd2a042798ede8d6f5498ea92287bc1204260fa"
 
 http_archive(
     name = "bazel_clang_format",
-    integrity = "sha256-eLLwaG09kfljgB0/XCPAKUqHRlo9oQInynnwdmLvOqI=",
+    integrity = "sha256-wcS8GuHvn57FgtMHGLVlBZB+pZ4ojkploCzlwU+ZDFc=",
     strip_prefix = "bazel_clang_format-{commit}".format(
         commit = BAZEL_CLANG_FORMAT_COMMIT,
     ),
@@ -124,11 +135,11 @@ http_archive(
     ),
 )
 
-RULES_CLANG_TIDY_COMMIT = "5736056065d32bbbed50731cbd27da7bcf8ad793"
+RULES_CLANG_TIDY_COMMIT = "189b83e52ab84c03eac8c2fb0cfcf837afd35000"
 
 http_archive(
     name = "rules_clang_tidy",
-    integrity = "sha256-BT3EJXA9rz84aRPqlxHRyd7pik8chLRTwcNROedOYy4=",
+    integrity = "sha256-pq4iEEVIoFUZ4tcXnrV/8QaNO1/TcvuYjUX3MpLSV48=",
     strip_prefix = "rules_clang_tidy-{commit}".format(
         commit = RULES_CLANG_TIDY_COMMIT,
     ),

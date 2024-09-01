@@ -10,7 +10,6 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -20,8 +19,12 @@ jobs:
         toolchain:
           #- 'gcc12' # GCC12 has missing support for C++23
           - 'clang18'
+        os:
+          - 'ubuntu-latest'
+          - 'macos-latest'
+    runs-on: ${{ matrix.os }}
     env:
-      PROFILE: profile-${{ matrix.compilation_mode }}-${{ matrix.toolchain }}.gz
+      PROFILE: profile-${{ matrix.os }}-${{ matrix.compilation_mode }}-${{ matrix.toolchain }}.gz
     steps:
     - uses: actions/checkout@v4
     - uses: ./.github/actions/ci-env-setup

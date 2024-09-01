@@ -14,6 +14,7 @@ runs:
   using: "composite"
   steps:
     - name: install libtinfo5
+      if: runner.os == 'Linux'
       shell: bash
       run: |
         sudo apt-get install -y libtinfo5
@@ -38,4 +39,4 @@ runs:
           ~/bazel_cache/install_base
           ~/bazel_cache/output_base/external
           ~/bazel_cache/repository_cache
-        key: ${{ inputs.bazel-cache-key }}
+        key: ${{ inputs.bazel-cache-key }}-${{ runner.os }}

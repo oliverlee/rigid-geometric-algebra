@@ -8,7 +8,10 @@ alias(
 
 alias(
     name = "clang18_toolchain",
-    actual = "@llvm18_toolchain//:cc-toolchain-x86_64-linux",
+    actual = select({
+        "@platforms//os:macos": "@llvm18_toolchain//:cc-toolchain-aarch64-darwin",
+        "@platforms//os:linux": "@llvm18_toolchain//:cc-toolchain-x86_64-linux",
+    }),
 )
 
 buildifier(
@@ -84,7 +87,7 @@ sh_binary(
     name = "lint",
     srcs = ["clang-tidy.sh"],
     args = [
-        "--extra_toolchains=@llvm18_toolchain//:cc-toolchain-x86_64-linux",
+        "--extra_toolchains=//tools:clang18_toolchain",
         "--aspects=@rules_clang_tidy//:aspects.bzl%check",
         "--output_groups=report",
         "--keep_going",
