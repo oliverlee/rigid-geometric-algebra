@@ -22,11 +22,6 @@ COMMON_CXX_WARNINGS = [
     "-Wimplicit-fallthrough",
 ]
 
-# TODO update skytest to avoid using sprintf
-MACOS_CXX_OPTS = [
-    "-Wno-deprecated-declarations",
-]
-
 # toolchains_llvm also loads rules_cc but possibly an older version
 http_archive(
     name = "rules_cc",
@@ -63,12 +58,6 @@ llvm_toolchain(
             "-stdlib=libc++",
             "-Wshadow",
         ] + COMMON_CXX_WARNINGS + CXX_STANDARD,
-        # TODO this key is unnecessary after updating skytest
-        "darwin-aarch64": [
-            "-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE",
-            "-stdlib=libc++",
-            "-Wshadow",
-        ] + COMMON_CXX_WARNINGS + CXX_STANDARD + MACOS_CXX_OPTS,
     },
     # Link UBSan C++ runtime libraries if the `ubsan` feature is enabled
     # https://github.com/bazelbuild/bazel/issues/12797#issuecomment-980641064
@@ -179,11 +168,11 @@ http_archive(
     url = "https://github.com/keith/rules_multirun/releases/download/0.9.0/rules_multirun.0.9.0.tar.gz",
 )
 
-SKYTEST_COMMIT = "306be7acbf16b4a37d8d03ec4e3957b029a6ec79"
+SKYTEST_COMMIT = "bdac11a196d34006884b4e849245e17868a8fc0a"
 
 http_archive(
     name = "skytest",
-    integrity = "sha256-OCEcHYDUL8nQA8dZyLpb+oIDK4nmRN5dzBUPr+sYUzk=",
+    integrity = "sha256-HSILEDH+rWX7R8X3ZeMo19uXGNQJm83IJhpViM3ytP4=",
     strip_prefix = "skytest-{commit}".format(
         commit = SKYTEST_COMMIT,
     ),
