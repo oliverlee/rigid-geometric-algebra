@@ -47,7 +47,7 @@ jobs:
       actions: write
       contents: read
     env:
-      PROFILE: profile-repo-cache.gz
+      PROFILE: profile-repo-cache-${{ runner.os }}.gz
     steps:
     - uses: actions/checkout@v4
     - uses: ./.github/actions/ci-env-setup
