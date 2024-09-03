@@ -3,9 +3,11 @@
 #include "rigid_geometric_algebra/common_algebra_type.hpp"
 #include "rigid_geometric_algebra/is_algebra.hpp"
 #include "rigid_geometric_algebra/is_canonical_blade_order.hpp"
+#include "rigid_geometric_algebra/sorted_canonical_blades.hpp"
 
 #include <tuple>
 #include <type_traits>
+#include <utility>
 
 namespace rigid_geometric_algebra {
 
@@ -73,23 +75,28 @@ multivector(const B0&, const Bs&...)
 
 /// add different blade types to form a multivector
 ///
-// TODO allow either B1/B2 order
-template <class B1, class B2>
-  requires is_blade_v<std::remove_cvref_t<B1>> and
-           is_blade_v<std::remove_cvref_t<B2>> and
-           std::is_same_v<typename std::remove_cvref_t<B1>::algebra_type,
-                          typename std::remove_cvref_t<B2>::algebra_type> and
-           (not std::is_same_v<
-               typename std::remove_cvref_t<B1>::canonical_type,
-               typename std::remove_cvref_t<B2>::canonical_type>)
-constexpr auto operator+(B1&& b1, B2&& b2)
+template <
+    class T1,
+    class T2,
+    class B1 = std::remove_cvref_t<T1>,
+    class B2 = std::remove_cvref_t<T2>,
+    class A = common_algebra_type_t<B1, B2>>
+  requires is_blade_v<B1> and is_blade_v<B2> and
+           (not std::is_same_v<typename B1::canonical_type,
+                               typename B2::canonical_type>)
+// false positive
+// NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
+constexpr auto operator+(T1&& b1, T2&& b2)
 {
-  // NOTE hard error if specified as return type
-  // but this needs to handled by allowing determining B1/B2 order
-  return multivector<
-      typename std::remove_cvref_t<B1>::algebra_type,
-      std::remove_cvref_t<B1>,
-      std::remove_cvref_t<B2>>{std::forward<B1>(b1), std::forward<B2>(b2)};
+  // clang-format off
+  return [
+    tmp = std::tuple{
+      std::forward<T1>(b1).canonical(),
+      std::forward<T2>(b2).canonical()
+    }  // clang-format on
+  ]<template <class...> class list, class... Bs>(list<Bs...>) mutable {
+    return multivector{std::get<Bs>(std::move(tmp))...};
+  }(sorted_canonical_blades_t<B1, B2>{});
 }
 
 // TODO define -: B X B -> V

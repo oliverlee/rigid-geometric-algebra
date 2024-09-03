@@ -22,9 +22,13 @@ auto main() -> int
   "uses canonical blade form"_test = [] {
     const auto a = rga::blade<1>{1};
     const auto b = rga::blade<2>{2};
+    const auto c = rga::blade<1, 2>{3};
+    const auto d = rga::blade<2, 1>{3};
 
-    // TODO handle b + a
-    return expect(eq(multivector{a, b}, a + b));
+    return expect(
+        eq(multivector{a, b}, a + b) and eq(multivector{a, b}, b + a) and
+        eq(multivector{a, c}, a + c) and eq(multivector{a, c}, c + a) and
+        eq(multivector{a, -c}, a + d) and eq(multivector{a, -c}, d + a));
   };
 
   "elements gettable"_test = [] {
