@@ -7,9 +7,13 @@ on:
 
 jobs:
   refresh-workflow-repo-cache:
-    runs-on:
-      - ubuntu-latest
-      - macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - 'ubuntu-latest'
+          - 'macos-latest'
+    runs-on: ${{ matrix.os }}
     permissions:
       actions: write
       contents: read
