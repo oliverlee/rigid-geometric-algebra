@@ -55,11 +55,7 @@ jobs:
         buildbuddy-api-key: ${{ secrets.BUILDBUDDY_API_KEY }}
     - run: |
         bazel coverage --profile=$PROFILE \
-          --cxxopt='-fno-exceptions' \
-          --instrumentation_filter=//:${{ github.event.repository.name }} \
-          --combined_report=lcov \
-          --experimental_generate_llvm_lcov \
-          //test/...
+          //...
 
         bazel analyze-profile $PROFILE
     - uses: actions/upload-artifact@v4

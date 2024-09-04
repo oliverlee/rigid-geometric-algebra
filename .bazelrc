@@ -26,4 +26,9 @@ build:remote --nolegacy_important_outputs
 
 test --test_verbose_timeout_warnings
 
+# https://github.com/bazelbuild/bazel/issues/14970#issuecomment-1894565761
+coverage --instrumentation_filter=//rigid_geometric_algebra
+coverage --combined_report=lcov
+coverage --experimental_generate_llvm_lcov
+
 try-import %workspace%/user.bazelrc
