@@ -4,7 +4,6 @@
 #include "rigid_geometric_algebra/is_multivector.hpp"
 
 #include <concepts>
-#include <tuple>
 #include <type_traits>
 
 namespace rigid_geometric_algebra {

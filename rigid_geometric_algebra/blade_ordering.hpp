@@ -4,8 +4,8 @@
 #include "rigid_geometric_algebra/blade.hpp"
 #include "rigid_geometric_algebra/detail/structural_bitset.hpp"
 
-#include <bitset>
 #include <compare>
+#include <cstddef>
 #include <type_traits>
 
 namespace rigid_geometric_algebra {

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "rigid_geometric_algebra/blade_from_ordering.hpp"
+#include "rigid_geometric_algebra/blade_ordering.hpp"
 #include "rigid_geometric_algebra/common_algebra_type.hpp"
 #include "rigid_geometric_algebra/detail/has_type.hpp"
 #include "rigid_geometric_algebra/detail/type_list.hpp"
@@ -8,6 +9,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cstddef>
 #include <type_traits>
 #include <utility>
 

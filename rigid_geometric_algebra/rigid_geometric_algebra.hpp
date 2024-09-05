@@ -9,6 +9,7 @@
 ///
 namespace rigid_geometric_algebra {}  // namespace rigid_geometric_algebra
 
+// IWYU pragma: begin_exports
 #include "rigid_geometric_algebra/algebra.hpp"
 #include "rigid_geometric_algebra/algebra_dimension.hpp"
 #include "rigid_geometric_algebra/algebra_field.hpp"
@@ -22,3 +23,4 @@ namespace rigid_geometric_algebra {}  // namespace rigid_geometric_algebra
 #include "rigid_geometric_algebra/multivector.hpp"
 #include "rigid_geometric_algebra/wedge.hpp"
 #include "rigid_geometric_algebra/zero_constant.hpp"
+// IWYU pragma: end_exports

@@ -1,8 +1,6 @@
 #include "rigid_geometric_algebra/rigid_geometric_algebra.hpp"
 #include "skytest/skytest.hpp"
 
-#include <type_traits>
-
 using rga = ::rigid_geometric_algebra::algebra<double, 2>;
 using ::rigid_geometric_algebra::is_canonical_blade_order;
 

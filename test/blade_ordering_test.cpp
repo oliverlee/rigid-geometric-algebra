@@ -1,6 +1,7 @@
 #include "rigid_geometric_algebra/rigid_geometric_algebra.hpp"
 #include "skytest/skytest.hpp"
 
+#include <cstddef>
 #include <type_traits>
 
 using rga = ::rigid_geometric_algebra::algebra<double, 2>;

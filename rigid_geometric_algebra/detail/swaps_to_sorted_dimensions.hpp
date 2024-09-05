@@ -5,7 +5,7 @@
 #include <cassert>
 #include <concepts>
 #include <cstddef>
-#include <iterator>
+#include <functional>
 #include <ranges>
 
 namespace rigid_geometric_algebra::detail {
