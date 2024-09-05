@@ -2,3 +2,4 @@ bazel-rigid_geometric_algebra
 bazel-bin
 bazel-out
 bazel-testlog
+external

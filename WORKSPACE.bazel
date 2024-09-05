@@ -168,6 +168,35 @@ http_archive(
     url = "https://github.com/keith/rules_multirun/releases/download/0.9.0/rules_multirun.0.9.0.tar.gz",
 )
 
+BAZEL_COMPILE_COMMANDS_EXTRACTOR_COMMIT = "1e08f8e0507b6b6b1f4416a9a22cf5c28beaba93"
+
+http_archive(
+    name = "hedron_compile_commands",
+    integrity = "sha256-BEsUixEeF87mHYw6ru1CBp9zJUYDgjQK/KSRn4JlCUw=",
+    strip_prefix = "bazel-compile-commands-extractor-{commit}".format(
+        commit = BAZEL_COMPILE_COMMANDS_EXTRACTOR_COMMIT,
+    ),
+    url = "https://github.com/hedronvision/bazel-compile-commands-extractor/archive/{commit}.tar.gz".format(
+        commit = BAZEL_COMPILE_COMMANDS_EXTRACTOR_COMMIT,
+    ),
+)
+
+load("@hedron_compile_commands//:workspace_setup.bzl", "hedron_compile_commands_setup")
+
+hedron_compile_commands_setup()
+
+load("@hedron_compile_commands//:workspace_setup_transitive.bzl", "hedron_compile_commands_setup_transitive")
+
+hedron_compile_commands_setup_transitive()
+
+load("@hedron_compile_commands//:workspace_setup_transitive_transitive.bzl", "hedron_compile_commands_setup_transitive_transitive")
+
+hedron_compile_commands_setup_transitive_transitive()
+
+load("@hedron_compile_commands//:workspace_setup_transitive_transitive_transitive.bzl", "hedron_compile_commands_setup_transitive_transitive_transitive")
+
+hedron_compile_commands_setup_transitive_transitive_transitive()
+
 SKYTEST_COMMIT = "bdac11a196d34006884b4e849245e17868a8fc0a"
 
 http_archive(
