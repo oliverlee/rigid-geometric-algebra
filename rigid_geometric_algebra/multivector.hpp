@@ -1,5 +1,6 @@
 #pragma once
 
+#include "rigid_geometric_algebra/algebra_field.hpp"
 #include "rigid_geometric_algebra/common_algebra_type.hpp"
 #include "rigid_geometric_algebra/is_algebra.hpp"
 #include "rigid_geometric_algebra/is_canonical_blade_order.hpp"

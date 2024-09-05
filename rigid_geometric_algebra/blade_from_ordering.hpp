@@ -5,6 +5,7 @@
 #include "rigid_geometric_algebra/detail/is_specialization_of.hpp"
 
 #include <array>
+#include <cassert>
 #include <cstddef>
 #include <utility>
 

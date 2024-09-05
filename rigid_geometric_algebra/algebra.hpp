@@ -4,7 +4,6 @@
 #include "rigid_geometric_algebra/zero_constant.hpp"
 
 #include <cstddef>
-#include <type_traits>
 
 namespace rigid_geometric_algebra {
 

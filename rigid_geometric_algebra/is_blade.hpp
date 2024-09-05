@@ -2,6 +2,7 @@
 
 #include "rigid_geometric_algebra/blade.hpp"
 
+#include <cstddef>
 #include <type_traits>
 
 namespace rigid_geometric_algebra {

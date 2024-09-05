@@ -1,10 +1,10 @@
 #pragma once
 
-#include <array>
 #include <bit>
-#include <bitset>
 #include <cassert>
+#include <cstddef>
 #include <cstdint>
+#include <type_traits>
 
 namespace rigid_geometric_algebra::detail {
 

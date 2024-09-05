@@ -7,7 +7,7 @@ Diagnostics:
     ClangTidy:
         FastCheckFilter: Loose
     UnusedIncludes: Strict
-    MissingIncludes: None
+    MissingIncludes: Strict
 Completion:
     AllScopes: Yes
 InlayHints:

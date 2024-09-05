@@ -1,4 +1,4 @@
-#include "rigid_geometric_algebra/rigid_geometric_algebra.hpp"
+#include "rigid_geometric_algebra/detail/has_type.hpp"
 #include "skytest/skytest.hpp"
 
 #include <type_traits>

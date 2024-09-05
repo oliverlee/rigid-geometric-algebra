@@ -66,9 +66,6 @@ Checks: >
     # favor member init - reserving the non-init semantic as uninit (e.g. fundamental types, arrays),
     -readability-redundant-member-init,
 
-    # this pattern isn't followed,
-    -misc-include-cleaner,
-
 CheckOptions:
     - key: misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic
       value: true
@@ -83,4 +80,3 @@ CheckOptions:
 HeaderFilterRegex: '/rigid-geometric-algebra/'
 
 WarningsAsErrors: '*'
-

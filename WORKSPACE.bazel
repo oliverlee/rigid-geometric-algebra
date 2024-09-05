@@ -197,11 +197,11 @@ load("@hedron_compile_commands//:workspace_setup_transitive_transitive_transitiv
 
 hedron_compile_commands_setup_transitive_transitive_transitive()
 
-SKYTEST_COMMIT = "bdac11a196d34006884b4e849245e17868a8fc0a"
+SKYTEST_COMMIT = "e65c73da419fa41f2e9fbdd858e2773296b487d0"
 
 http_archive(
     name = "skytest",
-    integrity = "sha256-HSILEDH+rWX7R8X3ZeMo19uXGNQJm83IJhpViM3ytP4=",
+    integrity = "sha256-58vFmSmGnEgZ0fF469x+uQXWZEcV4dD7lPFt6S6R7vo=",
     strip_prefix = "skytest-{commit}".format(
         commit = SKYTEST_COMMIT,
     ),

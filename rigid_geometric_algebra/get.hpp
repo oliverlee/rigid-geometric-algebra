@@ -1,9 +1,7 @@
 #pragma once
 
 #include "rigid_geometric_algebra/is_multivector.hpp"
-#include "rigid_geometric_algebra/multivector.hpp"
 
-#include <tuple>
 #include <type_traits>
 
 namespace rigid_geometric_algebra {

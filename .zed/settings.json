@@ -22,7 +22,7 @@
   //        "--parse-forwarding-functions",
   //        "--use-dirty-headers",
   //        "--include-ineligible-results",
-  //        "--header-insertion=never",
+  //        "--header-insertion-decorators",
   //        "--limit-references=0",
   //        "--limit-results=0",
   //        "--rename-file-limit=0",

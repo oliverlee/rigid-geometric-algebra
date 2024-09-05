@@ -2,7 +2,6 @@
 
 #include "rigid_geometric_algebra/algebra_dimension.hpp"
 #include "rigid_geometric_algebra/algebra_field.hpp"
-#include "rigid_geometric_algebra/algebra_fwd.hpp"
 #include "rigid_geometric_algebra/detail/derive_subtraction.hpp"
 #include "rigid_geometric_algebra/detail/derive_vector_space_operations.hpp"
 #include "rigid_geometric_algebra/detail/sorted_dimensions.hpp"
