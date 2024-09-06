@@ -2,7 +2,6 @@
 
 #include "rigid_geometric_algebra/blade.hpp"
 #include "rigid_geometric_algebra/blade_ordering.hpp"
-#include "rigid_geometric_algebra/detail/is_specialization_of.hpp"
 
 #include <array>
 #include <cassert>
@@ -15,17 +14,16 @@ namespace rigid_geometric_algebra {
 ///
 /// @{
 
-template <auto ordering>
-  requires detail::is_specialization_of_v<decltype(ordering), blade_ordering>
-struct blade_from_ordering
+template <blade_ordering ord>
+struct blade_type_from
 {
   template <std::size_t... Is>
   static constexpr auto impl(std::index_sequence<Is...>)
   {
-    using A = typename decltype(ordering)::algebra_type;
+    using A = typename decltype(ord)::algebra_type;
 
     static constexpr auto dims = [] {
-      const auto& mask = ordering.mask;
+      const auto& mask = ord.mask;
       auto dims = std::array<std::size_t, sizeof...(Is)>{};
       auto it = dims.begin();
 
@@ -43,12 +41,11 @@ struct blade_from_ordering
     return blade<A, std::get<Is>(dims)...>{};
   }
 
-  using type =
-      decltype(impl(std::make_index_sequence<ordering.mask.count()>{}));
+  using type = decltype(impl(std::make_index_sequence<ord.mask.count()>{}));
 };
 
-template <auto ordering>
-using blade_from_ordering_t = typename blade_from_ordering<ordering>::type;
+template <blade_ordering ord>
+using blade_type_from_t = typename blade_type_from<ord>::type;
 
 /// @}
 
