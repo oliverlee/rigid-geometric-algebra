@@ -11,3 +11,13 @@ cc_test(
         "@skytest",
     ],
 )
+
+cc_test(
+    name = "is_defined_test",
+    size = "small",
+    srcs = ["is_defined_test.cpp"],
+    deps = [
+        "//rigid_geometric_algebra",
+        "@skytest",
+    ],
+)

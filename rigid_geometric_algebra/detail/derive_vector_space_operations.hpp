@@ -16,7 +16,7 @@ namespace rigid_geometric_algebra::detail {
 ///
 /// This type defines the following operations:
 /// -: D     -> D (negation)
-/// -: D x D -> D (subtraction)
+/// -: D x D -> D (subtraction) // TODO
 /// +: D x D -> D (addition)
 /// *: S x D -> D (scalar multiplication)
 ///
@@ -38,14 +38,15 @@ struct derive_vector_space_operations
     return {-(F{}(std::forward<T1>(t1)))...};
   }
 
-  /// subtraction
-  ///
-  template <class T1, class T2>
-    requires is_derived_reference_v<T1> and is_derived_reference_v<T2>
-  friend constexpr auto operator-(T1&& t1, T2&& t2) -> D
-  {
-    return {(F{}(std::forward<T1>(t1)) - F{}(std::forward<T2>(t2)))...};
-  }
+  // TODO define priorities for synthesized subtraction operations
+  //  /// subtraction
+  //  ///
+  //  template <class T1, class T2>
+  //    requires is_derived_reference_v<T1> and is_derived_reference_v<T2>
+  //  friend constexpr auto operator-(T1&& t1, T2&& t2) -> D
+  //  {
+  //    return {(F{}(std::forward<T1>(t1)) - F{}(std::forward<T2>(t2)))...};
+  //  }
 
   /// addition
   ///
