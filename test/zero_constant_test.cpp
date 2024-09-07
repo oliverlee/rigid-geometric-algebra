@@ -18,4 +18,17 @@ auto main() -> int
         eq(rga::zero, rga::zero ^ rga::zero) and
         eq(rga::zero, rga::zero ^ v) and eq(rga::zero, v ^ rga::zero));
   };
+
+  "negation"_test = [] {
+    return expect(eq(rga::zero, -rga::zero) and eq(rga::zero, -(-rga::zero)));
+  };
+
+  "addition of zero and zero"_test = [] {
+    return expect(eq(rga::zero, rga::zero + rga::zero));
+  };
+
+  "addition of zero and blade"_test = [] {
+    const auto v = rga::blade<1>{1};
+    return expect(eq(v, rga::zero + v) and eq(v, v + rga::zero));
+  };
 }

@@ -11,6 +11,7 @@ auto main() -> int
 
   using ::rigid_geometric_algebra::common_algebra_type;
   using ::rigid_geometric_algebra::common_algebra_type_t;
+  using ::rigid_geometric_algebra::has_common_algebra_type_v;
   using ::rigid_geometric_algebra::detail::has_type_v;
 
   using rga2 = ::rigid_geometric_algebra::algebra<double, 2>;
@@ -32,5 +33,15 @@ auto main() -> int
         std::is_same_v<
             rga2,
             common_algebra_type_t<rga2::blade<1>, rga2::blade<2>>>);
+  };
+
+  "has common algebra type"_test = [] {
+    return expect(
+        not has_common_algebra_type_v<> and
+        not has_common_algebra_type_v<int> and
+        not has_common_algebra_type_v<rga2::blade<>, rga3::blade<>> and
+        has_common_algebra_type_v<rga2::blade<>> and
+        has_common_algebra_type_v<rga2::blade<>, rga2::blade<>> and
+        has_common_algebra_type_v<rga2::blade<1>, rga2::blade<2>>);
   };
 }
