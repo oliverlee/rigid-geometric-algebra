@@ -1,5 +1,10 @@
 #pragma once
 
+#include "rigid_geometric_algebra/detail/define_prioritized_overload.hpp"
+#include "rigid_geometric_algebra/detail/invoke_prioritized_overload.hpp"
+#include "rigid_geometric_algebra/detail/overload.hpp"
+#include "rigid_geometric_algebra/detail/priority_list.hpp"
+
 #include <functional>
 #include <type_traits>
 #include <utility>
@@ -23,8 +28,18 @@ namespace rigid_geometric_algebra::detail {
 /// for derived type D and scalar type S.
 ///
 template <class D, class... F>
-struct derive_vector_space_operations
+class derive_vector_space_operations
 {
+  struct minus_impl
+  {
+    template <class T1, class T2>
+    static constexpr auto operator()(T1&& t1, T2&& t2)
+    {
+      return D{(F{}(std::forward<T1>(t1)) - F{}(std::forward<T2>(t2)))...};
+    }
+  };
+
+public:
   template <class T>
   static constexpr auto is_derived_reference_v =
       std::is_same_v<D, std::remove_cvref_t<T>>;
@@ -38,15 +53,20 @@ struct derive_vector_space_operations
     return {-(F{}(std::forward<T1>(t1)))...};
   }
 
-  // TODO define priorities for synthesized subtraction operations
-  //  /// subtraction
-  //  ///
-  //  template <class T1, class T2>
-  //    requires is_derived_reference_v<T1> and is_derived_reference_v<T2>
-  //  friend constexpr auto operator-(T1&& t1, T2&& t2) -> D
-  //  {
-  //    return {(F{}(std::forward<T1>(t1)) - F{}(std::forward<T2>(t2)))...};
-  //  }
+  /// subtraction
+  ///
+  template <class T1, class T2>
+    requires is_derived_reference_v<T1> and is_derived_reference_v<T2> and
+                 define_prioritized_overload_v<
+                     priority_for<std::minus<>,
+                                  derive_vector_space_operations<>>,
+                     overload<std::minus<>, T1, T2>,
+                     minus_impl>
+  friend constexpr auto operator-(T1&& t1, T2&& t2) -> D
+  {
+    return invoke_prioritized_overload<std::minus<>>(
+        std::forward<T1>(t1), std::forward<T2>(t2));
+  }
 
   /// addition
   ///

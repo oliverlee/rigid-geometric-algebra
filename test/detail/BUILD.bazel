@@ -3,6 +3,16 @@ load("@rules_cc//cc:defs.bzl", "cc_test")
 package(default_visibility = ["//:__subpackages__"])
 
 cc_test(
+    name = "define_prioritized_overload_test",
+    size = "small",
+    srcs = ["define_prioritized_overload_test.cpp"],
+    deps = [
+        "//rigid_geometric_algebra",
+        "@skytest",
+    ],
+)
+
+cc_test(
     name = "has_type_test",
     size = "small",
     srcs = ["has_type_test.cpp"],
