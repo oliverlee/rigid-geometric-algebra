@@ -1,6 +1,7 @@
 #pragma once
 
 #include "rigid_geometric_algebra/common_algebra_type.hpp"
+#include "rigid_geometric_algebra/detail/derive_subtraction.hpp"
 
 #include <type_traits>
 
@@ -13,7 +14,7 @@ namespace rigid_geometric_algebra {
 /// v ^ v for a vector v).
 ///
 template <class A>
-struct zero_constant
+struct zero_constant : detail::derive_subtraction<zero_constant<A>>
 {
   /// algebra this element belongs to
   ///
