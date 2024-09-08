@@ -1,6 +1,7 @@
 #pragma once
 
 #include "rigid_geometric_algebra/blade_ordering.hpp"
+#include "rigid_geometric_algebra/canonical_type.hpp"
 #include "rigid_geometric_algebra/common_algebra_type.hpp"
 #include "rigid_geometric_algebra/detail/has_type.hpp"
 #include "rigid_geometric_algebra/is_blade.hpp"
@@ -28,7 +29,7 @@ namespace detail {
 
 template <class... Bs>
   requires (is_blade_v<Bs> and ...) and
-           (std::is_same_v<Bs, typename Bs::canonical_type> and ...) and
+           (std::is_same_v<Bs, canonical_type_t<Bs>> and ...) and
            ((sizeof...(Bs) == 0) or
             detail::has_type_v<common_algebra_type<Bs...>>)
 class is_canonical_blade_order_fn
