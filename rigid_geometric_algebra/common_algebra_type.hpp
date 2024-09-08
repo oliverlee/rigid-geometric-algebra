@@ -1,5 +1,6 @@
 #pragma once
 
+#include "rigid_geometric_algebra/algebra_type.hpp"
 #include "rigid_geometric_algebra/detail/has_type.hpp"
 #include "rigid_geometric_algebra/detail/type_list.hpp"
 
@@ -7,16 +8,6 @@
 
 namespace rigid_geometric_algebra {
 namespace detail {
-
-// TODO expose algebra_type
-template <class T, class = void>
-struct algebra_type
-{};
-
-template <class T>
-struct algebra_type<T, std::void_t<typename T::algebra_type>>
-    : std::type_identity<typename T::algebra_type>
-{};
 
 template <class Args, class = void>
 struct common_algebra_type_
@@ -26,8 +17,8 @@ template <class T0, class... Ts>
 struct common_algebra_type_<
     type_list<T0, Ts...>,
     std::enable_if_t<(
-        std::is_same_v<typename T0::algebra_type, typename Ts::algebra_type> and
-        ...)>> : algebra_type<T0>
+        std::is_same_v<algebra_type_t<T0>, algebra_type_t<Ts>> and ...)>>
+    : algebra_type<T0>
 {};
 
 }  // namespace detail

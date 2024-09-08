@@ -1,6 +1,8 @@
 #pragma once
 
 #include "rigid_geometric_algebra/algebra_field.hpp"
+#include "rigid_geometric_algebra/algebra_type.hpp"
+#include "rigid_geometric_algebra/canonical_type.hpp"
 #include "rigid_geometric_algebra/common_algebra_type.hpp"
 #include "rigid_geometric_algebra/is_algebra.hpp"
 #include "rigid_geometric_algebra/is_canonical_blade_order.hpp"
@@ -8,7 +10,6 @@
 
 #include <tuple>
 #include <type_traits>
-#include <utility>
 
 namespace rigid_geometric_algebra {
 
@@ -68,7 +69,7 @@ struct multivector : std::tuple<Bs...>
 ///
 template <class B0, class... Bs>
 multivector(const B0&, const Bs&...)
-    -> multivector<typename B0::algebra_type, B0, Bs...>;
+    -> multivector<algebra_type_t<B0>, B0, Bs...>;
 
 /// addition
 ///
@@ -83,8 +84,7 @@ template <
     class B2 = std::remove_cvref_t<T2>,
     class A = common_algebra_type_t<B1, B2>>
   requires is_blade_v<B1> and is_blade_v<B2> and
-           (not std::is_same_v<typename B1::canonical_type,
-                               typename B2::canonical_type>)
+           (not std::is_same_v<canonical_type_t<B1>, canonical_type_t<B2>>)
 // false positive
 // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
 constexpr auto operator+(T1&& b1, T2&& b2)
