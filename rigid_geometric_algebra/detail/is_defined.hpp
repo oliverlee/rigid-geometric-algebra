@@ -1,71 +1,73 @@
 #pragma once
 
-#include "rigid_geometric_algebra/detail/type_list.hpp"
+#include "rigid_geometric_algebra/detail/is_specialization_of.hpp"
 
 #include <tuple>
 
 namespace rigid_geometric_algebra::detail {
 
 /// boolean state for a type
-/// @tparam Op type, usually denoting an operation
+/// @tparam Ts tag types, usually denoting an overload
 ///
 /// Flag used to store boolean state. The value associated with this flag is
 /// if the expression `is_defined(flag)` is well formed. On definition of
 /// `flag`, `is_defined(flag)` has deduced return type, but no definition to
 /// deduce a type, so a call is ill-formed.
 ///
-template <class Op>
+template <class... Ts>
 struct flag
 {
-  friend constexpr auto is_defined(flag);
+  friend consteval auto is_defined(flag);
 };
 
-/// sets the boolean state for a flag
-/// @tparam Op type, usually denoting an operation
+/// sets the state of a flag to a value
+/// @tparam Flag flag to set
 ///
-/// Helper used to set the state of `flag<Op>` to `true`. This type provides a
-/// definition for friend function `is_defined(flag<Op>)` in the enclosing
-/// namespace after it is instantiated for the first time. Afterwards, the
-/// expression `is_defined(flag<Op>)` is well formed.
+/// Helper used to set the state of `flag<Op>`. This type provides a definition
+/// for friend function `is_defined(flag<Op>)` in the enclosing namespace after
+/// it is instantiated for the first time. Afterwards, the expression
+/// `is_defined(flag<Op>)` is well formed and returns `value`.
 ///
-template <class Op>
-struct set_defined
+template <class Flag, auto value>
+  requires is_specialization_of_v<Flag, flag>
+struct define_value
 {
-  friend constexpr auto is_defined(flag<Op>) {}
+  friend consteval auto is_defined(Flag) { return value; }
 };
 
-/// checks the state of a flag
-/// @tparam Op type, usually denoting an operation
+/// sets the flag defined state
+/// @tparam Ov tag type, usually denoting an overload
 /// @tparam always_eval unique value used to force evaluation of
 ///     `is_defined(flag<Op>)`
 ///
-/// Checks the state of the flag. On the "first" call to this function,
-/// instantiates `set_defined<Op>` and returns `false`. Subsequent calls return
-/// `true`.
+/// Set the flag defined state to `true` and returns the previous defined state
+/// value. On the "first" call to this function, instantiates
+///`set_defined<Op>` and returns `false`. Subsequent calls return `true`.
 ///
 /// @see https://stackoverflow.com/a/58200261
 ///
-template <class Op, auto always_eval = [] {}>
-consteval auto check_defined()
+template <class Ov, auto always_eval = [] {}>
+consteval auto define()
 {
-  if constexpr (requires { is_defined(flag<Op>{}); }) {
+  if constexpr (requires { is_defined(flag<Ov>{}); }) {
     return true;
   } else {
-    std::ignore = set_defined<Op>{};
+    std::ignore = define_value<flag<Ov>, nullptr>{};
     return false;
   }
 }
 
-/// checks if an operation is defined
-/// @tparam Op type, usually denoting an operation
+/// checks if an overload is defined
+/// @tparam Ov tag type, usually denoting an overload
 /// @tparam state deduced
 ///
-/// Stateful boolean to check the state (true or false) associated with `Op`.
-/// On first use, the value is `false`. On subsequent uses, the value is `true`.
+/// Stateful boolean to check the state (`true` or `false`) associated with
+/// `Op`. On first use, the value is `false`. On subsequent uses, the value is
+/// `true`.
 ///
 /// ~~~{.cpp}
-/// static_assert(not is_defined_v<op<std::minus<>, T, T>>);
-/// static_assert(is_defined_v<op<std::minus<>, T, T>>);
+/// static_assert(not is_defined_v<overload<std::minus<>, T, T>>);
+/// static_assert(is_defined_v<overload<std::minus<>, T, T>>);
 /// ~~~
 ///
 /// @see https://b.atch.se/posts/constexpr-counter/
@@ -74,15 +76,7 @@ consteval auto check_defined()
 /// https://stackoverflow.com/questions/44267673/is-stateful-metaprogramming-ill-formed-yet
 /// @see https://cplusplus.github.io/CWG/issues/2118.html
 ///
-template <class Op, auto state = check_defined<Op>()>
+template <class Ov, auto state = define<Ov>()>
 inline constexpr auto is_defined_v = state;
-
-/// helper used to identify an operation under test
-/// @tparam Ts types, typically a function object type followed by arguments
-/// types
-/// @relates is_defined_v
-///
-template <class... Ts>
-using op = type_list<Ts...>;
 
 }  // namespace rigid_geometric_algebra::detail
