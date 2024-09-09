@@ -1,25 +1,22 @@
 #pragma once
 
+#include "rigid_geometric_algebra/detail/tuple_cref.hpp"
 #include "rigid_geometric_algebra/get.hpp"
-#include "rigid_geometric_algebra/is_multivector.hpp"
 
-#include <concepts>
 #include <type_traits>
+#include <utility>
 
 namespace rigid_geometric_algebra {
 
-/// multivector element access
-/// @tparam B blade type to access
-/// @tparam V multivector type
+/// tuple element access
+/// @tparam T type type to access
+/// @tparam V tuple cv-ref qualified specialization of `std::tuple`
 /// @tparam U default value type
-/// @param v multivector
+/// @param v tuple reference
 /// @param u default value
 ///
-/// returns a copy or move initialized value of type `B` or the default value
-/// `u`.
-///
-/// @note Requires:
-/// * `U` is convertible to `B`
+/// Returns get<B>(std::forward<V>(v))` or the default value
+/// `std::forward<U>(u)`.
 ///
 /// @{
 
@@ -29,15 +26,19 @@ template <class B>
 class get_or_fn
 {
 public:
-  template <class V, std::convertible_to<B> U>
-    requires is_multivector_v<std::remove_cvref_t<V>>
-  constexpr static auto operator()(V&& v, U&& u) -> B
+  template <class V, class U>
+    requires std::is_invocable_v<decltype(detail::tuple_cref), V&&>
+  constexpr static auto operator()(V&& v, U&& u) ->
+      typename std::conditional_t<
+          std::is_invocable_v<decltype(get<B>), V&&>,
+          std::invoke_result<decltype(get<B>), V&&>,
+          std::type_identity<U&&>>::type
   {
-    if constexpr (std::remove_cvref_t<V>::template contains<B>) {
+    if constexpr (std::is_invocable_v<decltype(get<B>), V>) {
       return get<B>(std::forward<V>(v));
+    } else {
+      return std::forward<U>(u);
     }
-
-    return std::forward<U>(u);
   }
 };
 

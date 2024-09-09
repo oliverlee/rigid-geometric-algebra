@@ -43,6 +43,26 @@ cc_test(
 )
 
 cc_test(
+    name = "get_test",
+    size = "small",
+    srcs = ["get_test.cpp"],
+    deps = [
+        "//rigid_geometric_algebra",
+        "@skytest",
+    ],
+)
+
+cc_test(
+    name = "get_or_test",
+    size = "small",
+    srcs = ["get_or_test.cpp"],
+    deps = [
+        "//rigid_geometric_algebra",
+        "@skytest",
+    ],
+)
+
+cc_test(
     name = "is_canonical_blade_order_test",
     size = "small",
     srcs = ["is_canonical_blade_order_test.cpp"],
