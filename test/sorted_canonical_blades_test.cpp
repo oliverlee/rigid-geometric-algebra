@@ -35,4 +35,16 @@ auto main() -> int
                 G2::blade<1, 2>,
                 G2::blade<0, 1, 2>>>);
   };
+
+  "has duplicates"_test = [] {
+    return expect(
+        std::is_same_v<
+            type_list<G2::blade<>, G2::blade<0>, G2::blade<1>, G2::blade<2>>,
+            sorted_canonical_blades_t<
+                G2::blade<0>,
+                G2::blade<>,
+                G2::blade<>,
+                G2::blade<1>,
+                G2::blade<2>>>);
+  };
 }
