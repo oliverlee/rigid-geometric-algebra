@@ -4,15 +4,16 @@
 #include "rigid_geometric_algebra/algebra_type.hpp"
 #include "rigid_geometric_algebra/canonical_type.hpp"
 #include "rigid_geometric_algebra/common_algebra_type.hpp"
-#include "rigid_geometric_algebra/detail/overload.hpp"
+#include "rigid_geometric_algebra/detail/derive_subtraction.hpp"
+#include "rigid_geometric_algebra/detail/derive_vector_space_operations.hpp"
 #include "rigid_geometric_algebra/detail/type_list.hpp"
+#include "rigid_geometric_algebra/get.hpp"
 #include "rigid_geometric_algebra/get_or.hpp"
 #include "rigid_geometric_algebra/is_algebra.hpp"
 #include "rigid_geometric_algebra/is_canonical_blade_order.hpp"
 #include "rigid_geometric_algebra/sorted_canonical_blades.hpp"
 #include "rigid_geometric_algebra/zero_constant.hpp"
 
-#include <functional>
 #include <tuple>
 #include <type_traits>
 
@@ -26,9 +27,15 @@ namespace rigid_geometric_algebra {
 ///
 template <class A, class... Bs>
   requires is_algebra_v<A> and (is_canonical_blade_order<Bs...>()) and
-           std::is_same_v<A, common_algebra_type_t<Bs...>>
-struct multivector : std::tuple<Bs...>
+               std::is_same_v<A, common_algebra_type_t<Bs...>>
+class multivector
+    : public std::tuple<Bs...>,
+      detail::derive_vector_space_operations<
+          multivector<A, Bs...>,
+          detail::get_fn<Bs>...>,
+      detail::derive_subtraction<multivector<A, Bs...>>
 {
+public:
   /// algebra this blade belongs to
   ///
   using algebra_type = A;
@@ -57,7 +64,7 @@ struct multivector : std::tuple<Bs...>
   ///
   /// @{
 
-  /// addition of `multivector` types
+  /// addition of different `multivector` types
   /// @tparam V1, V2 cv-ref qualified `multivector` type
   /// @param v1, v2 `multivector` value
   ///
@@ -69,10 +76,14 @@ struct multivector : std::tuple<Bs...>
   /// * `get<B>(v1)` if `B` is an element in `v1`; otherwise
   /// * `get<B>(v2)` if `B` is an element in `v2`
   ///
+  /// @note addition of the same `multivector` type, if
+  ///   `std::is_same_v<multivector, std::remove_cvref_t<V1>> !=
+  ///    std::is_same_v<multivector, std::remove_cvref_t<V2>>` is `true`
+  ///  is defined by `derive_vector_space_operations`.
+  ///
   template <class V1, class V2>
-    requires (std::is_same_v<multivector, std::remove_cvref_t<V1>> or
-              std::is_same_v<multivector, std::remove_cvref_t<V2>>) and
-             (not detail::is_defined_v<detail::overload<std::plus<>, V1, V2>>)
+    requires std::is_same_v<multivector, std::remove_cvref_t<V1>> and
+             (not std::is_same_v<multivector, std::remove_cvref_t<V2>>)
   friend constexpr auto operator+(V1&& v1, V2&& v2)
   {
     using result_blade_list_type =
@@ -139,8 +150,6 @@ constexpr auto operator+(T1&& b1, T2&& b2)
     return multivector{std::get<Bs>(std::move(tmp))...};
   }(sorted_canonical_blades_t<B1, B2>{});
 }
-
-// TODO define -: B X B -> V
 
 /// @}
 

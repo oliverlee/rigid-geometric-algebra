@@ -91,4 +91,32 @@ auto main() -> int
             multivector<G2, G2::blade<0>, G2::blade<1>, G2::blade<2>>{
                 4, 5, 6}));
   };
+
+  "subtraction of multivectors with disjoint blade types"_test = [] {
+    return expect(eq(
+        multivector<G2, G2::blade<0>, G2::blade<1>>{1, -2},
+        multivector<G2, G2::blade<0>>{1} - multivector<G2, G2::blade<1>>{2}));
+  };
+
+  "subtraction of multivectors with overlapping blade types"_test = [] {
+    return expect(eq(
+        multivector<G2, G2::blade<0>, G2::blade<1>, G2::blade<2>>{1, -1, -4},
+        multivector<G2, G2::blade<0>, G2::blade<1>>{1, 2} -
+            multivector<G2, G2::blade<1>, G2::blade<2>>{3, 4}));
+  };
+
+  "subtraction of multivectors with same blade types"_test = [] {
+    return expect(eq(
+        multivector<G2, G2::blade<0>, G2::blade<1>, G2::blade<2>>{-3, -3, -3},
+        multivector<G2, G2::blade<0>, G2::blade<1>, G2::blade<2>>{1, 2, 3} -
+            multivector<G2, G2::blade<0>, G2::blade<1>, G2::blade<2>>{
+                4, 5, 6}));
+  };
+
+  "scalar multiplication of a multivector"_test = [] {
+    return expect(eq(
+        multivector<G2, G2::blade<0>, G2::blade<1>, G2::blade<2>>{2, 4, 6},
+        2 * multivector<G2, G2::blade<0>, G2::blade<1>, G2::blade<2>>{
+                1, 2, 3}));
+  };
 }
