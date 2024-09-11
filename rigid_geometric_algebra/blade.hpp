@@ -58,12 +58,13 @@ struct get_coefficient
 template <class A, std::size_t... Is>
   requires ((Is < algebra_dimension_v<A>) and ...) and
                (detail::unique_dimensions(Is...))
-struct blade
+class blade
     : detail::derive_vector_space_operations<
           blade<A, Is...>,
           detail::get_coefficient>,
       detail::derive_subtraction<blade<A, Is...>>
 {
+public:
   /// algebra this blade belongs to
   ///
   using algebra_type = A;
