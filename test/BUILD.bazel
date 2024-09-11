@@ -86,9 +86,9 @@ cc_test(
 )
 
 cc_test(
-    name = "sorted_canonical_blades_test",
+    name = "multivector_test",
     size = "small",
-    srcs = ["sorted_canonical_blades_test.cpp"],
+    srcs = ["multivector_test.cpp"],
     deps = [
         "//rigid_geometric_algebra",
         "@skytest",
@@ -96,9 +96,20 @@ cc_test(
 )
 
 cc_test(
-    name = "multivector_test",
+    name = "symengine_multivector_test",
     size = "small",
-    srcs = ["multivector_test.cpp"],
+    srcs = ["symengine_multivector_test.cpp"],
+    deps = [
+        ":symengine",
+        "//rigid_geometric_algebra",
+        "@skytest",
+    ],
+)
+
+cc_test(
+    name = "sorted_canonical_blades_test",
+    size = "small",
+    srcs = ["sorted_canonical_blades_test.cpp"],
     deps = [
         "//rigid_geometric_algebra",
         "@skytest",
