@@ -4,11 +4,15 @@
 #include "rigid_geometric_algebra/algebra_type.hpp"
 #include "rigid_geometric_algebra/canonical_type.hpp"
 #include "rigid_geometric_algebra/common_algebra_type.hpp"
+#include "rigid_geometric_algebra/detail/overload.hpp"
+#include "rigid_geometric_algebra/detail/type_list.hpp"
 #include "rigid_geometric_algebra/get_or.hpp"
 #include "rigid_geometric_algebra/is_algebra.hpp"
 #include "rigid_geometric_algebra/is_canonical_blade_order.hpp"
 #include "rigid_geometric_algebra/sorted_canonical_blades.hpp"
+#include "rigid_geometric_algebra/zero_constant.hpp"
 
+#include <functional>
 #include <tuple>
 #include <type_traits>
 
@@ -49,6 +53,44 @@ struct multivector : std::tuple<Bs...>
   template <class B>
   static constexpr auto contains = (std::is_same_v<B, Bs> or ...);
 
+  /// addition
+  ///
+  /// @{
+
+  /// addition of `multivector` types
+  /// @tparam V1, V2 cv-ref qualified `multivector` type
+  /// @param v1, v2 `multivector` value
+  ///
+  /// Constructs a multivector containing `blade` elements from `v1` and `v2`.
+  /// For each `blade` type `B` in the returned `multivector`, the value is
+  /// equal to:
+  /// * `get<B>(v1) + get<B>(v2)` if `B` is an element in both `v1` and `v2`;
+  ///   otherwise
+  /// * `get<B>(v1)` if `B` is an element in `v1`; otherwise
+  /// * `get<B>(v2)` if `B` is an element in `v2`
+  ///
+  template <class V1, class V2>
+    requires (std::is_same_v<multivector, std::remove_cvref_t<V1>> or
+              std::is_same_v<multivector, std::remove_cvref_t<V2>>) and
+             (not detail::is_defined_v<detail::overload<std::plus<>, V1, V2>>)
+  friend constexpr auto operator+(V1&& v1, V2&& v2)
+  {
+    using result_blade_list_type =
+        decltype([]<class... T1s, class... T2s>(
+                     const std::tuple<T1s...>&, const std::tuple<T2s...>&)
+                     -> sorted_canonical_blades_t<T1s..., T2s...> {
+          return {};
+        }(v1, v2));
+
+    return [&v1, &v2]<class... Ts>(detail::type_list<Ts...>) {
+      return multivector<A, Ts...>{(
+          get_or<Ts>(std::forward<V1>(v1), zero_constant<A>{}) +
+          get_or<Ts>(std::forward<V2>(v2), zero_constant<A>{}))...};
+    }(result_blade_list_type{});
+  }
+
+  /// @}
+
   /// equality comparison
   ///
   /// @{
@@ -69,7 +111,11 @@ multivector(const B0&, const Bs&...)
 ///
 /// @{
 
-/// add different blade types to form a multivector
+/// addition of  different `blade` types
+/// @tparam T1, T2 cv-ref qualified `blade` type
+/// @param b1, b2 `blade` value
+///
+/// Constructs a multivector containing the canonical form of `b1` and `b2`.
 ///
 template <
     class T1,

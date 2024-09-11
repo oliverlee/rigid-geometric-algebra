@@ -9,21 +9,21 @@ auto main() -> int
   using ::skytest::eq;
   using ::skytest::expect;
 
-  using rga = ::rigid_geometric_algebra::algebra<double, 2>;
+  using G2 = ::rigid_geometric_algebra::algebra<double, 2>;
   using ::rigid_geometric_algebra::multivector;
 
   "constructible from blade addition"_test = [] {
-    const auto a = rga::blade<1>{1};
-    const auto b = rga::blade<2>{2};
+    const auto a = G2::blade<1>{1};
+    const auto b = G2::blade<2>{2};
 
     return expect(eq(multivector{a, b}, a + b));
   };
 
   "uses canonical blade form"_test = [] {
-    const auto a = rga::blade<1>{1};
-    const auto b = rga::blade<2>{2};
-    const auto c = rga::blade<1, 2>{3};
-    const auto d = rga::blade<2, 1>{3};
+    const auto a = G2::blade<1>{1};
+    const auto b = G2::blade<2>{2};
+    const auto c = G2::blade<1, 2>{3};
+    const auto d = G2::blade<2, 1>{3};
 
     return expect(
         eq(multivector{a, b}, a + b) and eq(multivector{a, b}, b + a) and
@@ -32,19 +32,19 @@ auto main() -> int
   };
 
   "elements gettable"_test = [] {
-    const auto a = rga::blade<1>{1};
+    const auto a = G2::blade<1>{1};
     const auto v = multivector{a};
 
     using ::rigid_geometric_algebra::get;
 
     return expect(
-        eq(a, get<rga::blade<1>>(v)) and
-        not std::is_invocable_v<decltype(get<rga::blade<2>>), decltype(v)>);
+        eq(a, get<G2::blade<1>>(v)) and
+        not std::is_invocable_v<decltype(get<G2::blade<2>>), decltype(v)>);
   };
 
   "get return type"_test = [] {
-    using B = rga::blade<1>;
-    using V = multivector<rga, B>;
+    using B = G2::blade<1>;
+    using V = multivector<G2, B>;
 
     using ::rigid_geometric_algebra::get;
     using F = decltype(get<B>);
@@ -57,11 +57,11 @@ auto main() -> int
   };
 
   "constructible from a narrower multivector"_test = [] {
-    using B1 = rga::blade<1>;
-    using B2 = rga::blade<2>;
+    using B1 = G2::blade<1>;
+    using B2 = G2::blade<2>;
 
-    using V1 = multivector<rga, B1>;
-    using V2 = multivector<rga, B1, B2>;
+    using V1 = multivector<G2, B1>;
+    using V2 = multivector<G2, B1, B2>;
 
     const auto v1 = V1{B1{1}};
     const auto v2 = V2{v1};
@@ -69,5 +69,26 @@ auto main() -> int
     using ::rigid_geometric_algebra::get;
 
     return expect(eq(get<B1>(v1), get<B1>(v2)) and eq(B2{}, get<B2>(v2)));
+  };
+
+  "addition of multivectors with disjoint blade types"_test = [] {
+    return expect(eq(
+        multivector<G2, G2::blade<0>, G2::blade<1>>{1, 2},
+        multivector<G2, G2::blade<0>>{1} + multivector<G2, G2::blade<1>>{2}));
+  };
+
+  "addition of multivectors with overlapping blade types"_test = [] {
+    return expect(eq(
+        multivector<G2, G2::blade<0>, G2::blade<1>, G2::blade<2>>{1, 5, 4},
+        multivector<G2, G2::blade<0>, G2::blade<1>>{1, 2} +
+            multivector<G2, G2::blade<1>, G2::blade<2>>{3, 4}));
+  };
+
+  "addition of multivectors with same blade types"_test = [] {
+    return expect(eq(
+        multivector<G2, G2::blade<0>, G2::blade<1>, G2::blade<2>>{5, 7, 9},
+        multivector<G2, G2::blade<0>, G2::blade<1>, G2::blade<2>>{1, 2, 3} +
+            multivector<G2, G2::blade<0>, G2::blade<1>, G2::blade<2>>{
+                4, 5, 6}));
   };
 }
