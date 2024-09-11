@@ -45,7 +45,7 @@ struct get_coefficient
 ///
 /// Every blade has a grade, where the grade the number of factors, equal to
 /// `sizeof(Is...)`. The grade of the blade cannot exceed the algebra's
-/// projected dimension (`algebra_dimension_v<A> + 1`).
+/// projected dimension (`algebra_dimension_v<A>`).
 ///
 /// In traditional vector algebra, a blade with grade 0 is a scalar
 /// (`blade<A>`) and a blade with grade 1 is a basis vector (`blade<A, 1>`).
