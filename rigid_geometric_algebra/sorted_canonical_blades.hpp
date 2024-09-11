@@ -16,6 +16,15 @@
 namespace rigid_geometric_algebra {
 
 /// returns a type list containing canonical blade types in canonical order
+/// @tparam Bs blade types
+///
+/// Defines static member typedef `type` as a specialization of `type_list` with
+/// blade types in ascending order. Duplicate blade types are removed from the
+/// returned `type_list`.
+///
+/// @note Requires:j
+/// * `Bs` are all specializations of `blade`
+/// * `Bs` have a common algebra type
 ///
 /// @{
 
@@ -27,15 +36,19 @@ struct sorted_canonical_blades
 {
   using A = common_algebra_type_t<Bs...>;
 
-  static constexpr auto ordering = [] {
-    auto ordering = std::array{blade_ordering<A>{std::type_identity<Bs>{}}...};
-    std::ranges::sort(ordering);
-    return ordering;
+  static constexpr auto sorted_blades = [] {
+    auto values = std::array{blade_ordering<A>{std::type_identity<Bs>{}}...};
+    std::ranges::sort(values);
+    auto subset = std::ranges::unique(values);
+    return std::pair{values, values.size() - subset.size()};
   }();
 
+  static_assert(sorted_blades.second != 0);
+
   using type = decltype([]<std::size_t... Is>(std::index_sequence<Is...>) {
-    return detail::type_list<blade_type_from_t<std::get<Is>(ordering)>...>{};
-  }(std::index_sequence_for<Bs...>{}));
+    return detail::type_list<
+        blade_type_from_t<std::get<Is>(sorted_blades.first)>...>{};
+  }(std::make_index_sequence<sorted_blades.second>{}));
 };
 
 template <>
