@@ -14,11 +14,14 @@
 #include "rigid_geometric_algebra/is_algebra.hpp"
 #include "rigid_geometric_algebra/is_canonical_blade_order.hpp"
 #include "rigid_geometric_algebra/sorted_canonical_blades.hpp"
+#include "rigid_geometric_algebra/wedge.hpp"
 #include "rigid_geometric_algebra/zero_constant.hpp"
 
+#include <cstddef>
 #include <functional>
 #include <tuple>
 #include <type_traits>
+#include <utility>
 
 namespace rigid_geometric_algebra {
 
@@ -46,6 +49,11 @@ public:
   /// blade scalar type
   ///
   using value_type = algebra_field_t<A>;
+
+  /// number of blades in this multivector
+  ///
+  static constexpr auto size =
+      std::integral_constant<std::size_t, sizeof...(Bs)>{};
 
   /// inherited constructors from std::tuple
   ///
@@ -123,6 +131,51 @@ public:
     }(result_blade_list_type{},
            to_multivector(std::forward<V1>(v1)),
            to_multivector(std::forward<V2>(v2)));
+  }
+
+  /// @}
+
+  /// wedge product
+  ///
+  /// @{
+
+  /// wedge product of `multivector`-promotable types
+  /// @tparam V1, V2 cv-ref qualified `multivector`-promotable types
+  /// @param v1, v2 `multivector`-promotable value
+  ///
+  /// Calculates the wedge product of two multivectors v1 and v2. If v1 and v2
+  /// are expressed as a linear combination of blades (b1...) and (b2...), then
+  /// the result of `v1 ^ v2` is equivalent to:
+  /// ~~~{.cpp}
+  /// transform_reduce(
+  ///   cartesian_product((b1...), (b2...)),
+  ///   zero,
+  ///   std::plus<>{},
+  ///   wedge)
+  /// ~~~
+  /// if `(b1...)` and `(b2...)` were valid ranges.
+  ///
+  template <class V1, class V2>
+    requires (std::is_same_v<multivector, std::remove_cvref_t<V1>> or
+              std::is_same_v<multivector, std::remove_cvref_t<V2>>) and
+             requires {
+               to_multivector(std::declval<V1>());
+               to_multivector(std::declval<V2>());
+             } and
+             (not detail::is_defined_v<
+                 detail::overload<decltype(wedge), V1, V2>>)
+  friend constexpr auto operator^(V1&& v1, V2&& v2)
+  {
+    const auto& v3 = to_multivector(std::forward<V1>(v1));
+    const auto& v4 = to_multivector(std::forward<V2>(v2));
+
+    static constexpr auto N = std::remove_cvref_t<decltype(v3)>::size();
+    static constexpr auto M = std::remove_cvref_t<decltype(v4)>::size();
+
+    return []<std::size_t... Is>(
+               std::index_sequence<Is...>, const auto& t1, const auto& t2) {
+      return ((std::get<Is / M>(t1) ^ std::get<Is % M>(t2)) + ...);
+    }(std::make_index_sequence<N * M>{}, v3, v4);
   }
 
   /// @}

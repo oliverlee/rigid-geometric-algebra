@@ -127,4 +127,37 @@ auto main() -> int
         eq(multivector<G2, G2::blade<0>, G2::blade<1>>{1, 2},
            G2::blade<1>{2} + multivector<G2, G2::blade<0>>{1}));
   };
+
+  "multivector wedge product"_test = [] {
+    const auto b = G2::blade<>{1};
+    const auto b0 = G2::blade<0>{2};
+    const auto b1 = G2::blade<1>{3};
+    const auto b2 = G2::blade<2>{4};
+
+    return expect(eq(
+        (b ^ b) + (b ^ b1) + (b ^ b2)           //
+            + (b0 ^ b) + (b0 ^ b1) + (b0 ^ b2)  //
+            + (b1 ^ b) + (b1 ^ b1) + (b1 ^ b2),
+        multivector{b + b0 + b1} ^ multivector{b + b1 + b2}));
+  };
+
+  "multivector wedge product promotes blade"_test = [] {
+    const auto b = G2::blade<>{1};
+    const auto b0 = G2::blade<0>{2};
+    const auto b1 = G2::blade<1>{3};
+    const auto b2 = G2::blade<2>{4};
+
+    return expect(
+        eq((b ^ b2) + (b0 ^ b2) + (b1 ^ b2), multivector{b + b0 + b1} ^ b2) and
+        eq((b2 ^ b) + (b2 ^ b0) + (b2 ^ b1), b2 ^ multivector{b + b0 + b1}));
+  };
+
+  "multivector wedge product can return zero"_test = [] {
+    const auto b012 = G2::blade<0, 1, 2>{4};
+
+    return expect(
+        std::is_same_v<
+            ::rigid_geometric_algebra::zero_constant<G2>,
+            decltype(b012 ^ b012)>);
+  };
 }
