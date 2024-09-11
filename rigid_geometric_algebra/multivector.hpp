@@ -1,11 +1,13 @@
 #pragma once
 
+#include "detail/overload.hpp"
 #include "rigid_geometric_algebra/algebra_field.hpp"
 #include "rigid_geometric_algebra/algebra_type.hpp"
 #include "rigid_geometric_algebra/canonical_type.hpp"
 #include "rigid_geometric_algebra/common_algebra_type.hpp"
 #include "rigid_geometric_algebra/detail/derive_subtraction.hpp"
 #include "rigid_geometric_algebra/detail/derive_vector_space_operations.hpp"
+#include "rigid_geometric_algebra/detail/is_defined.hpp"
 #include "rigid_geometric_algebra/detail/type_list.hpp"
 #include "rigid_geometric_algebra/get.hpp"
 #include "rigid_geometric_algebra/get_or.hpp"
@@ -14,6 +16,7 @@
 #include "rigid_geometric_algebra/sorted_canonical_blades.hpp"
 #include "rigid_geometric_algebra/zero_constant.hpp"
 
+#include <functional>
 #include <tuple>
 #include <type_traits>
 
@@ -60,13 +63,26 @@ public:
   template <class B>
   static constexpr auto contains = (std::is_same_v<B, Bs> or ...);
 
+  /// promote value to a `multivector`
+  /// @tparam Self `multivector` type
+  /// @param self reference to `multivector` value
+  ///
+  /// Forwards `value` unchanged.
+  ///
+  template <class Self>
+    requires (std::is_same_v<multivector, std::remove_cvref_t<Self>>)
+  friend constexpr auto to_multivector(Self&& self) noexcept -> Self&&
+  {
+    return std::forward<Self>(self);
+  }
+
   /// addition
   ///
   /// @{
 
-  /// addition of different `multivector` types
-  /// @tparam V1, V2 cv-ref qualified `multivector` type
-  /// @param v1, v2 `multivector` value
+  /// addition of `multivector`-promotable types
+  /// @tparam V1, V2 cv-ref qualified `multivector`-promotable types
+  /// @param v1, v2 `multivector`-promotable value
   ///
   /// Constructs a multivector containing `blade` elements from `v1` and `v2`.
   /// For each `blade` type `B` in the returned `multivector`, the value is
@@ -82,8 +98,13 @@ public:
   ///  is defined by `derive_vector_space_operations`.
   ///
   template <class V1, class V2>
-    requires std::is_same_v<multivector, std::remove_cvref_t<V1>> and
-             (not std::is_same_v<multivector, std::remove_cvref_t<V2>>)
+    requires (std::is_same_v<multivector, std::remove_cvref_t<V1>> !=
+              std::is_same_v<multivector, std::remove_cvref_t<V2>>) and
+             requires {
+               to_multivector(std::declval<V1>());
+               to_multivector(std::declval<V2>());
+             } and
+             (not detail::is_defined_v<detail::overload<std::plus<>, V1, V2>>)
   friend constexpr auto operator+(V1&& v1, V2&& v2)
   {
     using result_blade_list_type =
@@ -91,13 +112,17 @@ public:
                      const std::tuple<T1s...>&, const std::tuple<T2s...>&)
                      -> sorted_canonical_blades_t<T1s..., T2s...> {
           return {};
-        }(v1, v2));
+        }(to_multivector(std::forward<V1>(v1)),
+                     to_multivector(std::forward<V2>(v2))));
 
-    return [&v1, &v2]<class... Ts>(detail::type_list<Ts...>) {
+    return []<class... Ts, class V3, class V4>(
+               detail::type_list<Ts...>, V3&& v3, V4&& v4) {
       return multivector<A, Ts...>{(
-          get_or<Ts>(std::forward<V1>(v1), zero_constant<A>{}) +
-          get_or<Ts>(std::forward<V2>(v2), zero_constant<A>{}))...};
-    }(result_blade_list_type{});
+          get_or<Ts>(std::forward<V3>(v3), zero_constant<A>{}) +
+          get_or<Ts>(std::forward<V4>(v4), zero_constant<A>{}))...};
+    }(result_blade_list_type{},
+           to_multivector(std::forward<V1>(v1)),
+           to_multivector(std::forward<V2>(v2)));
   }
 
   /// @}

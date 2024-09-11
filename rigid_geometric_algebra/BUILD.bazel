@@ -37,6 +37,7 @@ cc_library(
         "is_multivector.hpp",
         "multivector.hpp",
         "sorted_canonical_blades.hpp",
+        "to_multivector.hpp",
         "wedge.hpp",
         "zero_constant.hpp",
     ],

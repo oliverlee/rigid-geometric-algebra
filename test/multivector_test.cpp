@@ -119,4 +119,12 @@ auto main() -> int
         2 * multivector<G2, G2::blade<0>, G2::blade<1>, G2::blade<2>>{
                 1, 2, 3}));
   };
+
+  "addition of multivector with blade"_test = [] {
+    return expect(
+        eq(multivector<G2, G2::blade<0>, G2::blade<1>>{1, 2},
+           multivector<G2, G2::blade<0>>{1} + G2::blade<1>{2}) and
+        eq(multivector<G2, G2::blade<0>, G2::blade<1>>{1, 2},
+           G2::blade<1>{2} + multivector<G2, G2::blade<0>>{1}));
+  };
 }
