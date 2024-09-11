@@ -18,6 +18,7 @@
 #include "rigid_geometric_algebra/zero_constant.hpp"
 
 #include <cstddef>
+#include <format>
 #include <functional>
 #include <tuple>
 #include <type_traits>
@@ -33,7 +34,7 @@ namespace rigid_geometric_algebra {
 ///
 template <class A, class... Bs>
   requires is_algebra_v<A> and (is_canonical_blade_order<Bs...>()) and
-               std::is_same_v<A, common_algebra_type_t<Bs...>>
+               (std::is_same_v<A, algebra_type_t<Bs>> and ...)
 class multivector
     : public std::tuple<Bs...>,
       detail::derive_vector_space_operations<
@@ -232,3 +233,32 @@ constexpr auto operator+(T1&& b1, T2&& b2)
 /// @}
 
 }  // namespace rigid_geometric_algebra
+
+template <class A, class... Bs, class CharT>
+struct std::formatter<::rigid_geometric_algebra::multivector<A, Bs...>, CharT>
+    : std::formatter<::rigid_geometric_algebra::algebra_field_t<A>, CharT>
+{
+  // https://github.com/llvm/llvm-project/issues/66466
+  template <class Context>
+  constexpr auto
+  format(const ::rigid_geometric_algebra::multivector<A, Bs...>& v,
+         Context& ctx) const
+  {
+    auto out = ctx.out();
+
+    if constexpr (sizeof...(Bs) == 0) {
+      return std::format_to(
+          out, "{}", ::rigid_geometric_algebra::algebra_field_t<A>{});
+    } else {
+      out = std::format_to(out, "{}", std::get<0>(v));
+
+      [&out, &v]<std::size_t... Is>(std::index_sequence<Is...>) {
+        std::ignore =
+            ((out = std::format_to(out, " + {}", std::get<Is + 1>(v)), true) and
+             ...);
+      }(std::make_index_sequence<sizeof...(Bs) - 1>{});
+
+      return out;
+    }
+  }
+};
