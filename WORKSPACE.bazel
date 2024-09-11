@@ -209,3 +209,30 @@ http_archive(
         commit = SKYTEST_COMMIT,
     ),
 )
+
+# last commit before transition to bzlmod
+RULES_BOOST_COMMIT = "5d04542e52164931841d06d5a6b3fd2f43c436d0"
+
+http_archive(
+    name = "com_github_nelhage_rules_boost",
+    strip_prefix = "rules_boost-{commit}".format(
+        commit = RULES_BOOST_COMMIT,
+    ),
+    url = "https://github.com/nelhage/rules_boost/archive/{commit}.tar.gz".format(
+        commit = RULES_BOOST_COMMIT,
+    ),
+)
+
+load("@com_github_nelhage_rules_boost//:boost/boost.bzl", "boost_deps")
+
+boost_deps()
+
+http_archive(
+    name = "symengine",
+    build_file = "//third_party:symengine.BUILD.bazel",
+    integrity = "sha256-G1w7C8ap8YdjX5NYVknyShjpx/IWfOvNiF7eqvIR2VY=",
+    strip_prefix = "symengine-0.12.0",
+    urls = [
+        "https://github.com/symengine/symengine/archive/refs/tags/v0.12.0.tar.gz",
+    ],
+)

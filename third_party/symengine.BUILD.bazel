@@ -1,0 +1,339 @@
+"""
+Build rules for symengine built with boost::multiprecision
+"""
+
+load("@rules_cc//cc:defs.bzl", "cc_library")
+load("@bazel_skylib//rules:write_file.bzl", "write_file")
+
+CONFIG_HEADER_CONTENT = """
+#ifndef SYMENGINE_CONFIG_HPP
+#define SYMENGINE_CONFIG_HPP
+
+#define SYMENGINE_MAJOR_VERSION {MAJOR_VERSION}
+#define SYMENGINE_MINOR_VERSION {MINOR_VERSION}
+#define SYMENGINE_PATCH_VERSION {PATCH_VERSION}
+#define SYMENGINE_VERSION "{MAJOR_VERSION}.{MINOR_VERSION}.{PATCH_VERSION}"
+
+/* Define if you want to enable ASSERT testing in SymEngine */
+#define WITH_SYMENGINE_ASSERT
+
+/* Define if you want to enable SYMENGINE_RCP support in SymEngine */
+#define WITH_SYMENGINE_RCP
+
+/* Define if you want to enable SYMENGINE_THREAD_SAFE support in SymEngine */
+#define WITH_SYMENGINE_THREAD_SAFE
+
+/* Define if you want to enable BOOST support in SymEngine */
+#define HAVE_SYMENGINE_BOOST
+
+/* Define if you want to enable PTHREAD support in SymEngine */
+#define HAVE_SYMENGINE_PTHREAD
+
+/* Define if the C++ compiler supports default constructors */
+#define HAVE_DEFAULT_CONSTRUCTORS
+
+/* Define if the C++ compiler supports noexcept specifier */
+#define HAVE_SYMENGINE_NOEXCEPT
+
+/* Define if the C++ compiler supports std::is_constructible */
+#define HAVE_SYMENGINE_IS_CONSTRUCTIBLE
+
+/* Define if the C++ compiler supports std::unordered_map<>::reserve() */
+#define HAVE_SYMENGINE_RESERVE
+
+/* Define if the C++ compiler has std::to_string */
+#define HAVE_SYMENGINE_STD_TO_STRING
+
+#define SYMENGINE_GMPXX 0
+#define SYMENGINE_PIRANHA 1
+#define SYMENGINE_FLINT 2
+#define SYMENGINE_GMP 3
+#define SYMENGINE_BOOSTMP 4
+
+#define SYMENGINE_INTEGER_CLASS SYMENGINE_{INTEGER_CLASS}
+
+#define SYMENGINE_SIZEOF_LONG_DOUBLE sizeof(long double)
+
+#ifdef HAVE_SYMENGINE_NOEXCEPT
+#  define SYMENGINE_NOEXCEPT noexcept
+#else
+#  define SYMENGINE_NOEXCEPT
+#endif
+
+#include <symengine/symengine_export.h>
+
+#ifdef __CLING__
+#include "symengine/symengine_config_cling.h"
+#endif
+
+#endif
+""".format(
+    MAJOR_VERSION = 0,
+    MINOR_VERSION = 13,
+    PATCH_VERSION = 0,
+    INTEGER_CLASS = "BOOSTMP",
+)
+
+BOOSTMP_SRCS = [
+    "symengine/mp_boost.cpp",
+]
+
+write_file(
+    name = "symengine_config",
+    out = "symengine_config.h",
+    content = [CONFIG_HEADER_CONTENT],
+)
+
+EXPORT_HEADER_CONTENT = """
+#ifndef SYMENGINE_EXPORT_H
+#define SYMENGINE_EXPORT_H
+
+#define SYMENGINE_EXPORT
+
+#endif
+"""
+
+write_file(
+    name = "symengine_export",
+    out = "symengine_export.h",
+    content = [EXPORT_HEADER_CONTENT],
+)
+
+cc_library(
+    name = "generated",
+    hdrs = [
+        ":symengine_config",
+        ":symengine_export",
+    ],
+    include_prefix = "symengine",
+)
+
+cc_library(
+    name = "cereal",
+    hdrs = glob(["symengine/utilities/cereal/include/**/*"]),
+    includes = ["symengine/utilities/cereal/include"],
+)
+
+cc_library(
+    name = "fast_float",
+    hdrs = glob(["symengine/utilities/fast_float/include/**/*"]),
+    includes = ["symengine/utilities/fast_float/include"],
+)
+
+cc_library(
+    name = "symengine",
+    includes = ["."],
+    copts = [
+        "-Wno-conversion",
+        "-Wno-unused-parameter",
+        "-Wno-old-style-cast",
+        "-Wno-shadow",
+        "-Wno-non-virtual-dtor",
+        "-Wno-unused-but-set-variable",
+    ],
+    hdrs = [
+        "symengine/add.h",
+        "symengine/as_real_imag.cpp",
+        "symengine/basic.h",
+        "symengine/basic-inl.h",
+        "symengine/basic-methods.inc",
+        "symengine/complex_double.h",
+        "symengine/complex.h",
+        "symengine/complex_mpc.h",
+        "symengine/constants.h",
+        "symengine/cwrapper.h",
+        "symengine/derivative.h",
+        "symengine/dict.h",
+        "symengine/diophantine.h",
+        "symengine/eval_arb.h",
+        "symengine/eval_double.h",
+        "symengine/eval.h",
+        "symengine/eval_mpc.h",
+        "symengine/eval_mpfr.h",
+        "symengine/expression.h",
+        "symengine/fields.h",
+        "symengine/finitediff.h",
+        "symengine/flint_wrapper.h",
+        "symengine/functions.h",
+        "symengine/infinity.h",
+        "symengine/integer.h",
+        "symengine/lambda_double.h",
+        "symengine/llvm_double.h",
+        "symengine/logic.h",
+        "symengine/matrix.h",
+        "symengine/monomials.h",
+        "symengine/mp_class.h",
+        "symengine/mp_wrapper.h",
+        "symengine/mul.h",
+        "symengine/nan.h",
+        "symengine/ntheory.h",
+        "symengine/ntheory_funcs.h",
+        "symengine/number.h",
+        "symengine/parser.h",
+        "symengine/parser/parser.h",
+        "symengine/parser/parser.tab.hh",
+        "symengine/parser/tokenizer.h",
+        "symengine/parser/sbml/sbml_parser.h",
+        "symengine/parser/sbml/sbml_parser.tab.hh",
+        "symengine/parser/sbml/sbml_tokenizer.h",
+        "symengine/polys/basic_conversions.h",
+        "symengine/polys/cancel.h",
+        "symengine/polys/uexprpoly.h",
+        "symengine/polys/uintpoly_flint.h",
+        "symengine/polys/uintpoly.h",
+        "symengine/polys/uintpoly_piranha.h",
+        "symengine/polys/upolybase.h",
+        "symengine/polys/uratpoly.h",
+        "symengine/polys/usymenginepoly.h",
+        "symengine/polys/msymenginepoly.h",
+        "symengine/pow.h",
+        "symengine/prime_sieve.h",
+        "symengine/printers/codegen.h",
+        "symengine/printers/mathml.h",
+        "symengine/printers/sbml.h",
+        "symengine/printers/strprinter.h",
+        "symengine/printers/latex.h",
+        "symengine/printers/unicode.h",
+        "symengine/printers/stringbox.h",
+        "symengine/printers.h",
+        "symengine/rational.h",
+        "symengine/real_double.h",
+        "symengine/real_mpfr.h",
+        "symengine/rings.h",
+        "symengine/serialize-cereal.h",
+        "symengine/series_flint.h",
+        "symengine/series_generic.h",
+        "symengine/series.h",
+        "symengine/series_piranha.h",
+        "symengine/series_visitor.h",
+        "symengine/sets.h",
+        "symengine/solve.h",
+        "symengine/subs.h",
+        "symengine/symbol.h",
+        "symengine/symengine_assert.h",
+        "symengine/symengine_casts.h",
+        "symengine/symengine_exception.h",
+        "symengine/symengine_rcp.h",
+        "symengine/tribool.h",
+        "symengine/type_codes.inc",
+        "symengine/visitor.h",
+        "symengine/test_visitors.h",
+        "symengine/assumptions.h",
+        "symengine/refine.h",
+        "symengine/simplify.h",
+        "symengine/utilities/stream_fmt.h",
+        "symengine/tuple.h",
+        "symengine/matrix_expressions.h",
+        "symengine/matrices/matrix_expr.h",
+        "symengine/matrices/identity_matrix.h",
+        "symengine/matrices/matrix_symbol.h",
+        "symengine/matrices/zero_matrix.h",
+        "symengine/matrices/diagonal_matrix.h",
+        "symengine/matrices/immutable_dense_matrix.h",
+        "symengine/matrices/matrix_add.h",
+        "symengine/matrices/hadamard_product.h",
+        "symengine/matrices/matrix_mul.h",
+        "symengine/matrices/conjugate_matrix.h",
+        "symengine/matrices/size.h",
+        "symengine/matrices/transpose.h",
+        "symengine/matrices/trace.h",
+    ],
+    srcs = [
+        "symengine/add.cpp",
+        "symengine/basic.cpp",
+        "symengine/complex.cpp",
+        "symengine/complex_double.cpp",
+        "symengine/constants.cpp",
+        "symengine/cse.cpp",
+        "symengine/cwrapper.cpp",
+        "symengine/dense_matrix.cpp",
+        "symengine/derivative.cpp",
+        "symengine/dict.cpp",
+        "symengine/diophantine.cpp",
+        "symengine/eval.cpp",
+        "symengine/eval_double.cpp",
+        "symengine/expand.cpp",
+        "symengine/expression.cpp",
+        "symengine/fields.cpp",
+        "symengine/finitediff.cpp",
+        "symengine/functions.cpp",
+        "symengine/infinity.cpp",
+        "symengine/integer.cpp",
+        "symengine/logic.cpp",
+        "symengine/matrix.cpp",
+        "symengine/monomials.cpp",
+        "symengine/mul.cpp",
+        "symengine/nan.cpp",
+        "symengine/ntheory.cpp",
+        "symengine/ntheory_funcs.cpp",
+        "symengine/number.cpp",
+        "symengine/numer_denom.cpp",
+        "symengine/parser/parser_old.cpp",
+        "symengine/parser/parser.tab.cc",
+        "symengine/parser/parser.cpp",
+        "symengine/parser/tokenizer.cpp",
+        "symengine/parser/sbml/sbml_parser.tab.cc",
+        "symengine/parser/sbml/sbml_parser.cpp",
+        "symengine/parser/sbml/sbml_tokenizer.cpp",
+        "symengine/polys/basic_conversions.cpp",
+        "symengine/polys/msymenginepoly.cpp",
+        "symengine/polys/uexprpoly.cpp",
+        "symengine/polys/uintpoly.cpp",
+        "symengine/polys/uratpoly.cpp",
+        "symengine/pow.cpp",
+        "symengine/prime_sieve.cpp",
+        "symengine/printers/codegen.cpp",
+        "symengine/printers/mathml.cpp",
+        "symengine/printers/sbml.cpp",
+        "symengine/printers/strprinter.cpp",
+        "symengine/printers/latex.cpp",
+        "symengine/printers/unicode.cpp",
+        "symengine/printers/stringbox.cpp",
+        "symengine/rational.cpp",
+        "symengine/real_double.cpp",
+        "symengine/rewrite.cpp",
+        "symengine/rings.cpp",
+        "symengine/series.cpp",
+        "symengine/series_generic.cpp",
+        "symengine/sets.cpp",
+        "symengine/set_funcs.cpp",
+        "symengine/solve.cpp",
+        "symengine/sparse_matrix.cpp",
+        "symengine/symbol.cpp",
+        "symengine/symengine_rcp.cpp",
+        "symengine/visitor.cpp",
+        "symengine/test_visitors.cpp",
+        "symengine/assumptions.cpp",
+        "symengine/refine.cpp",
+        "symengine/simplify.cpp",
+        "symengine/tuple.cpp",
+        "symengine/matrices/identity_matrix.cpp",
+        "symengine/matrices/matrix_symbol.cpp",
+        "symengine/matrices/zero_matrix.cpp",
+        "symengine/matrices/diagonal_matrix.cpp",
+        "symengine/matrices/immutable_dense_matrix.cpp",
+        "symengine/matrices/matrix_add.cpp",
+        "symengine/matrices/hadamard_product.cpp",
+        "symengine/matrices/matrix_mul.cpp",
+        "symengine/matrices/conjugate_matrix.cpp",
+        "symengine/matrices/transpose.cpp",
+        "symengine/matrices/trace.cpp",
+        "symengine/matrices/size.cpp",
+        "symengine/matrices/is_zero.cpp",
+        "symengine/matrices/is_real.cpp",
+        "symengine/matrices/is_symmetric.cpp",
+        "symengine/matrices/is_square.cpp",
+        "symengine/matrices/is_diagonal.cpp",
+        "symengine/matrices/is_lower.cpp",
+        "symengine/matrices/is_upper.cpp",
+        "symengine/matrices/is_toeplitz.cpp",
+    ] + BOOSTMP_SRCS,
+    deps = [
+        "@boost//:multiprecision",
+        "@boost//:random",
+        ":generated",
+        ":cereal",
+        ":fast_float",
+    ],
+    visibility = ["//visibility:public"],
+)
