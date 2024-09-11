@@ -4,6 +4,7 @@
 #include "rigid_geometric_algebra/algebra_type.hpp"
 #include "rigid_geometric_algebra/canonical_type.hpp"
 #include "rigid_geometric_algebra/common_algebra_type.hpp"
+#include "rigid_geometric_algebra/get_or.hpp"
 #include "rigid_geometric_algebra/is_algebra.hpp"
 #include "rigid_geometric_algebra/is_canonical_blade_order.hpp"
 #include "rigid_geometric_algebra/sorted_canonical_blades.hpp"
@@ -12,13 +13,6 @@
 #include <type_traits>
 
 namespace rigid_geometric_algebra {
-
-// forward declaration
-//
-namespace detail {
-template <class>
-class get_or_fn;
-}
 
 /// linear combination of basis elements of a geometric algebra
 /// @tparam A specialization of `algebra`
@@ -47,7 +41,7 @@ struct multivector : std::tuple<Bs...>
   ///
   template <class... Cs>
   constexpr explicit multivector(const multivector<Cs...>& other)
-      : std::tuple<Bs...>{detail::get_or_fn<Bs>{}(other, Bs{})...}
+      : std::tuple<Bs...>{get_or<Bs>(other, Bs{})...}
   {}
 
   /// checks if a blade is contained in the multivector

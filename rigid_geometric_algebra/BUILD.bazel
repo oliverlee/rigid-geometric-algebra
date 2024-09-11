@@ -26,6 +26,7 @@ cc_library(
         "detail/sorted_dimensions.hpp",
         "detail/structural_bitset.hpp",
         "detail/swaps_to_sorted_dimensions.hpp",
+        "detail/tuple_cref.hpp",
         "detail/type_list.hpp",
         "detail/unique_dimensions.hpp",
         "get.hpp",
