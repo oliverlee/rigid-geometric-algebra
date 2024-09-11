@@ -1,6 +1,7 @@
 #include "rigid_geometric_algebra/rigid_geometric_algebra.hpp"
 #include "skytest/skytest.hpp"
 
+#include <format>
 #include <type_traits>
 
 auto main() -> int
@@ -159,5 +160,20 @@ auto main() -> int
         std::is_same_v<
             ::rigid_geometric_algebra::zero_constant<G2>,
             decltype(b012 ^ b012)>);
+  };
+
+  "formattable"_test = [] {
+    return expect(
+        eq("0", std::format("{}", multivector<G2>{})) and
+        eq("0.3", std::format("{}", multivector{G2::blade<>{0.3}})) and
+        eq("0e₀", std::format("{}", multivector{G2::blade<0>{0}})) and
+        eq("-1e₁ + -2e₀₂",
+           std::format(
+               "{}", multivector{G2::blade<1>{-1}, G2::blade<0, 2>{-2}})) and
+        eq("0.3 + 2e₁ + 2e₀₁₂",
+           std::format(
+               "{}",
+               multivector{
+                   G2::blade<>{0.3}, G2::blade<1>{2}, G2::blade<0, 1, 2>{2}})));
   };
 }

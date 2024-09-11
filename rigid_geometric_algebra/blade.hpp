@@ -9,8 +9,12 @@
 #include "rigid_geometric_algebra/detail/unique_dimensions.hpp"
 #include "rigid_geometric_algebra/zero_constant.hpp"
 
+#include <algorithm>
+#include <array>
 #include <cstddef>
+#include <format>
 #include <functional>
+#include <tuple>
 #include <type_traits>
 #include <utility>
 
@@ -182,3 +186,41 @@ public:
 };
 
 }  // namespace rigid_geometric_algebra
+
+template <class A, std::size_t... Is, class CharT>
+struct std::formatter<::rigid_geometric_algebra::blade<A, Is...>, CharT>
+    : std::formatter<::rigid_geometric_algebra::algebra_field_t<A>, CharT>
+{
+  static_assert(::rigid_geometric_algebra::algebra_dimension_v<A> <= 10);
+
+  // https://github.com/llvm/llvm-project/issues/66466
+  template <class Context>
+  constexpr auto format(
+      const ::rigid_geometric_algebra::blade<A, Is...>& b, Context& ctx) const
+  {
+    auto out = std::formatter<::rigid_geometric_algebra::algebra_field_t<A>>::
+        format(b.coefficient, ctx);
+
+    if (sizeof...(Is) == 0) {
+      return out;
+    }
+
+    // https://en.wikipedia.org/wiki/Unicode_subscripts_and_superscripts#Superscripts_and_subscripts_block
+    static constexpr auto subscripts = std::array{
+        "₀",
+        "₁",
+        "₂",
+        "₃",
+        "₄",
+        "₅",
+        "₆",
+        "₇",
+        "₈",
+        "₉",
+    };
+
+    out = std::format_to(out, "e");
+    std::ignore = ((out = std::format_to(out, subscripts[Is]), true) and ...);
+    return out;
+  }
+};
