@@ -37,6 +37,7 @@ cc_library(
         "is_canonical_blade_order.hpp",
         "is_multivector.hpp",
         "multivector.hpp",
+        "point.hpp",
         "sorted_canonical_blades.hpp",
         "to_multivector.hpp",
         "wedge.hpp",

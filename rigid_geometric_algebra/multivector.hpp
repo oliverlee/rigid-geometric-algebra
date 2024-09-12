@@ -260,10 +260,10 @@ struct std::formatter<::rigid_geometric_algebra::multivector<A, Bs...>, CharT>
     : std::formatter<::rigid_geometric_algebra::algebra_field_t<A>, CharT>
 {
   // https://github.com/llvm/llvm-project/issues/66466
-  template <class Context>
+  template <class O>
   constexpr auto
   format(const ::rigid_geometric_algebra::multivector<A, Bs...>& v,
-         Context& ctx) const
+         std::basic_format_context<O, CharT>& ctx) const
   {
     auto out = ctx.out();
 
