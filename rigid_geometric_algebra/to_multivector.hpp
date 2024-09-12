@@ -1,6 +1,7 @@
 #pragma once
 
 #include "algebra_type.hpp"
+#include "rigid_geometric_algebra/canonical_type.hpp"
 #include "rigid_geometric_algebra/is_blade.hpp"
 #include "rigid_geometric_algebra/multivector.hpp"
 
@@ -20,9 +21,9 @@ template <class B>
 constexpr auto to_multivector(B&& b)
     -> multivector<
         algebra_type_t<std::remove_cvref_t<B>>,
-        std::remove_cvref_t<B>>
+        canonical_type_t<std::remove_cvref_t<B>>>
 {
-  return {std::forward<B>(b)};
+  return {std::forward<B>(b).canonical()};
 }
 
 }  // namespace rigid_geometric_algebra
