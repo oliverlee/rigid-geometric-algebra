@@ -23,6 +23,7 @@ cc_library(
         "detail/overload.hpp",
         "detail/priority.hpp",
         "detail/priority_list.hpp",
+        "detail/size_checked_subrange.hpp",
         "detail/sorted_dimensions.hpp",
         "detail/structural_bitset.hpp",
         "detail/swaps_to_sorted_dimensions.hpp",

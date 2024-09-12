@@ -8,6 +8,7 @@
 #include "rigid_geometric_algebra/detail/derive_subtraction.hpp"
 #include "rigid_geometric_algebra/detail/derive_vector_space_operations.hpp"
 #include "rigid_geometric_algebra/detail/is_defined.hpp"
+#include "rigid_geometric_algebra/detail/size_checked_subrange.hpp"
 #include "rigid_geometric_algebra/detail/type_list.hpp"
 #include "rigid_geometric_algebra/get.hpp"
 #include "rigid_geometric_algebra/get_or.hpp"
@@ -17,9 +18,11 @@
 #include "rigid_geometric_algebra/wedge.hpp"
 #include "rigid_geometric_algebra/zero_constant.hpp"
 
+#include <concepts>
 #include <cstddef>
 #include <format>
 #include <functional>
+#include <initializer_list>
 #include <tuple>
 #include <type_traits>
 #include <utility>
@@ -65,6 +68,24 @@ public:
   template <class... Cs>
   constexpr explicit multivector(const multivector<Cs...>& other)
       : std::tuple<Bs...>{get_or<Bs>(other, Bs{})...}
+  {}
+
+  /// initializer list constructor
+  /// @param il initializer list of values
+  ///
+  /// @note allows conversions to `value_type` is floating point and is the
+  ///   source can be stored exactly
+  /// @see
+  /// https://en.cppreference.com/w/cpp/language/list_initialization#Narrowing_conversions
+  ///
+  ///
+  constexpr multivector(std::initializer_list<value_type> il)
+    requires std::floating_point<value_type>
+      : std::tuple<Bs...>{
+            []<std::size_t... Is>(std::index_sequence<Is...>, auto values) {
+              return std::tuple<Bs...>{values[Is]...};
+            }(std::index_sequence_for<Bs...>{},
+              detail::size_checked_subrange<sizeof...(Bs)>(il))}
   {}
 
   /// checks if a blade is contained in the multivector
