@@ -1,6 +1,7 @@
 #pragma once
 
 #include "rigid_geometric_algebra/blade.hpp"
+#include "rigid_geometric_algebra/field.hpp"
 #include "rigid_geometric_algebra/multivector.hpp"
 #include "rigid_geometric_algebra/point.hpp"
 #include "rigid_geometric_algebra/zero_constant.hpp"
@@ -18,7 +19,7 @@ namespace rigid_geometric_algebra {
 ///
 /// @see https://en.wikipedia.org/wiki/Plane-based_geometric_algebra
 ///
-template <class F, std::size_t N>
+template <field F, std::size_t N>
 struct algebra
 {
   static constexpr auto zero =
