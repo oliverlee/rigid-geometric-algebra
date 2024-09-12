@@ -15,8 +15,8 @@ auto main() -> int
   using ::rigid_geometric_algebra::multivector;
 
   "constructible from blade addition"_test = [] {
-    const auto a = GS2::blade<1>{::SymEngine::Expression{"a"}};
-    const auto b = GS2::blade<2>{::SymEngine::Expression{"b"}};
+    const auto a = GS2::blade<1>{"a"};
+    const auto b = GS2::blade<2>{"b"};
 
     return expect(eq(multivector{a, b}, a + b));
   };
@@ -27,8 +27,8 @@ auto main() -> int
         std::format(
             "{}",
             multivector{
-                GS2::blade<>{::SymEngine::Expression{0.3}},
-                GS2::blade<1>{::SymEngine::Expression{"a"}},
-                GS2::blade<0, 1, 2>{::SymEngine::Expression{"b"}}})));
+                GS2::blade<>{0.3},
+                GS2::blade<1>{"a"},
+                GS2::blade<0, 1, 2>{"b"}})));
   };
 }

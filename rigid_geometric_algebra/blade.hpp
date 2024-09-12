@@ -4,6 +4,7 @@
 #include "rigid_geometric_algebra/algebra_field.hpp"
 #include "rigid_geometric_algebra/detail/derive_subtraction.hpp"
 #include "rigid_geometric_algebra/detail/derive_vector_space_operations.hpp"
+#include "rigid_geometric_algebra/detail/size_checked_subrange.hpp"
 #include "rigid_geometric_algebra/detail/sorted_dimensions.hpp"
 #include "rigid_geometric_algebra/detail/swaps_to_sorted_dimensions.hpp"
 #include "rigid_geometric_algebra/detail/unique_dimensions.hpp"
@@ -11,9 +12,11 @@
 
 #include <algorithm>
 #include <array>
+#include <concepts>
 #include <cstddef>
 #include <format>
 #include <functional>
+#include <initializer_list>
 #include <tuple>
 #include <type_traits>
 #include <utility>
@@ -105,6 +108,30 @@ public:
   /// constructs a blade with coefficient specified by value
   ///
   constexpr blade(value_type value) : coefficient{std::move(value)} {}
+
+  /// initializer list constructor
+  /// @param il initializer list of values
+  ///
+  /// @note allows conversions to `value_type` is floating point and is the
+  ///   source can be stored exactly
+  /// @see
+  /// https://en.cppreference.com/w/cpp/language/list_initialization#Narrowing_conversions
+  ///
+  constexpr blade(std::initializer_list<value_type> il)
+    requires std::floating_point<value_type>
+      : coefficient{detail::size_checked_subrange<1>(il)[0]}
+  {}
+
+  /// converting constructor
+  /// @tparam T type `value_type` is constructible from
+  /// @tparam value coefficient value
+  ///
+  /// constructs a blade with coefficient specified by value
+  ///
+  template <class T>
+    requires std::constructible_from<value_type, T>
+  constexpr blade(T&& value) : coefficient{std::forward<T>(value)}
+  {}
 
   /// obtain the blade with indices in canonical form
   ///

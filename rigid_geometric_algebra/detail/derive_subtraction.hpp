@@ -16,6 +16,7 @@ struct default_subtraction
 {
   template <class T1, class T2>
   static constexpr auto operator()(T1&& t1, T2&& t2)
+      -> decltype(std::forward<T1>(t1) + (-std::forward<T2>(t2)))
   {
     return std::forward<T1>(t1) + (-std::forward<T2>(t2));
   }
