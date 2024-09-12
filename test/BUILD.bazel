@@ -2,6 +2,19 @@ load("@rules_cc//cc:defs.bzl", "cc_test")
 
 package(default_visibility = ["//:__subpackages__"])
 
+cc_library(
+    name = "symengine",
+    hdrs = ["symengine/format.hpp"],
+    includes = ["."],
+    deps = ["@symengine"],
+)
+
+cc_binary(
+    name = "symengine-example",
+    srcs = ["symengine-example.cpp"],
+    deps = [":symengine"],
+)
+
 cc_test(
     name = "common_algebra_type_test",
     size = "small",

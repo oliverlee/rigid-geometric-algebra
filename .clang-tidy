@@ -66,6 +66,9 @@ Checks: >
     # favor member init - reserving the non-init semantic as uninit (e.g. fundamental types, arrays),
     -readability-redundant-member-init,
 
+    # https://github.com/llvm/llvm-project/issues/91872,
+    -modernize-use-constraints,
+
 CheckOptions:
     - key: misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic
       value: true
@@ -75,6 +78,8 @@ CheckOptions:
       value : true
     - key: readability-implicit-bool-conversion.AllowPointerConditions
       value : true
+    - key: misc-include-cleaner.IgnoreHeaders
+      value: symengine/.*
 
 # only lint files coming from this project
 HeaderFilterRegex: '/rigid-geometric-algebra/'
