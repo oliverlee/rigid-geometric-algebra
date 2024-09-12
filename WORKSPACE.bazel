@@ -215,6 +215,7 @@ RULES_BOOST_COMMIT = "5d04542e52164931841d06d5a6b3fd2f43c436d0"
 
 http_archive(
     name = "com_github_nelhage_rules_boost",
+    integrity = "sha256-bBVULQ07b0fNTSoWMqMFSgUCtRAuRxtEUzVDEstHRAc=",
     strip_prefix = "rules_boost-{commit}".format(
         commit = RULES_BOOST_COMMIT,
     ),
