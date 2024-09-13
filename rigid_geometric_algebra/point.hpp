@@ -81,6 +81,21 @@ public:
     return std::forward_like<Self>(refs[i].get());
   }
 
+  /// wedge product
+  ///
+  /// @{
+
+  template <class P>
+    requires std::is_same_v<P, point>
+  friend constexpr auto operator^(const P& p, const P& q)
+      // TODO return line
+      -> decltype(p.multivector() ^ q.multivector())
+  {
+    return p.multivector() ^ q.multivector();
+  }
+
+  /// @}
+
   /// equality comparison
   ///
   /// @{
