@@ -4,6 +4,7 @@
 #include <format>
 #include <symengine/expression.h>
 #include <symengine/format.hpp>
+#include <tuple>
 #include <type_traits>
 #include <utility>
 
@@ -73,6 +74,35 @@ auto main() -> int
         eq(::SymEngine::Expression{1}, p[0]) and
         eq(::SymEngine::Expression{2}, p[1]) and
         eq(::SymEngine::Expression{0}, p[2]));
+  };
+
+  "wedge"_test = [] {
+    using S = ::SymEngine::Expression;
+    using GS3 = ::rigid_geometric_algebra::algebra<S, 3>;
+    const auto p = GS3::point{"pw", "px", "py", "pz"};
+    const auto q = GS3::point{"qw", "qx", "qy", "qz"};
+
+    const auto l =
+        GS3::blade<0, 1>{S{"qx"} * S{"pw"} - S{"px"} * S{"qw"}} +
+        GS3::blade<0, 2>{S{"qy"} * S{"pw"} - S{"py"} * S{"qw"}} +
+        GS3::blade<0, 3>{S{"qz"} * S{"pw"} - S{"pz"} * S{"qw"}} +
+        GS3::blade<2, 3>{S{"py"} * S{"qz"} - S{"pz"} * S{"qy"}} +
+        GS3::blade<3, 1>{S{"pz"} * S{"qx"} - S{"px"} * S{"qz"}} +
+        GS3::blade<1, 2>{S{"px"} * S{"qy"} - S{"py"} * S{"qx"}};
+
+    const auto compare_each_element =
+        []<class... Ts, class... Us>(
+            const std::tuple<Ts...>& tup1,
+            const std::tuple<Us...>& tup2,
+            auto cmp) {
+          return (cmp(std::get<Ts>(tup1), std::get<Us>(tup2)) and ...);
+        };
+
+    const auto cmp = [](const auto& b1, const auto& b2) {
+      return eq(b1, b2) or eq(expand(b1.coefficient), expand(b2.coefficient));
+    };
+
+    return expect(compare_each_element(l, p ^ q, cmp));
   };
 
   "formattable"_test = [] {
