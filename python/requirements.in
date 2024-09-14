@@ -1,0 +1,13 @@
+# https://github.com/bazelbuild/bazel/issues/4327
+# https://github.com/pypa/setuptools/issues/4487
+# build --experimental_inprocess_symlink_creation does not work
+setuptools==70.3.0
+
+# notebook 7 doesn't display a file browser at all
+notebook==6.*
+
+jupyter
+pyvista[all]
+ipywidgets
+trame
+matplotlib
