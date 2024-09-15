@@ -27,7 +27,7 @@ class get_or_fn
 {
 public:
   template <class V, class U>
-    requires std::is_invocable_v<decltype(detail::tuple_cref), V&&>
+    requires std::is_invocable_v<decltype(detail::tuple_cref), V&>
   constexpr static auto operator()(V&& v, U&& u) ->
       typename std::conditional_t<
           std::is_invocable_v<decltype(get<B>), V&&>,

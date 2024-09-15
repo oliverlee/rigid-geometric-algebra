@@ -40,13 +40,13 @@ class get_fn
 
 public:
   template <class V>
-    requires std::is_invocable_v<decltype(detail::tuple_cref), V&&> and
+    requires std::is_invocable_v<decltype(detail::tuple_cref), V&> and
                  (1UZ ==
                   tuple_element_count_v<
                       B,
                       std::remove_cvref_t<std::invoke_result_t<
                           decltype(detail::tuple_cref),
-                          V &&>>>)
+                          V&>>>)
   constexpr static auto
   operator()(V&& v) noexcept -> decltype(std::get<B>(std::forward<V>(v)))
   {

@@ -31,3 +31,13 @@ cc_test(
         "@skytest",
     ],
 )
+
+cc_test(
+    name = "tuple_cref_test",
+    size = "small",
+    srcs = ["tuple_cref_test.cpp"],
+    deps = [
+        "//rigid_geometric_algebra",
+        "@skytest",
+    ],
+)

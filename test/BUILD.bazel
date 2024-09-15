@@ -138,6 +138,16 @@ cc_test(
 )
 
 cc_test(
+    name = "tuple_type_test",
+    size = "small",
+    srcs = ["tuple_type_test.cpp"],
+    deps = [
+        "//rigid_geometric_algebra",
+        "@skytest",
+    ],
+)
+
+cc_test(
     name = "zero_constant_test",
     size = "small",
     srcs = ["zero_constant_test.cpp"],
