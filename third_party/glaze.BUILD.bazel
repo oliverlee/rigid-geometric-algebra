@@ -1,0 +1,12 @@
+"""
+Build rules for glaze
+"""
+
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+cc_library(
+    name = "glaze",
+    hdrs = glob(["include/glaze/**/*"]),
+    includes = ["include"],
+    visibility = ["//visibility:public"],
+)

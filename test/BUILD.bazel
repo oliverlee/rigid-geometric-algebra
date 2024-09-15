@@ -107,12 +107,12 @@ cc_test(
 )
 
 cc_test(
-    name = "symengine_multivector_test",
+    name = "serialization_test",
     size = "small",
-    srcs = ["symengine_multivector_test.cpp"],
+    srcs = ["serialization_test.cpp"],
     deps = [
-        ":symengine",
         "//rigid_geometric_algebra",
+        "@glaze",
         "@skytest",
     ],
 )
@@ -122,6 +122,17 @@ cc_test(
     size = "small",
     srcs = ["sorted_canonical_blades_test.cpp"],
     deps = [
+        "//rigid_geometric_algebra",
+        "@skytest",
+    ],
+)
+
+cc_test(
+    name = "symengine_multivector_test",
+    size = "small",
+    srcs = ["symengine_multivector_test.cpp"],
+    deps = [
+        ":symengine",
         "//rigid_geometric_algebra",
         "@skytest",
     ],

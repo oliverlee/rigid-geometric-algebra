@@ -8,6 +8,7 @@
 #include "rigid_geometric_algebra/detail/sorted_dimensions.hpp"
 #include "rigid_geometric_algebra/detail/swaps_to_sorted_dimensions.hpp"
 #include "rigid_geometric_algebra/detail/unique_dimensions.hpp"
+#include "rigid_geometric_algebra/glz_fwd.hpp"
 #include "rigid_geometric_algebra/zero_constant.hpp"
 
 #include <algorithm>
@@ -251,4 +252,11 @@ struct std::formatter<::rigid_geometric_algebra::blade<A, Is...>, CharT>
     std::ignore = ((out = std::format_to(out, subscripts[Is]), true) and ...);
     return out;
   }
+};
+
+template <class A, std::size_t... Is>
+struct ::glz::meta<::rigid_geometric_algebra::blade<A, Is...>>
+{
+  using T = ::rigid_geometric_algebra::blade<A, Is...>;
+  static constexpr auto value = &T::coefficient;
 };

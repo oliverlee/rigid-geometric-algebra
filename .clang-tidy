@@ -82,7 +82,7 @@ CheckOptions:
     - key: readability-implicit-bool-conversion.AllowPointerConditions
       value : true
     - key: misc-include-cleaner.IgnoreHeaders
-      value: symengine/.*
+      value: (symengine|glaze)/.*
 
 # only lint files coming from this project
 HeaderFilterRegex: '/rigid-geometric-algebra/'
