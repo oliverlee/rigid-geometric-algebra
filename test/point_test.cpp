@@ -14,6 +14,7 @@ auto main() -> int
   using ::skytest::eq;
   using ::skytest::expect;
 
+  using G2 = ::rigid_geometric_algebra::algebra<double, 2>;
   using GS2 = ::rigid_geometric_algebra::algebra<::SymEngine::Expression, 2>;
   using ::rigid_geometric_algebra::multivector;
 
@@ -28,6 +29,10 @@ auto main() -> int
         std::is_constructible_v<GS2::point, int, int, int> and
         (not std::is_constructible_v<GS2::point, int, int>) and
         (not std::is_constructible_v<GS2::point, int>));
+  };
+
+  "floating type constant constructible from ints"_test = [] {
+    return expect(eq(G2::point{1., 2., 3.}, G2::point{1, 2, 3}));
   };
 
   "copyable and comparable"_test = [] {
