@@ -43,9 +43,9 @@ struct get_coefficient
 ///
 /// Defines a basis element of the geometric algebra.
 ///
-/// Every blade has a grade, where the grade the number of factors, equal to
+/// Every blade has a grade, where the grade is the number of factors, equal to
 /// `sizeof(Is...)`. The grade of the blade cannot exceed the algebra's
-/// projected dimension (`algebra_dimension_v<A>`).
+/// dimension.
 ///
 /// In traditional vector algebra, a blade with grade 0 is a scalar
 /// (`blade<A>`) and a blade with grade 1 is a basis vector (`blade<A, 1>`).
@@ -78,7 +78,8 @@ public:
 
   /// number of factors
   ///
-  static constexpr auto grade = sizeof...(Is);
+  static constexpr auto grade =
+      std::integral_constant<std::size_t, sizeof...(Is)>{};
 
   /// blade scalar type
   ///

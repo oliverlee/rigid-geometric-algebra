@@ -7,7 +7,7 @@
 
 namespace rigid_geometric_algebra {
 
-/// obtains the dimension (projected) of an algebra
+/// obtains the dimension of a geometric algebra
 ///
 /// @{
 

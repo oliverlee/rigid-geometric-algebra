@@ -191,8 +191,8 @@ public:
     const auto& v3 = to_multivector(std::forward<V1>(v1));
     const auto& v4 = to_multivector(std::forward<V2>(v2));
 
-    static constexpr auto N = std::remove_cvref_t<decltype(v3)>::size();
-    static constexpr auto M = std::remove_cvref_t<decltype(v4)>::size();
+    static constexpr auto N = std::remove_cvref_t<decltype(v3)>::size;
+    static constexpr auto M = std::remove_cvref_t<decltype(v4)>::size;
 
     return []<std::size_t... Is>(
                std::index_sequence<Is...>, const auto& t1, const auto& t2) {

@@ -10,7 +10,7 @@
 
 namespace rigid_geometric_algebra {
 
-/// algebra for a given field type and dimension
+/// geometric algebra for a given field type and dimension
 /// @tparam F field type
 /// @tparam N dimension of Euclidean space
 ///
