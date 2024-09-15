@@ -15,6 +15,15 @@ cc_binary(
     deps = [":symengine"],
 )
 
+cc_binary(
+    name = "points-example",
+    srcs = ["points-example.cpp"],
+    deps = [
+        "//rigid_geometric_algebra",
+        "@glaze",
+    ],
+)
+
 cc_test(
     name = "common_algebra_type_test",
     size = "small",
