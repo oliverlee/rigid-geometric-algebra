@@ -42,6 +42,7 @@ cc_library(
         "point.hpp",
         "sorted_canonical_blades.hpp",
         "to_multivector.hpp",
+        "tuple_type.hpp",
         "wedge.hpp",
         "zero_constant.hpp",
     ],
