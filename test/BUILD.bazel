@@ -28,16 +28,6 @@ cc_binary(
 )
 
 cc_test(
-    name = "common_algebra_type_test",
-    size = "small",
-    srcs = ["common_algebra_type_test.cpp"],
-    deps = [
-        "//rigid_geometric_algebra",
-        "@skytest",
-    ],
-)
-
-cc_test(
     name = "blade_type_from_test",
     size = "small",
     srcs = ["blade_type_from_test.cpp"],
@@ -58,9 +48,28 @@ cc_test(
 )
 
 cc_test(
+    name = "blade_complement_type_test",
+    size = "small",
+    srcs = ["blade_complement_type_test.cpp"],
+    deps = [
+        "//rigid_geometric_algebra",
+    ],
+)
+
+cc_test(
     name = "blade_ordering_test",
     size = "small",
     srcs = ["blade_ordering_test.cpp"],
+    deps = [
+        "//rigid_geometric_algebra",
+        "@skytest",
+    ],
+)
+
+cc_test(
+    name = "common_algebra_type_test",
+    size = "small",
+    srcs = ["common_algebra_type_test.cpp"],
     deps = [
         "//rigid_geometric_algebra",
         "@skytest",

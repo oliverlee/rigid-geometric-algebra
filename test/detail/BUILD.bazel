@@ -3,9 +3,29 @@ load("@rules_cc//cc:defs.bzl", "cc_test")
 package(default_visibility = ["//:__subpackages__"])
 
 cc_test(
+    name = "are_dimensions_unique_test",
+    size = "small",
+    srcs = ["are_dimensions_unique_test.cpp"],
+    deps = [
+        "//rigid_geometric_algebra",
+        "@skytest",
+    ],
+)
+
+cc_test(
     name = "define_prioritized_overload_test",
     size = "small",
     srcs = ["define_prioritized_overload_test.cpp"],
+    deps = [
+        "//rigid_geometric_algebra",
+        "@skytest",
+    ],
+)
+
+cc_test(
+    name = "disjoint_subset_test",
+    size = "small",
+    srcs = ["disjoint_subset_test.cpp"],
     deps = [
         "//rigid_geometric_algebra",
         "@skytest",

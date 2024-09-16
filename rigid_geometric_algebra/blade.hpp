@@ -2,12 +2,11 @@
 
 #include "rigid_geometric_algebra/algebra_dimension.hpp"
 #include "rigid_geometric_algebra/algebra_field.hpp"
+#include "rigid_geometric_algebra/detail/are_dimensions_unique.hpp"
 #include "rigid_geometric_algebra/detail/derive_subtraction.hpp"
 #include "rigid_geometric_algebra/detail/derive_vector_space_operations.hpp"
 #include "rigid_geometric_algebra/detail/size_checked_subrange.hpp"
-#include "rigid_geometric_algebra/detail/sorted_dimensions.hpp"
 #include "rigid_geometric_algebra/detail/swaps_to_sorted_dimensions.hpp"
-#include "rigid_geometric_algebra/detail/unique_dimensions.hpp"
 #include "rigid_geometric_algebra/glz_fwd.hpp"
 #include "rigid_geometric_algebra/zero_constant.hpp"
 
@@ -65,13 +64,19 @@ struct get_coefficient
 ///
 template <class A, std::size_t... Is>
   requires ((Is < algebra_dimension_v<A>) and ...) and
-               (detail::unique_dimensions(Is...))
+               (detail::are_dimensions_unique(Is...))
 class blade
     : detail::derive_vector_space_operations<
           blade<A, Is...>,
           detail::get_coefficient>,
       detail::derive_subtraction<blade<A, Is...>>
 {
+  static constexpr auto sorted_dimensions = [] {
+    auto dims = std::array<std::size_t, sizeof...(Is)>{Is...};
+    std::ranges::sort(dims);
+    return dims;
+  }();
+
 public:
   /// algebra this blade belongs to
   ///
@@ -89,10 +94,10 @@ public:
   /// blade type with indices in canonical form
   ///
   using canonical_type =
-      decltype([]<std::size_t... Js>(
-                   std::index_sequence<Js...>) -> blade<A, Js...> {
+      decltype([]<std::size_t... Js>(std::index_sequence<Js...>)
+                   -> blade<A, sorted_dimensions[Js]...> {
         return {};
-      }(detail::sorted_dimensions<Is...>{}));
+      }(std::make_index_sequence<sizeof...(Is)>{}));
 
   /// blade scalar coefficient
   ///
@@ -187,7 +192,7 @@ public:
   }
 
   template <std::size_t... Js>
-    requires (not detail::unique_dimensions(Is..., Js...))
+    requires (not detail::are_dimensions_unique(Is..., Js...))
   friend constexpr auto
   operator^(const blade&, const blade<A, Js...>&) -> zero_constant<A>
   {
