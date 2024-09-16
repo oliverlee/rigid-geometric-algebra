@@ -14,6 +14,57 @@ alias(
     }),
 )
 
+alias(
+    name = "ruff",
+    actual = select({
+        "@platforms//os:macos": "@ruff_aarch64-darwin//:ruff",
+        "@platforms//os:linux": "@ruff_x86_64-linux//:ruff",
+    }),
+)
+
+genrule(
+    name = "ruff-workspace-directory",
+    srcs = [":ruff"],
+    outs = ["ruff-workspace-directory.bash"],
+    cmd = """
+echo "#!/bin/bash" > $@
+echo "cd \\$$BUILD_WORKSPACE_DIRECTORY" >> $@
+echo "$(execpath :ruff) \\$$@" >> $@
+    """,
+)
+
+sh_binary(
+    name = "ruff.format.check",
+    srcs = ["ruff-workspace-directory.bash"],
+    args = [
+        "format",
+        "--check",
+    ],
+    data = [":ruff"],
+)
+
+sh_binary(
+    name = "ruff.format",
+    srcs = ["ruff-workspace-directory.bash"],
+    args = [
+        "format",
+    ],
+    data = [":ruff"],
+)
+
+# https://docs.astral.sh/ruff/rules/
+sh_binary(
+    name = "ruff.lint",
+    srcs = ["ruff-workspace-directory.bash"],
+    args = [
+        "check",
+        "--exit-non-zero-on-fix",
+        "--fix",
+        "--show-fixes",
+    ],
+    data = [":ruff"],
+)
+
 buildifier(
     name = "buildifier.check",
     lint_mode = "warn",
@@ -62,6 +113,7 @@ multirun(
     commands = [
         ":buildifier.check",
         ":clang-format.check",
+        ":ruff.format.check",
     ],
 )
 
@@ -70,6 +122,7 @@ multirun(
     commands = [
         ":buildifier",
         ":clang-format",
+        ":ruff.format",
     ],
 )
 
@@ -100,6 +153,14 @@ echo "exec bazel build {options} \\$${{@:-//...}}" >> $@
 #     //test:point_test
 #
 sh_binary(
-    name = "lint",
+    name = "clang-tidy",
     srcs = ["clang-tidy.sh"],
+)
+
+multirun(
+    name = "lint",
+    commands = [
+        ":clang-tidy",
+        ":ruff.lint",
+    ],
 )

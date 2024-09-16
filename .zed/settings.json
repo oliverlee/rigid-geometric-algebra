@@ -6,7 +6,25 @@
   "format_on_save": "off",
   "file_scan_exclusions": [
     ".cache/"
-  ]
+  ],
+  "languages": {
+    "Python": {
+      "language_servers": ["pyright", "ruff"],
+      "formatter": [
+        {
+          "code_actions": {
+            "source.organizeImports.ruff": true,
+            "source.fixAll.ruff": true
+          }
+        },
+        {
+          "language_server": {
+            "name": "ruff"
+          }
+        }
+      ]
+    }
+  }
   // The following LSP settings need to be copied into Zed settings.
   // This uses the hermetic clangd from the llvm toolchain, but arguments
   // may vary due to personal preference.
@@ -18,17 +36,53 @@
   //     "binary": {
   //       "path": "./external/llvm18_toolchain_llvm/bin/clangd",
   //       "arguments": [
-  //        "--completion-parse=always",
-  //        "--parse-forwarding-functions",
-  //        "--use-dirty-headers",
-  //        "--include-ineligible-results",
-  //        "--header-insertion-decorators",
-  //        "--limit-references=0",
-  //        "--limit-results=0",
-  //        "--rename-file-limit=0",
-  //        "--enable-config"
+  //         "--function-arg-placeholders=0",
+  //         "--completion-parse=always",
+  //         "--parse-forwarding-functions",
+  //         "--use-dirty-headers",
+  //         "--include-ineligible-results",
+  //         "--header-insertion-decorators",
+  //         "--limit-references=0",
+  //         "--limit-results=0",
+  //         "--rename-file-limit=0",
+  //         "--enable-config"
   //       ]
   //     }
+  //   },
+  //   // https://zed.dev/docs/languages/python#settings
+  //   // https://microsoft.github.io/pyright/#/settings
+  //   // https://github.com/zed-industries/zed/discussions/6564#discussioncomment-10570558
+  //   "pyright": {
+  //     "settings": {
+  //       "python": {
+  //         "pythonPath": "./external/python3_host/python"
+  //       },
+  //       "python.analysis": {
+  //         "autoImportCompletions": "true",
+  //         "typeCheckingMode": "off",
+  //         "logLevel": "trace",
+  //         "extraPaths": ["./external/python3_fake_venv/pypi/site-packages"]
+  //       },
+  //       "pyright": {
+  //         "autoImportCompletions": "true"
+  //       }
+  //     }
+  //   },
+  //   "ruff": {
+  //     "binary": {
+  //       // relative paths get appended to ruff path with Zed extension directory
+  //       "path": "/bin/bash",
+  //       "arguments": [
+  //         "-c",
+  //         "./external/ruff_aarch64-darwin/bin/ruff server --preview --verbose"
+  //       ]
+  //     },
+  //     // https://docs.astral.sh/ruff/editors/settings/#configurationpreference
+  //     "initialization_options": {
+  //       "settings": {
+  //         "logLevel": "trace"
+  //       }
+  //     }
   //   }
-  // }
+  // },
 }

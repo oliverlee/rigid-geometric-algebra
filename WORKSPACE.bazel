@@ -1,6 +1,7 @@
 workspace(name = "rigid_geometric_algebra")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("//private:local_python_fake_venv.bzl", "local_python_fake_venv")
 
 CXX_STANDARD = ["-std=c++23"]
 
@@ -281,3 +282,48 @@ pip_parse(
 load("@pypi//:requirements.bzl", "install_deps")
 
 install_deps()
+
+local_python_fake_venv(
+    name = "python3_fake_venv",
+    pip_requirements = "@pypi//:requirements.bzl",
+)
+
+RUFF_RELEASE = "0.6.5"
+
+http_archive(
+    name = "ruff_aarch64-darwin",
+    add_prefix = "bin",
+    build_file_content = """\
+load("@bazel_skylib//rules:native_binary.bzl", "native_binary")
+
+native_binary(
+    name = "ruff",
+    src = "bin/ruff",
+    visibility = ["//visibility:public"],
+)
+    """,
+    integrity = "sha256-Cqug2Rk2IBlmAxq6VmeRR+svqbNvu8Zu8iutyYXCyco=",
+    strip_prefix = "ruff-aarch64-apple-darwin",
+    url = "https://github.com/astral-sh/ruff/releases/download/{release}/ruff-aarch64-apple-darwin.tar.gz".format(
+        release = RUFF_RELEASE,
+    ),
+)
+
+http_archive(
+    name = "ruff_x86_64-linux",
+    add_prefix = "bin",
+    build_file_content = """\
+load("@bazel_skylib//rules:native_binary.bzl", "native_binary")
+
+native_binary(
+    name = "ruff",
+    src = "bin/ruff",
+    visibility = ["//visibility:public"],
+)
+    """,
+    integrity = "sha256-p/10ky/Dd1i0B2L940DRszrQ0SNWvYzH2soOGjwQ8ZQ=",
+    strip_prefix = "ruff-x86_64-unknown-linux-gnu",
+    url = "https://github.com/astral-sh/ruff/releases/download/{release}/ruff-x86_64-unknown-linux-gnu.tar.gz".format(
+        release = RUFF_RELEASE,
+    ),
+)
