@@ -8,6 +8,10 @@
     ".cache/"
   ],
   "languages": {
+    "Starlark": {
+      "enable_language_server": false,
+      "language_servers": ["!starpls"] // very buggy =/
+    },
     "Python": {
       "language_servers": ["pyright", "ruff"],
       "formatter": [
