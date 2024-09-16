@@ -33,6 +33,7 @@ cc_library(
         "field.hpp",
         "get.hpp",
         "get_or.hpp",
+        "glz_fwd.hpp",
         "is_algebra.hpp",
         "is_blade.hpp",
         "is_canonical_blade_order.hpp",

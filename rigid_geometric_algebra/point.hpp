@@ -2,12 +2,15 @@
 
 #include "rigid_geometric_algebra/algebra_field.hpp"
 #include "rigid_geometric_algebra/blade.hpp"
+#include "rigid_geometric_algebra/glz_fwd.hpp"
 #include "rigid_geometric_algebra/multivector.hpp"
+#include "rigid_geometric_algebra/tuple_type.hpp"
 
 #include <array>
 #include <concepts>
 #include <cstddef>
 #include <format>
+#include <functional>
 #include <initializer_list>
 #include <type_traits>
 #include <utility>
@@ -91,7 +94,7 @@ public:
     auto refs = [&self]<std::size_t... Is>(std::index_sequence<Is...>) {
       return std::array{std::ref(
           get<blade<algebra_type, Is>>(self.multivector()).coefficient)...};
-    }(std::make_index_sequence<multivector_type::size()>{});
+    }(std::make_index_sequence<multivector_type::size>{});
 
     return std::forward_like<Self>(refs[i].get());
   }
@@ -138,4 +141,25 @@ struct std::formatter<::rigid_geometric_algebra::point<A>, CharT>
         typename ::rigid_geometric_algebra::point<A>::multivector_type,
         CharT>::format(p.multivector(), ctx);
   }
+};
+
+template <class A>
+struct ::glz::meta<::rigid_geometric_algebra::point<A>>
+{
+  template <class P>
+  struct point_wrapper
+  {
+    std::reference_wrapper<P> point;
+  };
+
+  static constexpr auto value = [](auto& self) {
+    using T = ::rigid_geometric_algebra::tuple_type_t<
+        typename ::rigid_geometric_algebra::point<A>::multivector_type>;
+
+    using R = std::conditional_t<
+        std::is_const_v<std::remove_reference_t<decltype(self)>>,
+        std::add_const_t<T>,
+        T>;
+    return point_wrapper<R>{static_cast<R&>(self.multivector())};
+  };
 };

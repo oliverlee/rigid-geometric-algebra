@@ -237,3 +237,19 @@ http_archive(
         "https://github.com/symengine/symengine/archive/refs/tags/v0.12.0.tar.gz",
     ],
 )
+
+GLAZE_COMMIT = "8bed9f1add49e3b9595bb71156a4b54ab31374bb"
+
+http_archive(
+    name = "glaze",
+    build_file = "//third_party:glaze.BUILD.bazel",
+    integrity = "sha256-JWUpOtef3OqPGbzzLU3Kp4b5pEnX7frXEVS0aJbC2Yo=",
+    strip_prefix = "glaze-{commit}".format(
+        commit = GLAZE_COMMIT,
+    ),
+    urls = [
+        "https://github.com/stephenberry/glaze/archive/{commit}.tar.gz".format(
+            commit = GLAZE_COMMIT,
+        ),
+    ],
+)
