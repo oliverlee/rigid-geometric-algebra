@@ -73,11 +73,10 @@ public:
   /// initializer list constructor
   /// @param il initializer list of values
   ///
-  /// @note allows conversions to `value_type` is floating point and is the
+  /// @note allows conversions to floating point `value_type`s and if the
   ///   source can be stored exactly
   /// @see
   /// https://en.cppreference.com/w/cpp/language/list_initialization#Narrowing_conversions
-  ///
   ///
   constexpr multivector(std::initializer_list<value_type> il)
     requires std::floating_point<value_type>

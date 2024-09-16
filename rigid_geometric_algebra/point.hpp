@@ -8,6 +8,8 @@
 #include <concepts>
 #include <cstddef>
 #include <format>
+#include <initializer_list>
+#include <type_traits>
 #include <utility>
 
 namespace rigid_geometric_algebra {
@@ -49,6 +51,19 @@ public:
     requires (sizeof...(Ts) == multivector_type::size()) and
              (std::constructible_from<value_type, Ts> and ...)
   constexpr point(Ts&&... coeffs) : values_{std::forward<Ts>(coeffs)...}
+  {}
+
+  /// initializer list constructor
+  /// @param il initializer list of values
+  ///
+  /// @note allows conversions to `value_type` is floating point and if the
+  ///   source can be stored exactly
+  /// @see
+  /// https://en.cppreference.com/w/cpp/language/list_initialization#Narrowing_conversions
+  ///
+  constexpr point(std::initializer_list<value_type> il)
+    requires std::floating_point<value_type>
+      : values_{il}
   {}
 
   /// access the underlying `multivector`

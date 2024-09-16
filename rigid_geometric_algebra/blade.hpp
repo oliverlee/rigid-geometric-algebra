@@ -113,7 +113,7 @@ public:
   /// initializer list constructor
   /// @param il initializer list of values
   ///
-  /// @note allows conversions to `value_type` is floating point and is the
+  /// @note allows conversions to `value_type` is floating point and if the
   ///   source can be stored exactly
   /// @see
   /// https://en.cppreference.com/w/cpp/language/list_initialization#Narrowing_conversions
