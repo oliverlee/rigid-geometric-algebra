@@ -4,6 +4,7 @@
 #include "rigid_geometric_algebra/field.hpp"
 #include "rigid_geometric_algebra/multivector.hpp"
 #include "rigid_geometric_algebra/point.hpp"
+#include "rigid_geometric_algebra/scalar_type.hpp"
 #include "rigid_geometric_algebra/zero_constant.hpp"
 
 #include <cstddef>
@@ -32,6 +33,10 @@ struct algebra
   using multivector = ::rigid_geometric_algebra::multivector<algebra, Bs...>;
 
   using point = ::rigid_geometric_algebra::point<algebra>;
+
+  using scalar = ::rigid_geometric_algebra::scalar_type_t<algebra>;
+
+  using antiscalar = ::rigid_geometric_algebra::antiscalar_type_t<algebra>;
 };
 
 }  // namespace rigid_geometric_algebra
