@@ -43,6 +43,7 @@ cc_library(
         "magma.hpp",
         "multivector.hpp",
         "point.hpp",
+        "scalar_type.hpp",
         "sorted_canonical_blades.hpp",
         "to_multivector.hpp",
         "tuple_type.hpp",

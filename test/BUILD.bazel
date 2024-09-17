@@ -129,6 +129,17 @@ cc_test(
 )
 
 cc_test(
+    name = "scalar_antiscalar_type_test",
+    size = "small",
+    srcs = ["scalar_antiscalar_type_test.cpp"],
+    deps = [
+        "//rigid_geometric_algebra",
+        "@glaze",
+        "@skytest",
+    ],
+)
+
+cc_test(
     name = "serialization_test",
     size = "small",
     srcs = ["serialization_test.cpp"],
