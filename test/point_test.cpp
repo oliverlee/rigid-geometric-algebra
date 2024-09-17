@@ -2,8 +2,7 @@
 #include "skytest/skytest.hpp"
 
 #include <format>
-#include <symengine/expression.h>
-#include <symengine/format.hpp>
+#include <symengine/compat.hpp>
 #include <tuple>
 #include <type_traits>
 #include <utility>
