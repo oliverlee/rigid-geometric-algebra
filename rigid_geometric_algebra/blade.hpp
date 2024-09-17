@@ -109,13 +109,6 @@ public:
   ///
   blade() = default;
 
-  /// coefficient constructor
-  /// @param value coefficient value
-  ///
-  /// constructs a blade with coefficient specified by value
-  ///
-  constexpr blade(value_type value) : coefficient{std::move(value)} {}
-
   /// initializer list constructor
   /// @param il initializer list of values
   ///
@@ -137,7 +130,8 @@ public:
   ///
   template <class T>
     requires std::constructible_from<value_type, T>
-  constexpr blade(T&& value) : coefficient{std::forward<T>(value)}
+  constexpr explicit(grade != 0) blade(T&& value)
+      : coefficient{std::forward<T>(value)}
   {}
 
   /// obtain the blade with indices in canonical form
@@ -155,7 +149,7 @@ public:
         std::identity,
         std::negate<>>;
 
-    return {maybe_negate{}(std::forward<Self>(self).coefficient)};
+    return canonical_type{maybe_negate{}(std::forward<Self>(self).coefficient)};
   }
 
   /// addition

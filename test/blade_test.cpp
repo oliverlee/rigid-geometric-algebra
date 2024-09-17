@@ -2,13 +2,16 @@
 #include "skytest/skytest.hpp"
 
 #include <format>
+#include <functional>
 
 auto main() -> int
 {
   using namespace skytest::literals;
   using ::skytest::eq;
   using ::skytest::expect;
+  using ::skytest::function;
   using ::skytest::ne;
+  using ::skytest::pred;
 
   using G2 = ::rigid_geometric_algebra::algebra<double, 2>;
 
@@ -29,6 +32,21 @@ auto main() -> int
     const auto c = G2::blade<>{1};
 
     return expect(eq(a, b) and ne(a, c) and ne(b, c));
+  };
+
+  "comparable with field type (if scalar)"_test = [] {
+    return expect(eq(1., G2::blade<>{1}));
+  };
+
+  "not comparable with field type (if non-scalar)"_test = [] {
+    const auto comparable = pred(
+        function<"comparable">, []<class T1, class T2>(const T1&, const T2&) {
+          return std::is_invocable_v<std::equal_to<>, T1, T2>;
+        });
+
+    return expect(
+        not comparable(1., G2::blade<0>{}) and
+        not comparable(1., G2::blade<0, 1, 2>{}));
   };
 
   "grade"_test = [] {

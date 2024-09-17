@@ -50,7 +50,7 @@ public:
     requires is_derived_reference_v<T1>
   friend constexpr auto operator-(T1&& t1) -> D
   {
-    return {-(F{}(std::forward<T1>(t1)))...};
+    return D{-(F{}(std::forward<T1>(t1)))...};
   }
 
   /// subtraction
@@ -74,7 +74,7 @@ public:
     requires is_derived_reference_v<T1> and is_derived_reference_v<T2>
   friend constexpr auto operator+(T1&& t1, T2&& t2) -> D
   {
-    return {(F{}(std::forward<T1>(t1)) + F{}(std::forward<T2>(t2)))...};
+    return D{(F{}(std::forward<T1>(t1)) + F{}(std::forward<T2>(t2)))...};
   }
 
   /// scalar multiplication
@@ -89,7 +89,7 @@ public:
                ...))
   friend constexpr auto operator*(const S& s, T2&& t2) -> D
   {
-    return {(s * F{}(std::forward<T2>(t2)))...};
+    return D{(s * F{}(std::forward<T2>(t2)))...};
   }
 
   /// equality comparison
