@@ -1,5 +1,7 @@
 #pragma once
 
+#include "rigid_geometric_algebra/detail/has_value.hpp"
+#include "rigid_geometric_algebra/field_identity.hpp"
 #include "rigid_geometric_algebra/magma.hpp"
 
 #include <concepts>
@@ -24,11 +26,18 @@ namespace rigid_geometric_algebra {
 /// distributivity properties, nor the semantics of the inverse addition
 /// (subtraction) and inverse multiplication (division) operation.
 ///
+/// A program may specialize `field_identity` for `T` and
+/// `F = std::multiplies<>` if `T` is a program-defined type in order to
+/// specify the value of "one<T>" (the multiplicative identity).
+///
+/// Specializations with `F = std::plus<>` are ignored.
+///
 /// @see https://en.wikipedia.org/wiki/Field_(mathematics)
 ///
 template <class T>
 concept field =
     std::regular<T> and magma<T, std::plus<>> and magma<T, std::minus<>> and
-    magma<T, std::multiplies<>> and magma<T, std::divides<>>;
+    magma<T, std::multiplies<>> and magma<T, std::divides<>> and
+    detail::has_value_v<field_identity<T, std::multiplies<>>>;
 
 }  // namespace rigid_geometric_algebra

@@ -3,21 +3,24 @@ load("@rules_cc//cc:defs.bzl", "cc_test")
 package(default_visibility = ["//:__subpackages__"])
 
 cc_library(
-    name = "symengine",
-    hdrs = ["symengine/format.hpp"],
+    name = "symengine_compat",
+    hdrs = ["symengine/compat.hpp"],
     includes = ["."],
-    deps = ["@symengine"],
+    deps = [
+        "//rigid_geometric_algebra",
+        "@symengine",
+    ],
 )
 
 cc_binary(
-    name = "symengine-example",
-    srcs = ["symengine-example.cpp"],
-    deps = [":symengine"],
+    name = "symengine_example",
+    srcs = ["symengine_example.cpp"],
+    deps = [":symengine_compat"],
 )
 
 cc_binary(
-    name = "points-example",
-    srcs = ["points-example.cpp"],
+    name = "points_example",
+    srcs = ["points_example.cpp"],
     deps = [
         "//rigid_geometric_algebra",
         "@glaze",
@@ -58,6 +61,16 @@ cc_test(
     name = "blade_ordering_test",
     size = "small",
     srcs = ["blade_ordering_test.cpp"],
+    deps = [
+        "//rigid_geometric_algebra",
+        "@skytest",
+    ],
+)
+
+cc_test(
+    name = "field_identity_test",
+    size = "small",
+    srcs = ["field_identity_test.cpp"],
     deps = [
         "//rigid_geometric_algebra",
         "@skytest",
@@ -109,7 +122,7 @@ cc_test(
     size = "small",
     srcs = ["point_test.cpp"],
     deps = [
-        ":symengine",
+        ":symengine_compat",
         "//rigid_geometric_algebra",
         "@skytest",
     ],
@@ -141,7 +154,7 @@ cc_test(
     size = "small",
     srcs = ["symengine_multivector_test.cpp"],
     deps = [
-        ":symengine",
+        ":symengine_compat",
         "//rigid_geometric_algebra",
         "@skytest",
     ],

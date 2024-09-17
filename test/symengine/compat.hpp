@@ -1,10 +1,17 @@
 #pragma once
 
+#include "rigid_geometric_algebra/rigid_geometric_algebra.hpp"
+
 #include <format>
+#include <functional>
 #include <sstream>
 #include <string_view>
-#include <symengine/expression.h>
 
+// IWYU pragma: begin_exports
+#include <symengine/expression.h>
+// IWYU pragma: end_exports
+
+// standard library extensions
 namespace test::stx {
 
 // https://stackoverflow.com/questions/75738118/using-stdformat-with-types-that-have-operator
@@ -30,3 +37,10 @@ template <class CharT>
 struct std::formatter<::SymEngine::Expression, CharT>
     : ::test::stx::basic_ostream_formatter<CharT>
 {};
+
+template <>
+struct ::rigid_geometric_algebra::
+    field_identity<::SymEngine::Expression, std::multiplies<>>
+{
+  inline static const auto value = ::SymEngine::Expression{1};
+};
