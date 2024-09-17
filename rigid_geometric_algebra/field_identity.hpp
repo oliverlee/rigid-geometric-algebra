@@ -2,6 +2,7 @@
 
 #include "rigid_geometric_algebra/magma.hpp"
 
+#include <complex>
 #include <concepts>
 #include <functional>
 #include <type_traits>
@@ -34,10 +35,19 @@ template <std::floating_point T>
 struct field_identity<T, std::multiplies<>> : std::integral_constant<T, T{1}>
 {};
 
-template <std::regular T, class F>
-  requires magma<T, F>
-inline constexpr auto field_identity_v = field_identity<T, F>::value;
+/// specialization for `std::complex` types and `std::multiplies<>`
+///
+template <std::floating_point T>
+struct field_identity<std::complex<T>, std::multiplies<>>
+    : std::integral_constant<T, T{1}>
+{};
 
 /// @}
+
+/// reference to the field identity value
+///
+template <std::regular T, class F>
+  requires magma<T, F>
+inline constexpr const auto& field_identity_v = field_identity<T, F>::value;
 
 }  // namespace rigid_geometric_algebra
