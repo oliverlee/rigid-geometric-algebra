@@ -8,7 +8,15 @@
 #include <string_view>
 
 // IWYU pragma: begin_exports
+#include <symengine/assumptions.h>
 #include <symengine/expression.h>
+#include <symengine/functions.h>
+#include <symengine/logic.h>
+#include <symengine/real_double.h>
+#include <symengine/refine.h>
+#include <symengine/sets.h>
+#include <symengine/simplify.h>
+#include <symengine/symbol.h>
 // IWYU pragma: end_exports
 
 // standard library extensions

@@ -5,6 +5,7 @@
 #include "rigid_geometric_algebra/detail/are_dimensions_unique.hpp"
 #include "rigid_geometric_algebra/detail/derive_subtraction.hpp"
 #include "rigid_geometric_algebra/detail/derive_vector_space_operations.hpp"
+#include "rigid_geometric_algebra/detail/even.hpp"
 #include "rigid_geometric_algebra/detail/size_checked_subrange.hpp"
 #include "rigid_geometric_algebra/detail/swaps_to_sorted_dimensions.hpp"
 #include "rigid_geometric_algebra/glz_fwd.hpp"
@@ -143,9 +144,8 @@ public:
   template <class Self>
   constexpr auto canonical(this Self&& self) -> canonical_type
   {
-    constexpr auto even = [](std::size_t value) { return value % 2UZ == 0UZ; };
     using maybe_negate = std::conditional_t<
-        even(detail::swaps_to_sorted_dimensions(Is...)),
+        detail::even(detail::swaps_to_sorted_dimensions(Is...)),
         std::identity,
         std::negate<>>;
 
