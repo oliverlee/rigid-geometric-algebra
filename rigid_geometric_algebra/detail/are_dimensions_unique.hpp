@@ -8,11 +8,16 @@
 
 namespace rigid_geometric_algebra::detail {
 
+/// determines if values are unique
+/// @param is variadic sequence of `std::size_t` values
+///
+/// Returns `true` if all values in `is` are unique. Otherwise false.
+///
 inline constexpr class
 {
 public:
   template <std::same_as<std::size_t>... Ts>
-  constexpr static auto operator()(Ts... is) -> bool
+  static constexpr auto operator()(Ts... is) -> bool
   {
     auto dims = std::array<std::size_t, sizeof...(is)>{is...};
 
@@ -21,6 +26,6 @@ public:
     return std::ranges::is_sorted(dims, std::ranges::less_equal{});
   }
 
-} unique_dimensions{};
+} are_dimensions_unique{};
 
 }  // namespace rigid_geometric_algebra::detail

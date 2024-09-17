@@ -16,6 +16,7 @@ namespace rigid_geometric_algebra {}  // namespace rigid_geometric_algebra
 #include "rigid_geometric_algebra/algebra_fwd.hpp"
 #include "rigid_geometric_algebra/algebra_type.hpp"
 #include "rigid_geometric_algebra/blade.hpp"
+#include "rigid_geometric_algebra/blade_complement_type.hpp"
 #include "rigid_geometric_algebra/canonical_type.hpp"
 #include "rigid_geometric_algebra/field.hpp"
 #include "rigid_geometric_algebra/field_identity.hpp"
