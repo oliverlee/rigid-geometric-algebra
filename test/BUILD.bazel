@@ -127,6 +127,17 @@ cc_test(
 )
 
 cc_test(
+    name = "one_test",
+    size = "small",
+    srcs = ["one_test.cpp"],
+    deps = [
+        ":symengine_compat",
+        "//rigid_geometric_algebra",
+        "@skytest",
+    ],
+)
+
+cc_test(
     name = "point_test",
     size = "small",
     srcs = ["point_test.cpp"],
@@ -195,6 +206,17 @@ cc_test(
     size = "small",
     srcs = ["tuple_type_test.cpp"],
     deps = [
+        "//rigid_geometric_algebra",
+        "@skytest",
+    ],
+)
+
+cc_test(
+    name = "unit_hypervolume_test",
+    size = "small",
+    srcs = ["unit_hypervolume_test.cpp"],
+    deps = [
+        ":symengine_compat",
         "//rigid_geometric_algebra",
         "@skytest",
     ],

@@ -5,6 +5,7 @@
 #include "rigid_geometric_algebra/multivector.hpp"
 #include "rigid_geometric_algebra/point.hpp"
 #include "rigid_geometric_algebra/scalar_type.hpp"
+#include "rigid_geometric_algebra/unit_hypervolume.hpp"
 #include "rigid_geometric_algebra/zero_constant.hpp"
 
 #include <cstddef>
@@ -37,6 +38,9 @@ struct algebra
   using scalar = ::rigid_geometric_algebra::scalar_type_t<algebra>;
 
   using antiscalar = ::rigid_geometric_algebra::antiscalar_type_t<algebra>;
+
+  static constexpr const auto& unit_hypervolume =
+      ::rigid_geometric_algebra::unit_hypervolume<algebra>;
 };
 
 }  // namespace rigid_geometric_algebra
