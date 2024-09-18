@@ -77,6 +77,17 @@ cc_test(
 )
 
 cc_test(
+    name = "complement_test",
+    size = "small",
+    srcs = ["complement_test.cpp"],
+    deps = [
+        ":symengine_compat",
+        "//rigid_geometric_algebra",
+        "@skytest",
+    ],
+)
+
+cc_test(
     name = "field_identity_test",
     size = "small",
     srcs = ["field_identity_test.cpp"],
