@@ -13,6 +13,32 @@ cc_test(
 )
 
 cc_test(
+    name = "contract_test",
+    size = "small",
+    srcs = ["contract_test.cpp"],
+    deps = [
+        "//rigid_geometric_algebra",
+        "@skytest",
+    ],
+)
+
+cc_binary(
+    name = "contract_handler_test",
+    srcs = ["contract_handler_test.cpp"],
+    deps = [
+        "//rigid_geometric_algebra",
+    ],
+)
+
+sh_test(
+    name = "contract_handler_failure_test",
+    size = "small",
+    srcs = ["contract_handler_failure_test.bash"],
+    args = [":contract_handler_test"],
+    data = [":contract_handler_test"],
+)
+
+cc_test(
     name = "define_prioritized_overload_test",
     size = "small",
     srcs = ["define_prioritized_overload_test.cpp"],
