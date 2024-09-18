@@ -25,11 +25,12 @@ struct blade_complement_type_<true, blade_<A, Is...>>
         return detail::disjoint_subset(Is..., Js...);
       }(std::make_index_sequence<algebra_dimension_v<A>>{});
 
-  using type =
-      decltype([]<std::size_t... Ks>(std::index_sequence<Ks...>)
-                   -> blade_<A, complement_dimensions[Ks]...> {
-        return {};
-      }(std::make_index_sequence<complement_dimensions.size()>{}));
+  template <std::size_t... Ks>
+  static constexpr auto type_impl(std::index_sequence<Ks...>)
+      -> blade_<A, complement_dimensions[Ks]...>;
+
+  using type = decltype(type_impl(
+      std::make_index_sequence<complement_dimensions.size()>{}));
 };
 
 }  // namespace detail

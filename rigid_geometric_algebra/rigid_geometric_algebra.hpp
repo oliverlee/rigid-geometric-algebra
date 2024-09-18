@@ -25,6 +25,7 @@ namespace rigid_geometric_algebra {}  // namespace rigid_geometric_algebra
 #include "rigid_geometric_algebra/get_or.hpp"
 #include "rigid_geometric_algebra/is_algebra.hpp"
 #include "rigid_geometric_algebra/is_blade.hpp"
+#include "rigid_geometric_algebra/is_canonical_blade_order.hpp"
 #include "rigid_geometric_algebra/is_multivector.hpp"
 #include "rigid_geometric_algebra/magma.hpp"
 #include "rigid_geometric_algebra/multivector.hpp"

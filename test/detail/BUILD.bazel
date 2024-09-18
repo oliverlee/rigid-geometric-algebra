@@ -79,6 +79,46 @@ cc_test(
 )
 
 cc_test(
+    name = "priority_list_test",
+    size = "small",
+    srcs = ["priority_list_test.cpp"],
+    deps = [
+        "//rigid_geometric_algebra",
+        "@skytest",
+    ],
+)
+
+cc_test(
+    name = "size_checked_subrange_test",
+    size = "small",
+    srcs = ["size_checked_subrange_test.cpp"],
+    deps = [
+        "//rigid_geometric_algebra",
+        "@skytest",
+    ],
+)
+
+cc_test(
+    name = "structural_bitset_test",
+    size = "small",
+    srcs = ["structural_bitset_test.cpp"],
+    deps = [
+        "//rigid_geometric_algebra",
+        "@skytest",
+    ],
+)
+
+cc_test(
+    name = "swaps_to_sorted_dimensions_test",
+    size = "small",
+    srcs = ["swaps_to_sorted_dimensions_test.cpp"],
+    deps = [
+        "//rigid_geometric_algebra",
+        "@skytest",
+    ],
+)
+
+cc_test(
     name = "tuple_cref_test",
     size = "small",
     srcs = ["tuple_cref_test.cpp"],

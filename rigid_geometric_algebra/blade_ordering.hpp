@@ -54,4 +54,7 @@ struct blade_ordering
   }
 };
 
+template <class A>
+blade_ordering(std::type_identity<A>) -> blade_ordering<A>;
+
 }  // namespace rigid_geometric_algebra

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "rigid_geometric_algebra/detail/contract.hpp"
+
 #include <bit>
 #include <cassert>
 #include <cstddef>
@@ -16,6 +18,10 @@ struct structural_bitset
 {
   static_assert(N <= 8);
   using value_type = std::uint8_t;
+
+  /// the number of bits the `structural_bitset` holds
+  ///
+  static constexpr auto size = std::integral_constant<std::size_t, N>{};
 
   /// unsigned integer representation of the data
   ///
@@ -38,17 +44,10 @@ struct structural_bitset
     requires (not std::is_const_v<std::remove_reference_t<Self>>)
   constexpr auto set(this Self&& self, std::size_t pos) -> Self&&
   {
-    assert(pos < 8UZ and "`pos` exceeds number of bits in `structural_bitset`");
+    detail::precondition(
+        pos < size, "`pos` exceeds number of bits in `structural_bitset`");
     self.value |= std::uint8_t{1} << pos;
     return std::forward<Self>(self);
-  }
-
-  /// returns the number of bits the `structural_bitset` holds
-  ///
-  [[nodiscard]]
-  constexpr auto size() const noexcept -> std::size_t
-  {
-    return N;
   }
 
   /// returns the number of bits set to `true`
@@ -67,7 +66,8 @@ struct structural_bitset
   [[nodiscard]]
   constexpr auto test(std::size_t pos) const -> bool
   {
-    assert(pos < 8UZ and "`pos` exceeds number of bits in `structural_bitset`");
+    detail::precondition(
+        pos < size, "`pos` exceeds number of bits in `structural_bitset`");
     return (value & (std::uint8_t{1} << pos)) != 0;
   }
 

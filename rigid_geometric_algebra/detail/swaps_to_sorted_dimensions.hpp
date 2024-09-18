@@ -1,5 +1,7 @@
 #pragma once
 
+#include "rigid_geometric_algebra/detail/contract.hpp"
+
 #include <algorithm>
 #include <array>
 #include <cassert>
@@ -52,10 +54,13 @@ public:
     const auto sorted = [&unsorted] {
       auto data = unsorted;
       std::ranges::sort(data);
+      detail::precondition(
+          std::ranges::unique(data).empty(), "values must be unique");
       return data;
     }();
-    assert(std::ranges::is_sorted(sorted, std::ranges::less_equal{}));
 
+    // TODO postcondition
+    assert(std::ranges::is_sorted(sorted, std::ranges::less_equal{}));
     return impl(std::ranges::subrange(unsorted), std::ranges::subrange(sorted));
   }
 

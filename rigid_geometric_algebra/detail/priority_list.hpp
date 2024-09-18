@@ -1,9 +1,11 @@
 #pragma once
 
+#include "rigid_geometric_algebra/detail/contract.hpp"
 #include "rigid_geometric_algebra/detail/type_list.hpp"
 
 #include <cstddef>
 #include <functional>  // IWYU pragma: keep - std::minus<>
+#include <type_traits>
 #include <utility>
 
 namespace rigid_geometric_algebra::detail {
@@ -41,16 +43,26 @@ template <>
 inline constexpr auto priority_list<std::minus<>> =
     type_list<derive_subtraction<>, derive_vector_space_operations<>>{};
 
+inline constexpr auto index_of_fn =
+    []<class... Ts, class S>(type_list<Ts...>, std::type_identity<S>) {
+      return []<std::size_t... Is>(std::index_sequence<Is...>) {
+        auto once = std::size_t{};
+        const auto index = ((std::is_same_v<Ts, S> ? (++once, Is) : 0UZ) + ...);
+
+        detail::precondition(
+            once == 1, "`S` does not appear exactly once in `prio_list");
+        return index;
+      }(std::index_sequence_for<Ts...>{});
+    };
+
 /// returns the index of a type in a priority list
 /// @tparam prio_list specialization of variable template `priority_list`
 /// @tparam S type to determine the index of
 ///
 template <auto prio_list, class S>
-inline constexpr auto index_of = []<class... Ts>(type_list<Ts...>) {
-  return []<std::size_t... Is>(std::index_sequence<Is...>) {
-    return ((std::is_same_v<Ts, S> ? Is : 0UZ) + ...);
-  }(std::index_sequence_for<Ts...>{});
-}(prio_list);
+inline constexpr auto index_of = std::integral_constant<
+    std::size_t,
+    index_of_fn(prio_list, std::type_identity<S>{})>{};
 
 /// returns the priority of a source type in a synthesized overload set
 /// @tparam Op operation tag
@@ -62,6 +74,11 @@ inline constexpr auto index_of = []<class... Ts>(type_list<Ts...>) {
 template <class Op, class S>
 inline constexpr auto priority_for = index_of<priority_list<Op>, S>;
 
+inline constexpr auto max_priority_fn = []<class... Ts>(type_list<Ts...>) {
+  detail::precondition(sizeof...(Ts) != 0, "`prio_list` cannot be empty");
+  return sizeof...(Ts) - 1;
+};
+
 /// returns the max priority in a synthesized overload set
 /// @tparam Op operation tag
 ///
@@ -70,9 +87,7 @@ inline constexpr auto priority_for = index_of<priority_list<Op>, S>;
 /// overloads (as determined by the `priority_list<Op>`).
 ///
 template <class Op>
-inline constexpr auto max_priority = []<class... Ts>(type_list<Ts...>) {
-  static_assert(sizeof...(Ts) != 0);
-  return sizeof...(Ts) - 1;
-}(priority_list<Op>);
+inline constexpr auto max_priority =
+    std::integral_constant<std::size_t, max_priority_fn(priority_list<Op>)>{};
 
 }  // namespace rigid_geometric_algebra::detail
