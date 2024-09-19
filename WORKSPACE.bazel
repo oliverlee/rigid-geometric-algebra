@@ -327,3 +327,19 @@ native_binary(
         release = RUFF_RELEASE,
     ),
 )
+
+http_archive(
+    name = "lcov",
+    build_file_content = """\
+load("@bazel_skylib//rules:native_binary.bzl", "native_binary")
+
+native_binary(
+    name = "genhtml",
+    src = "bin/genhtml",
+    visibility = ["//visibility:public"],
+)
+    """,
+    integrity = "sha256-mHAxrVUoyKdG1LUrOAvBv/5BLeHyucK6UiSZVmjjJAs=",
+    strip_prefix = "lcov-1.16",
+    url = "https://github.com/linux-test-project/lcov/releases/download/v1.16/lcov-1.16.tar.gz",
+)

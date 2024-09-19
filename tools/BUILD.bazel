@@ -79,7 +79,7 @@ buildifier(
 
 genrule(
     name = "gen-clang-format",
-    outs = ["clang-format.sh"],
+    outs = ["clang-format.bash"],
     cmd = """
 echo "#!/bin/bash" > $@
 echo "cd \\$$BUILD_WORKSPACE_DIRECTORY" >> $@
@@ -89,7 +89,7 @@ echo "exec bazel build \\$$@ //..." >> $@
 
 sh_binary(
     name = "clang-format.check",
-    srcs = ["clang-format.sh"],
+    srcs = ["clang-format.bash"],
     args = [
         "--aspects=@bazel_clang_format//:defs.bzl%check_aspect",
         "--output_groups=report",
@@ -99,7 +99,7 @@ sh_binary(
 
 sh_binary(
     name = "clang-format",
-    srcs = ["clang-format.sh"],
+    srcs = ["clang-format.bash"],
     args = [
         "--aspects=@bazel_clang_format//:defs.bzl%fix_aspect",
         "--output_groups=report",
@@ -128,7 +128,7 @@ multirun(
 
 genrule(
     name = "gen-clang-tidy",
-    outs = ["clang-tidy.sh"],
+    outs = ["clang-tidy.bash"],
     cmd = """
 echo "#!/bin/bash" > $@
 echo "cd \\$$BUILD_WORKSPACE_DIRECTORY" >> $@
@@ -154,7 +154,7 @@ echo "exec bazel build {options} \\$${{@:-//...}}" >> $@
 #
 sh_binary(
     name = "clang-tidy",
-    srcs = ["clang-tidy.sh"],
+    srcs = ["clang-tidy.bash"],
 )
 
 multirun(
@@ -163,4 +163,42 @@ multirun(
         ":clang-tidy",
         ":ruff.lint",
     ],
+)
+
+genrule(
+    name = "gen-coverage",
+    srcs = ["@lcov//:genhtml"],
+    outs = ["coverage.bash"],
+    cmd = """
+echo "#!/bin/bash" > $@
+echo "set -euo pipefail" >> $@
+echo "" >> $@
+echo "cd \\$$BUILD_WORKSPACE_DIRECTORY" >> $@
+echo "COVERAGE_DIR=\\"\\$$(bazel info output_path)/_coverage\\"" >> $@
+echo "bazel coverage \\$${{@:-//...}}" >> $@
+echo "$(execpath @lcov//:genhtml) {options} {report}" >> $@
+echo "" >> $@
+echo "echo wrote coverage report to" >> $@
+echo "echo file://\\$${{COVERAGE_DIR}}/html/index.html" >> $@
+""".format(
+        options = " ".join([
+            "--output-directory \\$${COVERAGE_DIR}/html",
+            "--show-details",
+            "--function-coverage",
+            "--branch-coverage",
+            "--title rigid-geometric-algebra",
+            "--highlight",
+            "--legend",
+            "--missed",
+            "--demangle-cpp",
+            "--dark-mode",
+        ]),
+        report = "\\$${COVERAGE_DIR}/_coverage_report.dat",
+    ),
+)
+
+sh_binary(
+    name = "coverage",
+    srcs = [":coverage.bash"],
+    data = ["@lcov//:genhtml"],
 )

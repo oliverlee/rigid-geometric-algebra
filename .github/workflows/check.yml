@@ -70,8 +70,8 @@ jobs:
       with:
         buildbuddy-api-key: ${{ secrets.BUILDBUDDY_API_KEY }}
     - run: |
-        bazel coverage --profile=$PROFILE \
-          //...
+        bazel run --profile=$PROFILE \
+          //tools:coverage
 
         bazel analyze-profile $PROFILE
     - uses: actions/upload-artifact@v4
