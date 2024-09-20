@@ -18,10 +18,22 @@ static constexpr struct
   std::string_view red = "\033[31m";
 } color{};
 
+struct precondition_contract
+{
+  static constexpr auto name = "PRECONDITION";
+  explicit precondition_contract() = default;
+};
+
+struct postcondition_contract
+{
+  static constexpr auto name = "POSTCONDITION";
+  explicit postcondition_contract() = default;
+};
+
 /// contract violation handler that only logs
 ///
 template <class... Args>
-struct logging_handler
+struct logging_violation_handler
 {
   // values of this class are short-lived and are not assigned
   // NOLINTBEGIN(cppcoreguidelines-avoid-const-or-ref-data-members)
@@ -30,7 +42,7 @@ struct logging_handler
   const std::tuple<const Args&...> args;
   // NOLINTEND(cppcoreguidelines-avoid-const-or-ref-data-members)
 
-  constexpr logging_handler(
+  constexpr logging_violation_handler(
       std::ostream& os,
       // NOLINTNEXTLINE(misc-include-cleaner)
       std::format_string<const Args&...> fmt,
@@ -38,14 +50,16 @@ struct logging_handler
       : os{os}, fmt{fmt}, args{args...}
   {}
 
-  constexpr auto operator()(const std::source_location& sl) const
+  template <class ContractKind>
+  constexpr auto operator()(ContractKind, const std::source_location& sl) const
   {
     auto out = std::ostream_iterator<char>(os);
 
     std::format_to(
         out,
-        "{}PRECONDITION FAILURE{} {}{}:{}{} {}\n",
+        "{}{} FAILURE{} {}{}:{}{} {}\n",
         color.red,
+        ContractKind::name,
         color.none,
         color.dim,
         sl.file_name(),
@@ -69,18 +83,19 @@ struct logging_handler
 /// location passed as an argument.
 ///
 template <class... Args>
-struct contract_violation_handler : logging_handler<Args...>
+struct contract_violation_handler : logging_violation_handler<Args...>
 {
   constexpr contract_violation_handler(
       // NOLINTNEXTLINE(misc-include-cleaner)
       std::format_string<const Args&...> fmt,
       const Args&... args)
-      : logging_handler<Args...>{std::cerr, fmt, args...}
+      : logging_violation_handler<Args...>{std::cerr, fmt, args...}
   {}
 
-  constexpr auto operator()(const std::source_location& sl) const
+  template <class ContractKind>
+  constexpr auto operator()(ContractKind, const std::source_location& sl) const
   {
-    logging_handler<Args...>::operator()(sl);
+    logging_violation_handler<Args...>::operator()(ContractKind{}, sl);
 
     std::abort();
   }
@@ -96,7 +111,10 @@ struct contract_violation_handler : logging_handler<Args...>
 /// @{
 
 template <class Handler>
-  requires std::is_invocable_v<const Handler&, const std::source_location&>
+  requires std::is_invocable_v<
+               const Handler&,
+               precondition_contract,
+               const std::source_location&>
 constexpr auto precondition(
     const std::convertible_to<bool> auto& cond,
     const Handler& violation_handler,
@@ -106,7 +124,7 @@ constexpr auto precondition(
     return;
   }
 
-  violation_handler(sl);
+  violation_handler(precondition_contract{}, sl);
 }
 
 constexpr auto precondition(
@@ -115,6 +133,42 @@ constexpr auto precondition(
     const std::source_location& sl = std::source_location::current()) -> void
 {
   return precondition(cond, contract_violation_handler{message}, sl);
+}
+
+/// @}
+
+/// check a postcondition, optionally printing a message on failure
+/// @param cond boolean-convertible value
+/// @param violation_handler handler to invoke on contract violation.
+/// @param sl source location
+///
+/// Check postcondition `cond`. If `false`, invoke `handler(sl)`.
+///
+/// @{
+
+template <class Handler>
+  requires std::is_invocable_v<
+               const Handler&,
+               postcondition_contract,
+               const std::source_location&>
+constexpr auto postcondition(
+    const std::convertible_to<bool> auto& cond,
+    const Handler& violation_handler,
+    const std::source_location& sl = std::source_location::current()) -> void
+{
+  if (cond) {
+    return;
+  }
+
+  violation_handler(postcondition_contract{}, sl);
+}
+
+constexpr auto postcondition(
+    const std::convertible_to<bool> auto& cond,
+    std::format_string<> message = "",  // NOLINT(misc-include-cleaner)
+    const std::source_location& sl = std::source_location::current()) -> void
+{
+  return postcondition(cond, contract_violation_handler{message}, sl);
 }
 
 /// @}
