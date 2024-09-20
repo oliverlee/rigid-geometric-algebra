@@ -59,8 +59,8 @@ public:
       return data;
     }();
 
-    // TODO postcondition
-    assert(std::ranges::is_sorted(sorted, std::ranges::less_equal{}));
+    detail::postcondition(
+        std::ranges::is_sorted(sorted, std::ranges::less_equal{}));
     return impl(std::ranges::subrange(unsorted), std::ranges::subrange(sorted));
   }
 
