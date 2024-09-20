@@ -72,6 +72,9 @@ Checks: >
     # false positives in symengine (check workflow runs tests with asan),
     -clang-analyzer-core.uninitialized.Assign,
 
+    # https://www.foonathan.net/2023/08/static-constexpr-integral_constant/,
+    -readability-static-accessed-through-instance,
+
 CheckOptions:
     - key: misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic
       value: true

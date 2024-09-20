@@ -44,21 +44,21 @@ auto main() -> int
     return expect(aborts([] { precondition(false); }));
   };
 
-  "invocable in constant expressions"_ctest = [] {
+  "invocable in constant expressions"_test = [] {
     return expect([] {
       precondition(true);
       return true;
     }());
   };
 
-  "cond is convertible to bool"_ctest = [] {
+  "cond is convertible to bool"_test = [] {
     return expect([] {
       precondition(std::bool_constant<true>{});
       return true;
     }());
   };
 
-  "cond is convertible to bool"_ctest = [] {
+  "cond is convertible to bool"_test = [] {
     return expect([] {
       precondition(std::bool_constant<true>{});
       return true;

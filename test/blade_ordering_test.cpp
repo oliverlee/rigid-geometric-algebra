@@ -8,8 +8,7 @@ using rga = ::rigid_geometric_algebra::algebra<double, 2>;
 using ::rigid_geometric_algebra::blade_ordering;
 
 template <std::size_t... Is>
-constexpr auto ord =
-    blade_ordering<rga>{std::type_identity<rga::blade<Is...>>{}};
+constexpr auto ord = blade_ordering{std::type_identity<rga::blade<Is...>>{}};
 
 auto main() -> int
 {

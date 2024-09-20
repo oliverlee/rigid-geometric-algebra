@@ -37,7 +37,7 @@ struct sorted_canonical_blades
   using A = common_algebra_type_t<Bs...>;
 
   static constexpr auto sorted_blades = [] {
-    auto values = std::array{blade_ordering<A>{std::type_identity<Bs>{}}...};
+    auto values = std::array{blade_ordering{std::type_identity<Bs>{}}...};
     std::ranges::sort(values);
     auto subset = std::ranges::unique(values);
     return std::pair{values, values.size() - subset.size()};
@@ -45,10 +45,12 @@ struct sorted_canonical_blades
 
   static_assert(sorted_blades.second != 0);
 
-  using type = decltype([]<std::size_t... Is>(std::index_sequence<Is...>) {
-    return detail::type_list<
-        blade_type_from_t<std::get<Is>(sorted_blades.first)>...>{};
-  }(std::make_index_sequence<sorted_blades.second>{}));
+  template <std::size_t... Is>
+  static constexpr auto impl(std::index_sequence<Is...>)
+      -> detail::type_list<
+          blade_type_from_t<std::get<Is>(sorted_blades.first)>...>;
+
+  using type = decltype(impl(std::make_index_sequence<sorted_blades.second>{}));
 };
 
 template <>

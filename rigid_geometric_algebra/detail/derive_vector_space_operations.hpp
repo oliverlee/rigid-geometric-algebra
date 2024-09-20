@@ -21,7 +21,7 @@ namespace rigid_geometric_algebra::detail {
 ///
 /// This type defines the following operations:
 /// -: D     -> D (negation)
-/// -: D x D -> D (subtraction) // TODO
+/// -: D x D -> D (subtraction)
 /// +: D x D -> D (addition)
 /// *: S x D -> D (scalar multiplication)
 ///
