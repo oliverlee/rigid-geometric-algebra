@@ -1,5 +1,4 @@
 #include "rigid_geometric_algebra/rigid_geometric_algebra.hpp"
-#include "rigid_geometric_algebra/unit_hypervolume.hpp"
 #include "skytest/skytest.hpp"
 
 #include <symengine/compat.hpp>
@@ -8,8 +7,9 @@
 using ::rigid_geometric_algebra::algebra_field_t;
 using ::rigid_geometric_algebra::algebra_type_t;
 using ::rigid_geometric_algebra::antiscalar_type_t;
+using ::rigid_geometric_algebra::complement;
+using ::rigid_geometric_algebra::left;
 using ::rigid_geometric_algebra::left_complement;
-using ::rigid_geometric_algebra::one;
 using ::rigid_geometric_algebra::right_complement;
 using ::rigid_geometric_algebra::unit_hypervolume;
 
@@ -36,36 +36,49 @@ auto main() -> int
       G3::blade<2>{4},
   };
 
-  "aborts if zero coefficient"_test *
+  "zero_constant"_test *
+      std::tuple{G2::zero, G3::zero, GS2::zero} = [](auto zero) {
+    return expect(
+        eq(zero, left_complement(zero)) and eq(zero, right_complement(zero)));
+  };
+
+  "zero if zero coefficient"_test *
       std::tuple{
           G2::blade<>{},
           G2::blade<1>{},
           G3::blade<1, 2>{},
           GS2::blade<>{},
           GS2::blade<1>{}} = []<class B>(B b) {
+    using T = typename B::value_type;
     return expect(
-        aborts(std::bind_front(left_complement, b)) and
-        aborts(std::bind_front(right_complement, b)));
+        eq(T{}, complement(left, b).coefficient) and
+        eq(T{}, right_complement(b).coefficient));
   };
 
   "left complement property"_ctest * param_ref<params> = []<class B>(B b) {
     using A = algebra_type_t<B>;
 
-    return expect(eq(unit_hypervolume<A>, left_complement(b) ^ b));
+    return expect(eq(
+        b.coefficient * b.coefficient * unit_hypervolume<A>,
+        left_complement(b) ^ b));
   };
 
   "right complement property"_ctest * param_ref<params> = []<class B>(B b) {
     using A = algebra_type_t<B>;
 
-    return expect(eq(unit_hypervolume<A>, b ^ right_complement(b)));
+    return expect(eq(
+        b.coefficient * b.coefficient * unit_hypervolume<A>,
+        b ^ right_complement(b)));
   };
 
   "complement property (symengine)"_test = [] {
     const auto b = GS2::blade<1>{"a"};
 
     return expect(
-        eq(unit_hypervolume<GS2>, left_complement(b) ^ b) and
-        eq(unit_hypervolume<GS2>, b ^ right_complement(b)) and
+        eq(b.coefficient * b.coefficient * unit_hypervolume<GS2>,
+           left_complement(b) ^ b) and
+        eq(b.coefficient * b.coefficient * unit_hypervolume<GS2>,
+           b ^ right_complement(b)) and
         eq(right_complement(left_complement(b)), b) and
         eq(left_complement(right_complement(b)), b));
   };
@@ -80,8 +93,8 @@ auto main() -> int
     const auto b = GS2::blade<1>{"a"};
 
     return expect(
-        eq(abs("1/a"), abs(right_complement(b).coefficient)) and
-        eq(abs("1/a"), abs(left_complement(b).coefficient)));
+        eq(abs("a"), abs(right_complement(b).coefficient)) and
+        eq(abs("a"), abs(left_complement(b).coefficient)));
   };
 
   "complement of multivectors"_test = [] {
