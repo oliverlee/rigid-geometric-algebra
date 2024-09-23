@@ -8,7 +8,9 @@
 #include "rigid_geometric_algebra/detail/derive_subtraction.hpp"
 #include "rigid_geometric_algebra/detail/derive_vector_space_operations.hpp"
 #include "rigid_geometric_algebra/detail/is_defined.hpp"
+#include "rigid_geometric_algebra/detail/rebind_args_into.hpp"
 #include "rigid_geometric_algebra/detail/size_checked_subrange.hpp"
+#include "rigid_geometric_algebra/detail/type_concat.hpp"
 #include "rigid_geometric_algebra/detail/type_list.hpp"
 #include "rigid_geometric_algebra/get.hpp"
 #include "rigid_geometric_algebra/get_or.hpp"
@@ -63,6 +65,10 @@ public:
   ///
   using std::tuple<Bs...>::tuple;
 
+  /// blade list
+  ///
+  using blade_list_type = std::tuple<Bs...>;
+
   /// non-narrowing construction from a different multivector
   ///
   template <class... Cs>
@@ -105,6 +111,12 @@ public:
     return std::forward<Self>(self);
   }
 
+  /// obtain the type after from invoking `to_multivector` on
+  /// `std::declval<T>()`
+  ///
+  template <class T>
+  using to_multivector_t = decltype(to_multivector(std::declval<T>()));
+
   /// addition
   ///
   /// @{
@@ -129,20 +141,31 @@ public:
   template <class V1, class V2>
     requires (std::is_same_v<multivector, std::remove_cvref_t<V1>> !=
               std::is_same_v<multivector, std::remove_cvref_t<V2>>) and
-             requires {
-               to_multivector(std::declval<V1>());
-               to_multivector(std::declval<V2>());
-             } and
-             (not detail::is_defined_v<detail::overload<std::plus<>, V1, V2>>)
+                 requires {
+                   to_multivector(std::declval<V1>());
+                   to_multivector(std::declval<V2>());
+                 } and
+                 (not detail::is_defined_v<
+                     detail::overload<std::plus<>, V1, V2>>)
   friend constexpr auto operator+(V1&& v1, V2&& v2)
+      -> detail::rebind_args_into_t<
+          detail::type_concat_t<
+              detail::type_list<algebra_type>,
+              typename detail::rebind_args_into_t<
+                  detail::type_concat_t<
+                      typename std::remove_cvref_t<
+                          to_multivector_t<V1>>::blade_list_type,
+                      typename std::remove_cvref_t<
+                          to_multivector_t<V2>>::blade_list_type>,
+                  sorted_canonical_blades>::type>,
+          multivector>
   {
-    using result_blade_list_type =
-        decltype([]<class... T1s, class... T2s>(
-                     const std::tuple<T1s...>&, const std::tuple<T2s...>&)
-                     -> sorted_canonical_blades_t<T1s..., T2s...> {
-          return {};
-        }(to_multivector(std::forward<V1>(v1)),
-                     to_multivector(std::forward<V2>(v2))));
+    using result_blade_list_type = typename detail::rebind_args_into_t<
+        detail::type_concat_t<
+            typename std::remove_cvref_t<to_multivector_t<V1>>::blade_list_type,
+            typename std::remove_cvref_t<
+                to_multivector_t<V2>>::blade_list_type>,
+        sorted_canonical_blades>::type;
 
     return []<class... Ts, class V3, class V4>(
                detail::type_list<Ts...>, V3&& v3, V4&& v4) {

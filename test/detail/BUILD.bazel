@@ -89,6 +89,15 @@ cc_test(
 )
 
 cc_test(
+    name = "rebind_args_into_test",
+    size = "small",
+    srcs = ["rebind_args_into_test.cpp"],
+    deps = [
+        "//rigid_geometric_algebra",
+    ],
+)
+
+cc_test(
     name = "size_checked_subrange_test",
     size = "small",
     srcs = ["size_checked_subrange_test.cpp"],
@@ -125,5 +134,14 @@ cc_test(
     deps = [
         "//rigid_geometric_algebra",
         "@skytest",
+    ],
+)
+
+cc_test(
+    name = "type_concat_test",
+    size = "small",
+    srcs = ["type_concat_test.cpp"],
+    deps = [
+        "//rigid_geometric_algebra",
     ],
 )
