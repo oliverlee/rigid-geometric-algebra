@@ -1,1 +1,3 @@
-USE_BAZEL_VERSION=7.3.0
+# https://github.com/bazelbuild/bazel/issues/23247
+USE_BAZEL_VERSION=7.1.2
+

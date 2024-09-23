@@ -58,6 +58,8 @@ llvm_toolchain(
             "-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE",
             "-stdlib=libc++",
             "-Wshadow",
+            # https://github.com/bazelbuild/bazel/issues/14970#issuecomment-1894565761
+            "-ffile-compilation-dir=.",
         ] + COMMON_CXX_WARNINGS + CXX_STANDARD,
     },
     # Link UBSan C++ runtime libraries if the `ubsan` feature is enabled
@@ -274,14 +276,24 @@ python_register_toolchains(
 load("@rules_python//python:pip.bzl", "pip_parse")
 
 pip_parse(
-    name = "pypi",
+    name = "pypi_viz",
     python_interpreter_target = "@python3_host//:python",
-    requirements_lock = "//python:requirements_lock.txt",
+    requirements_lock = "//python:viz_requirements_lock.txt",
 )
 
-load("@pypi//:requirements.bzl", "install_deps")
+load("@pypi_viz//:requirements.bzl", viz_install_deps = "install_deps")
 
-install_deps()
+viz_install_deps()
+
+pip_parse(
+    name = "pypi_cov",
+    python_interpreter_target = "@python3_host//:python",
+    requirements_lock = "//tools:cov_requirements_lock.txt",
+)
+
+load("@pypi_cov//:requirements.bzl", cov_install_deps = "install_deps")
+
+cov_install_deps()
 
 local_python_fake_venv(
     name = "python3_fake_venv",

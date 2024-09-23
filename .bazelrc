@@ -26,10 +26,43 @@ build:remote --nolegacy_important_outputs
 
 test --test_verbose_timeout_warnings
 
-# https://github.com/bazelbuild/bazel/issues/14970#issuecomment-1894565761
-coverage --copt=-ffile-compilation-dir=.
 coverage --combined_report=lcov
 coverage --experimental_generate_llvm_lcov
 coverage --instrumentation_filter=//rigid_geometric_algebra
+
+# generate and retain gcov files with the llvm toolchain
+#
+# https://github.com/bazelbuild/bazel/blob/master/tools/test/collect_coverage.sh
+# https://github.com/bazelbuild/bazel/blob/master/tools/test/collect_cc_coverage.sh
+#
+# disable use of llvm profdata
+coverage:gcov --experimental_generate_llvm_lcov=false
+# replace default coverage flags to generate gcov instead of profdata
+#
+# https://clang.llvm.org/docs/SourceBasedCodeCoverage.html#compiling-with-coverage-enabled
+# https://llvm.org/docs/CommandGuide/llvm-cov.html#id1
+# https://github.com/bazel-contrib/toolchains_llvm/blob/4ab573b1b87a57791ef2f9ccee71cbad80a2abb9/toolchain/cc_toolchain_config.bzl#L264-L266
+coverage:gcov --features=-coverage
+coverage:gcov --copt=--coverage
+coverage:gcov --linkopt=--coverage
+#coverage:gcov --test_env=COVERAGE_GCOV_PATH=./external/llvm18_toolchain_llvm/bin/llvm-cov
+coverage:gcov --test_env=COVERAGE_GCOV_PATH=/Users/oliver/repos/rigid-geometric-algebra/gcov-wrapper.bash
+# https://github.com/bazelbuild/bazel/issues/23719
+coverage:gcov --test_env=GCOV_PREFIX_STRIP=10
+#  https://github.com/bazelbuild/bazel/issues/23718
+# https://github.com/bazelbuild/bazel/issues/20041#issuecomment-1805195618
+coverage:gcov --keep_going
+coverage:gcov --experimental_fetch_all_coverage_outputs
+
+coverage:gcov --test_env=LCOV_MERGER=""
+
+# don't use intermediate format
+coverage:gcov --test_env=COVERAGE_GCOV_OPTIONS="--branch-counts --branch-probabilities --all-blocks --demangled-names --hash-filenames"
+# GCOV options
+# --branch-counts --branch-probabilities --all-blocks --demangled-names --hash-filenames
+
+# enable verbose coverage output
+coverage:verbose-coverage --test_env=VERBOSE_COVERAGE=1
+coverage:verbose-coverage --test_output=all
 
 try-import %workspace%/user.bazelrc

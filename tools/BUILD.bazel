@@ -1,5 +1,8 @@
 load("@buildifier_prebuilt//:rules.bzl", "buildifier")
 load("@rules_multirun//:defs.bzl", "multirun")
+load("@rules_python//python:defs.bzl", "py_binary")
+load("@rules_python//python:pip.bzl", "compile_pip_requirements")
+load("@pypi_cov//:requirements.bzl", cov_requirements = "all_requirements")
 
 alias(
     name = "gcc12_toolchain",
@@ -79,7 +82,7 @@ buildifier(
 
 genrule(
     name = "gen-clang-format",
-    outs = ["clang-format.bash"],
+    outs = ["clang-format.sh"],
     cmd = """
 echo "#!/bin/bash" > $@
 echo "cd \\$$BUILD_WORKSPACE_DIRECTORY" >> $@
@@ -89,7 +92,7 @@ echo "exec bazel build \\$$@ //..." >> $@
 
 sh_binary(
     name = "clang-format.check",
-    srcs = ["clang-format.bash"],
+    srcs = ["clang-format.sh"],
     args = [
         "--aspects=@bazel_clang_format//:defs.bzl%check_aspect",
         "--output_groups=report",
@@ -99,7 +102,7 @@ sh_binary(
 
 sh_binary(
     name = "clang-format",
-    srcs = ["clang-format.bash"],
+    srcs = ["clang-format.sh"],
     args = [
         "--aspects=@bazel_clang_format//:defs.bzl%fix_aspect",
         "--output_groups=report",
@@ -128,7 +131,7 @@ multirun(
 
 genrule(
     name = "gen-clang-tidy",
-    outs = ["clang-tidy.bash"],
+    outs = ["clang-tidy.sh"],
     cmd = """
 echo "#!/bin/bash" > $@
 echo "cd \\$$BUILD_WORKSPACE_DIRECTORY" >> $@
@@ -154,7 +157,7 @@ echo "exec bazel build {options} \\$${{@:-//...}}" >> $@
 #
 sh_binary(
     name = "clang-tidy",
-    srcs = ["clang-tidy.bash"],
+    srcs = ["clang-tidy.sh"],
 )
 
 multirun(
@@ -165,40 +168,18 @@ multirun(
     ],
 )
 
-genrule(
-    name = "gen-coverage",
-    srcs = ["@lcov//:genhtml"],
-    outs = ["coverage.bash"],
-    cmd = """
-echo "#!/bin/bash" > $@
-echo "set -euo pipefail" >> $@
-echo "" >> $@
-echo "cd \\$$BUILD_WORKSPACE_DIRECTORY" >> $@
-echo "COVERAGE_DIR=\\"\\$$(bazel info output_path)/_coverage\\"" >> $@
-echo "bazel coverage \\$${{@:-//...}}" >> $@
-echo "$(execpath @lcov//:genhtml) {options} {report}" >> $@
-echo "" >> $@
-echo "echo wrote coverage report to" >> $@
-echo "echo file://\\$${{COVERAGE_DIR}}/html/index.html" >> $@
-""".format(
-        options = " ".join([
-            "--output-directory \\$${COVERAGE_DIR}/html",
-            "--show-details",
-            "--function-coverage",
-            "--branch-coverage",
-            "--title rigid-geometric-algebra",
-            "--highlight",
-            "--legend",
-            "--missed",
-            "--demangle-cpp",
-            "--dark-mode",
-        ]),
-        report = "\\$${COVERAGE_DIR}/_coverage_report.dat",
-    ),
+compile_pip_requirements(
+    name = "cov_requirements",
+    src = "cov_requirements.in",
+    requirements_txt = "cov_requirements_lock.txt",
 )
 
-sh_binary(
-    name = "coverage",
-    srcs = [":coverage.bash"],
-    data = ["@lcov//:genhtml"],
+py_binary(
+    name = "gcovr",
+    srcs = ["gcovr.py"],
+    deps = cov_requirements,
 )
+
+# gcov wrapper used with coverage prevent
+# writing data in intermediate format
+# https://github.com/bazelbuild/bazel/blob/7aa9e7726f4ebf934c9c317c7850e64d901a6141/tools/test/collect_cc_coverage.sh#L165-L169

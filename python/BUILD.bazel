@@ -1,15 +1,15 @@
 load("@rules_python//python:defs.bzl", "py_binary")
 load("@rules_python//python:pip.bzl", "compile_pip_requirements")
-load("@pypi//:requirements.bzl", "all_requirements")
+load("@pypi_viz//:requirements.bzl", viz_requirements = "all_requirements")
 
 compile_pip_requirements(
-    name = "requirements",
-    src = "requirements.in",
-    requirements_txt = "requirements_lock.txt",
+    name = "viz_requirements",
+    src = "viz_requirements.in",
+    requirements_txt = "viz_requirements_lock.txt",
 )
 
 py_binary(
     name = "plot",
     srcs = ["plot.py"],
-    deps = all_requirements,
+    deps = viz_requirements,
 )
