@@ -7,12 +7,18 @@
 #include "rigid_geometric_algebra/detail/contract.hpp"
 #include "rigid_geometric_algebra/detail/swaps_to_sorted_dimensions.hpp"
 #include "rigid_geometric_algebra/is_blade.hpp"
+#include "rigid_geometric_algebra/is_multivector.hpp"
+#include "rigid_geometric_algebra/multivector.hpp"
+#include "rigid_geometric_algebra/multivector_type_from_blade_list.hpp"
 #include "rigid_geometric_algebra/one.hpp"
+#include "rigid_geometric_algebra/sorted_canonical_blades.hpp"
+#include "rigid_geometric_algebra/zero_constant.hpp"
 
 #include <cstddef>
 #include <functional>
 #include <source_location>
 #include <type_traits>
+#include <utility>
 
 namespace rigid_geometric_algebra {
 
@@ -87,6 +93,34 @@ class complement_fn
         loc);
   }
 
+  template <
+      class Dir,
+      template <class...>
+      class list,
+      class... Bs,
+      class V,
+      class A = algebra_type_t<std::remove_cvref_t<V>>>
+  static constexpr auto mv_impl2(Dir, list<Bs...>, V&& v)
+      -> multivector_type_from_blade_list_t<
+          sorted_canonical_blades_t<blade_complement_type_t<Bs>...>>
+  {
+    return (operator()(Dir{}, std::get<Bs>(std::forward<V>(v))) + ... +
+            zero_constant<A>{});
+  }
+
+  template <class Dir, class V>
+  static constexpr auto mv_impl(Dir, V&& v)
+      -> decltype(mv_impl2(
+          Dir{},
+          typename std::remove_cvref_t<V>::blade_list_type{},
+          std::forward<V>(v)))
+  {
+    return mv_impl2(
+        Dir{},
+        typename std::remove_cvref_t<V>::blade_list_type{},
+        std::forward<V>(v));
+  }
+
 public:
   template <class B>
     requires is_blade_v<std::remove_cvref_t<B>>
@@ -103,6 +137,20 @@ public:
   {
     pre(b);
     return impl(right_t{}, std::forward<B>(b));
+  }
+  template <class V>
+    requires is_multivector_v<std::remove_cvref_t<V>>
+  static constexpr auto
+  operator()(left_t, V&& v) -> decltype(mv_impl(left_t{}, std::forward<V>(v)))
+  {
+    return mv_impl(left_t{}, std::forward<V>(v));
+  }
+  template <class V>
+    requires is_multivector_v<std::remove_cvref_t<V>>
+  static constexpr auto
+  operator()(right_t, V&& v) -> decltype(mv_impl(right_t{}, std::forward<V>(v)))
+  {
+    return mv_impl(right_t{}, std::forward<V>(v));
   }
 };
 

@@ -65,7 +65,9 @@ auto main() -> int
 
     return expect(
         eq(unit_hypervolume<GS2>, left_complement(b) ^ b) and
-        eq(unit_hypervolume<GS2>, b ^ right_complement(b)));
+        eq(unit_hypervolume<GS2>, b ^ right_complement(b)) and
+        eq(right_complement(left_complement(b)), b) and
+        eq(left_complement(right_complement(b)), b));
   };
 
   "complement coefficient value"_test = [] {
@@ -80,5 +82,17 @@ auto main() -> int
     return expect(
         eq(abs("1/a"), abs(right_complement(b).coefficient)) and
         eq(abs("1/a"), abs(left_complement(b).coefficient)));
+  };
+
+  "complement of multivectors"_test = [] {
+    const auto a = GS2::blade<>{"a"};
+    const auto b = GS2::blade<1>{"b"};
+    const auto c = GS2::blade<1, 2>{"c"};
+
+    return expect(
+        eq(left_complement(a + b + c),
+           left_complement(a) + left_complement(b) + left_complement(c)) and
+        eq(right_complement(a + b + c),
+           right_complement(a) + right_complement(b) + right_complement(c)));
   };
 }
