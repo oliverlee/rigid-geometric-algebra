@@ -28,6 +28,17 @@ cc_binary(
 )
 
 cc_test(
+    name = "antiwedge_test",
+    size = "small",
+    srcs = ["antiwedge_test.cpp"],
+    deps = [
+        ":symengine_compat",
+        "//rigid_geometric_algebra",
+        "@skytest",
+    ],
+)
+
+cc_test(
     name = "blade_test",
     size = "small",
     srcs = ["blade_test.cpp"],

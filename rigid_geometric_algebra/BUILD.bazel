@@ -8,6 +8,7 @@ cc_library(
         "algebra_field.hpp",
         "algebra_fwd.hpp",
         "algebra_type.hpp",
+        "antiwedge.hpp",
         "blade.hpp",
         "blade_complement_type.hpp",
         "blade_ordering.hpp",

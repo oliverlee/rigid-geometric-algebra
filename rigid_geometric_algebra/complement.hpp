@@ -39,7 +39,12 @@ inline constexpr auto right = right_t{};
 
 namespace detail {
 
-class complement_fn
+/// true if the specified complement negates the blade coefficient, otherwise
+/// false
+///
+/// @{
+
+class blade_complement_negates_fn
 {
   template <class B1, class B2>
   struct num_swaps
@@ -52,30 +57,40 @@ class complement_fn
             detail::swaps_to_sorted_dimensions(Is..., Js...)>
   {};
 
-  template <std::size_t N, class B, class T = std::remove_cvref_t<B>>
-  static constexpr auto impl2(std::integral_constant<std::size_t, N>, B&& b)
-  {
-    using blade_type = std::remove_cvref_t<B>;
-
-    using maybe_negate =
-        std::conditional_t<detail::even(N), std::identity, std::negate<>>;
-
-    return blade_complement_type_t<blade_type>{
-        maybe_negate{}(std::forward<B>(b).coefficient)};
-  }
-
+public:
   template <class Dir, class B>
-  static constexpr auto impl(Dir, B&& b)
+    requires is_blade_v<B>
+  static consteval auto operator()(Dir, std::type_identity<B>) -> bool
   {
-    static_assert(std::is_same_v<left_t, Dir> or std::is_same_v<right_t, Dir>);
-    using B1 = std::remove_cvref_t<B>;
-    using B2 = blade_complement_type_t<B1>;
-
-    if constexpr (std::is_same_v<left_t, Dir>) {
-      return impl2(num_swaps<B2, B1>{}, std::forward<B>(b));
+    if constexpr (std::is_same_v<Dir, left_t>) {
+      return detail::even(num_swaps<blade_complement_type_t<B>, B>{});
+    } else if constexpr (std::is_same_v<Dir, right_t>) {
+      return detail::even(num_swaps<B, blade_complement_type_t<B>>{});
     } else {
-      return impl2(num_swaps<B1, B2>{}, std::forward<B>(b));
+      static_assert(false, "invalid direction type");
     }
+  }
+};
+
+template <class Dir, class B>
+inline constexpr auto blade_complement_negates =
+    blade_complement_negates_fn{}(Dir{}, std::type_identity<B>{});
+
+/// @}
+
+class complement_fn
+{
+  template <class Dir, class B>
+  static constexpr auto
+  impl(Dir, B&& b) -> blade_complement_type_t<std::remove_cvref_t<B>>
+  {
+    using maybe_negate = std::conditional_t<
+        detail::blade_complement_negates<Dir, std::remove_cvref_t<B>>,
+        std::identity,
+        std::negate<>>;
+
+    return blade_complement_type_t<std::remove_cvref_t<B>>{
+        maybe_negate{}(std::forward<B>(b).coefficient)};
   }
 
   template <
