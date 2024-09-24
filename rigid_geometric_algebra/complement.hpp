@@ -4,19 +4,16 @@
 #include "rigid_geometric_algebra/algebra_type.hpp"
 #include "rigid_geometric_algebra/blade.hpp"
 #include "rigid_geometric_algebra/blade_complement_type.hpp"
-#include "rigid_geometric_algebra/detail/contract.hpp"
 #include "rigid_geometric_algebra/detail/swaps_to_sorted_dimensions.hpp"
 #include "rigid_geometric_algebra/is_blade.hpp"
 #include "rigid_geometric_algebra/is_multivector.hpp"
 #include "rigid_geometric_algebra/multivector.hpp"
 #include "rigid_geometric_algebra/multivector_type_from_blade_list.hpp"
-#include "rigid_geometric_algebra/one.hpp"
 #include "rigid_geometric_algebra/sorted_canonical_blades.hpp"
 #include "rigid_geometric_algebra/zero_constant.hpp"
 
 #include <cstddef>
 #include <functional>
-#include <source_location>
 #include <type_traits>
 #include <utility>
 
@@ -59,13 +56,12 @@ class complement_fn
   static constexpr auto impl2(std::integral_constant<std::size_t, N>, B&& b)
   {
     using blade_type = std::remove_cvref_t<B>;
-    using algebra_type = algebra_type_t<blade_type>;
 
     using maybe_negate =
         std::conditional_t<detail::even(N), std::identity, std::negate<>>;
 
     return blade_complement_type_t<blade_type>{
-        maybe_negate{}(one<algebra_type> / std::forward<B>(b).coefficient)};
+        maybe_negate{}(std::forward<B>(b).coefficient)};
   }
 
   template <class Dir, class B>
@@ -80,17 +76,6 @@ class complement_fn
     } else {
       return impl2(num_swaps<B1, B2>{}, std::forward<B>(b));
     }
-  }
-
-  template <class B>
-  static constexpr auto
-  pre(const B& b,
-      const std::source_location& loc = std::source_location::current()) -> void
-  {
-    detail::precondition(
-        b != B{},
-        detail::contract_violation_handler{"blade coefficient cannot be zero"},
-        loc);
   }
 
   template <
@@ -122,12 +107,29 @@ class complement_fn
   }
 
 public:
+  // https://github.com/llvm/llvm-project/issues/109738
+  // don't use static call operator to avoid segfault with clang-tidy
+  //
+  // @{
+
+  template <class A>
+  constexpr auto operator()(left_t, zero_constant<A>) const -> zero_constant<A>
+  {
+    return {};
+  }
+  template <class A>
+  constexpr auto operator()(right_t, zero_constant<A>) const -> zero_constant<A>
+  {
+    return {};
+  }
+
+  // @}
+
   template <class B>
     requires is_blade_v<std::remove_cvref_t<B>>
   static constexpr auto
   operator()(left_t, B&& b) -> blade_complement_type_t<std::remove_cvref_t<B>>
   {
-    pre(b);
     return impl(left_t{}, std::forward<B>(b));
   }
   template <class B>
@@ -135,7 +137,6 @@ public:
   static constexpr auto
   operator()(right_t, B&& b) -> blade_complement_type_t<std::remove_cvref_t<B>>
   {
-    pre(b);
     return impl(right_t{}, std::forward<B>(b));
   }
   template <class V>
@@ -167,16 +168,17 @@ public:
 ///
 /// The left complement is defined as:
 /// ```
-/// left_complement(b) ^ b == A::antiscalar{1}
+/// left_complement(b) ^ b == s * s * A::antiscalar{1}
 /// ```
 /// where `A` is `algebra_type_t<B>`.
+/// where `A` is `algebra_type_t<B>` and `s` is the cofficient of `b`.
 ///
-/// @pre `b.coefficient == 0` is `false`
 /// @note Requires:
 /// * `std::is_same_v<D, left_t> or std::is_same_v<D, right_t>` is `true`
 /// @see eq. 2.13
 /// @see eq. 2.19
 /// @see eq. 2.20
+/// @see eq. 2.24
 ///
 inline constexpr auto complement = detail::complement_fn{};
 
@@ -188,13 +190,13 @@ inline constexpr auto complement = detail::complement_fn{};
 ///
 /// The left complement is defined as:
 /// ```
-/// left_complement(b) ^ b == A::antiscalar{1}
+/// left_complement(b) ^ b == s * s * A::antiscalar{1}
 /// ```
-/// where `A` is `algebra_type_t<B>`.
+/// where `A` is `algebra_type_t<B>` and `s` is the cofficient of `b`.
 ///
-/// @pre `b.coefficient == 0` is `false`
 /// @see eq. 2.13
 /// @see eq. 2.20
+/// @see eq. 2.24
 ///
 inline constexpr auto left_complement = std::bind_front(complement, left);
 
@@ -206,13 +208,13 @@ inline constexpr auto left_complement = std::bind_front(complement, left);
 ///
 /// The right complement is defined as:
 /// ```
-/// b ^ right_complement(b) == A::antiscalar{1}
+/// b ^ right_complement(b) == s * s * A::antiscalar{1}
 /// ```
-/// where `A` is `algebra_type_t<B>`.
+/// where `A` is `algebra_type_t<B>` and `s` is the cofficient of `b`.
 ///
-/// @pre `b.coefficient == 0` is `false`
 /// @see eq. 2.13
 /// @see eq. 2.19
+/// @see eq. 2.24
 ///
 inline constexpr auto right_complement = std::bind_front(complement, right);
 
