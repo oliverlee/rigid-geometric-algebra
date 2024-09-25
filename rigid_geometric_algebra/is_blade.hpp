@@ -24,4 +24,13 @@ inline constexpr auto is_blade_v = is_blade<T>::value;
 
 /// @}
 
+namespace detail {
+
+/// implementation only concept
+///
+template <class T>
+concept blade = is_blade_v<std::remove_cvref_t<T>>;
+
+}  // namespace detail
+
 }  // namespace rigid_geometric_algebra

@@ -2,7 +2,6 @@
 
 #include "detail/even.hpp"
 #include "rigid_geometric_algebra/algebra_type.hpp"
-#include "rigid_geometric_algebra/blade.hpp"
 #include "rigid_geometric_algebra/blade_complement_type.hpp"
 #include "rigid_geometric_algebra/detail/swaps_to_sorted_dimensions.hpp"
 #include "rigid_geometric_algebra/is_blade.hpp"
@@ -50,16 +49,20 @@ class blade_complement_negates_fn
   struct num_swaps
   {};
 
-  template <class A, std::size_t... Is, std::size_t... Js>
-  struct num_swaps<blade<A, Is...>, blade<A, Js...>>
+  template <
+      template <class, std::size_t...>
+      class blade_,
+      class A,
+      std::size_t... Is,
+      std::size_t... Js>
+  struct num_swaps<blade_<A, Is...>, blade_<A, Js...>>
       : std::integral_constant<
             std::size_t,
             detail::swaps_to_sorted_dimensions(Is..., Js...)>
   {};
 
 public:
-  template <class Dir, class B>
-    requires is_blade_v<B>
+  template <class Dir, detail::blade B>
   static consteval auto operator()(Dir, std::type_identity<B>) -> bool
   {
     if constexpr (std::is_same_v<Dir, left_t>) {
@@ -139,27 +142,23 @@ public:
 
   // @}
 
-  template <class B>
-    requires is_blade_v<std::remove_cvref_t<B>>
+  template <detail::blade B>
   static constexpr auto operator()(left_t, B&& b) -> blade_complement_type_t<B>
   {
     return impl(left_t{}, std::forward<B>(b));
   }
-  template <class B>
-    requires is_blade_v<std::remove_cvref_t<B>>
+  template <detail::blade B>
   static constexpr auto operator()(right_t, B&& b) -> blade_complement_type_t<B>
   {
     return impl(right_t{}, std::forward<B>(b));
   }
-  template <class V>
-    requires is_multivector_v<std::remove_cvref_t<V>>
+  template <detail::multivector<> V>
   static constexpr auto
   operator()(left_t, V&& v) -> decltype(mv_impl(left_t{}, std::forward<V>(v)))
   {
     return mv_impl(left_t{}, std::forward<V>(v));
   }
-  template <class V>
-    requires is_multivector_v<std::remove_cvref_t<V>>
+  template <detail::multivector<> V>
   static constexpr auto
   operator()(right_t, V&& v) -> decltype(mv_impl(right_t{}, std::forward<V>(v)))
   {

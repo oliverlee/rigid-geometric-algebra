@@ -52,9 +52,7 @@ struct blade_complement_type_<true, blade_<A, Is...>>
 
 template <class T>
 struct blade_complement_type
-    : detail::blade_complement_type_<
-          is_blade_v<std::remove_cvref_t<T>>,
-          std::remove_cvref_t<T>>
+    : detail::blade_complement_type_<detail::blade<T>, std::remove_cvref_t<T>>
 {};
 
 template <class T>

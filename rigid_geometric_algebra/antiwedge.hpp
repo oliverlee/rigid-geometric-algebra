@@ -3,6 +3,7 @@
 #include "rigid_geometric_algebra/algebra_type.hpp"
 #include "rigid_geometric_algebra/complement.hpp"
 #include "rigid_geometric_algebra/detail/even.hpp"
+#include "rigid_geometric_algebra/is_blade.hpp"
 #include "rigid_geometric_algebra/wedge.hpp"
 #include "rigid_geometric_algebra/zero_constant.hpp"
 
@@ -20,8 +21,7 @@ inline constexpr class
 // TODO derive nary multivector operation
 {
 public:
-  template <class B1, class B2>
-    requires is_blade_v<B1> and is_blade_v<B2>
+  template <detail::blade B1, detail::blade B2>
   static constexpr auto operator()(const B1& b1, const B2& b2)
       -> decltype(left_complement(right_complement(b1) ^ right_complement(b2)))
   {

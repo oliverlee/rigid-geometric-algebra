@@ -18,7 +18,7 @@ struct scalar_
 template <class A>
 struct scalar_<true, A>
 {
-  using type = blade<A>;
+  using type = ::rigid_geometric_algebra::blade<A>;
 };
 
 template <bool, class>
@@ -29,8 +29,8 @@ template <class A>
 struct antiscalar_<true, A>
 {
   using type =
-      decltype([]<std::size_t... Is>(
-                   std::index_sequence<Is...>) -> blade<A, Is...> {
+      decltype([]<std::size_t... Is>(std::index_sequence<Is...>)
+                   -> ::rigid_geometric_algebra::blade<A, Is...> {
         return {};
       }(std::make_index_sequence<algebra_dimension_v<A>>{}));
 };
