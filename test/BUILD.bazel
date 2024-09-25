@@ -68,6 +68,16 @@ cc_test(
 )
 
 cc_test(
+    name = "blade_sum_test",
+    size = "small",
+    srcs = ["blade_sum_test.cpp"],
+    deps = [
+        "//rigid_geometric_algebra",
+        "@skytest",
+    ],
+)
+
+cc_test(
     name = "blade_type_from_test",
     size = "small",
     srcs = ["blade_type_from_test.cpp"],

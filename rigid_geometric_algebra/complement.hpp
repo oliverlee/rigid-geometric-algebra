@@ -3,10 +3,10 @@
 #include "detail/even.hpp"
 #include "rigid_geometric_algebra/algebra_type.hpp"
 #include "rigid_geometric_algebra/blade_complement_type.hpp"
+#include "rigid_geometric_algebra/blade_sum.hpp"
 #include "rigid_geometric_algebra/detail/swaps_to_sorted_dimensions.hpp"
 #include "rigid_geometric_algebra/is_blade.hpp"
 #include "rigid_geometric_algebra/is_multivector.hpp"
-#include "rigid_geometric_algebra/multivector.hpp"
 #include "rigid_geometric_algebra/multivector_type_from_blade_list.hpp"
 #include "rigid_geometric_algebra/sorted_canonical_blades.hpp"
 #include "rigid_geometric_algebra/zero_constant.hpp"
@@ -106,8 +106,7 @@ class complement_fn
       -> multivector_type_from_blade_list_t<
           sorted_canonical_blades_t<blade_complement_type_t<Bs>...>>
   {
-    return (operator()(Dir{}, std::get<Bs>(std::forward<V>(v))) + ... +
-            zero_constant<A>{});
+    return blade_sum(operator()(Dir{}, std::get<Bs>(std::forward<V>(v)))...);
   }
 
   template <class Dir, class V>
@@ -152,13 +151,13 @@ public:
   {
     return impl(right_t{}, std::forward<B>(b));
   }
-  template <detail::multivector<> V>
+  template <detail::multivector V>
   static constexpr auto
   operator()(left_t, V&& v) -> decltype(mv_impl(left_t{}, std::forward<V>(v)))
   {
     return mv_impl(left_t{}, std::forward<V>(v));
   }
-  template <detail::multivector<> V>
+  template <detail::multivector V>
   static constexpr auto
   operator()(right_t, V&& v) -> decltype(mv_impl(right_t{}, std::forward<V>(v)))
   {
