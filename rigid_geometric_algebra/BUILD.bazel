@@ -40,6 +40,7 @@ cc_library(
         "detail/swaps_to_sorted_dimensions.hpp",
         "detail/tuple_cref.hpp",
         "detail/type_concat.hpp",
+        "detail/type_insert.hpp",
         "detail/type_list.hpp",
         "field.hpp",
         "field_identity.hpp",

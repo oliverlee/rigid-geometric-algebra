@@ -10,7 +10,6 @@
 #include "rigid_geometric_algebra/detail/is_defined.hpp"
 #include "rigid_geometric_algebra/detail/multivector_promotable.hpp"
 #include "rigid_geometric_algebra/detail/overload.hpp"
-#include "rigid_geometric_algebra/detail/rebind_args_into.hpp"
 #include "rigid_geometric_algebra/detail/size_checked_subrange.hpp"
 #include "rigid_geometric_algebra/detail/type_concat.hpp"
 #include "rigid_geometric_algebra/detail/type_list.hpp"
@@ -51,6 +50,8 @@ class multivector
       detail::derive_subtraction<multivector<A, Bs...>>
 {
 public:
+  using type = multivector;
+
   /// algebra this blade belongs to
   ///
   using algebra_type = A;
@@ -70,7 +71,7 @@ public:
 
   /// blade list
   ///
-  using blade_list_type = std::tuple<Bs...>;
+  using blade_list_type = detail::type_list<Bs...>;
 
   /// non-narrowing construction from a different multivector
   ///
@@ -147,25 +148,17 @@ public:
               detail::decays_to<V2, multivector>) and
                  (not detail::is_defined_v<
                      detail::overload<std::plus<>, V1, V2>>)
-  friend constexpr auto operator+(V1&& v1, V2&& v2)
-      -> detail::rebind_args_into_t<
-          detail::type_concat_t<
-              detail::type_list<algebra_type>,
-              typename detail::rebind_args_into_t<
-                  detail::type_concat_t<
-                      typename std::remove_cvref_t<
-                          to_multivector_t<V1>>::blade_list_type,
-                      typename std::remove_cvref_t<
-                          to_multivector_t<V2>>::blade_list_type>,
-                  sorted_canonical_blades>::type>,
-          multivector>
+  friend constexpr auto operator+(V1&& v1, V2&& v2) ->
+      typename detail::type_concat_t<
+          typename std::remove_cvref_t<to_multivector_t<V1>>::blade_list_type,
+          typename std::remove_cvref_t<to_multivector_t<V2>>::blade_list_type>::
+          template insert_into_t<sorted_canonical_blades<>>::
+              template insert_into_t<multivector<algebra_type>>
   {
-    using result_blade_list_type = typename detail::rebind_args_into_t<
-        detail::type_concat_t<
-            typename std::remove_cvref_t<to_multivector_t<V1>>::blade_list_type,
-            typename std::remove_cvref_t<
-                to_multivector_t<V2>>::blade_list_type>,
-        sorted_canonical_blades>::type;
+    using result_blade_list_type = typename detail::type_concat_t<
+        typename std::remove_cvref_t<to_multivector_t<V1>>::blade_list_type,
+        typename std::remove_cvref_t<to_multivector_t<V2>>::blade_list_type>::
+        template insert_into_t<sorted_canonical_blades<>>;
 
     return []<class... Ts, class V3, class V4>(
                detail::type_list<Ts...>, V3&& v3, V4&& v4) {
@@ -208,6 +201,7 @@ public:
                  detail::overload<decltype(wedge), V1, V2>>)
   friend constexpr auto operator^(V1&& v1, V2&& v2)
   // TODO return type
+  // invoke wedge function object
   {
     const auto& v3 = to_multivector(std::forward<V1>(v1));
     const auto& v4 = to_multivector(std::forward<V2>(v2));
@@ -257,13 +251,8 @@ template <
 // false positive
 // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
 constexpr auto operator+(B1&& b1, B2&& b2)
-    -> detail::rebind_args_into_t<
-        detail::type_concat_t<
-            detail::type_list<A>,
-            sorted_canonical_blades_t<
-                canonical_type_t<B1>,
-                canonical_type_t<B2>>>,
-        multivector>
+    -> sorted_canonical_blades_t<canonical_type_t<B1>, canonical_type_t<B2>>::
+        template insert_into_t<multivector<A>>
 {
   // clang-format off
   return [
