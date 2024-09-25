@@ -19,6 +19,7 @@ cc_library(
         "detail/are_dimensions_unique.hpp",
         "detail/array_subset.hpp",
         "detail/contract.hpp",
+        "detail/decays_to.hpp",
         "detail/define_prioritized_overload.hpp",
         "detail/derive_subtraction.hpp",
         "detail/derive_vector_space_operations.hpp",

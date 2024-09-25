@@ -105,7 +105,7 @@ public:
   /// Forwards `value` unchanged.
   ///
   template <class Self>
-    requires (std::is_same_v<multivector, std::remove_cvref_t<Self>>)
+    requires (detail::decays_to_v<Self, multivector>)
   friend constexpr auto to_multivector(Self&& self) noexcept -> Self&&
   {
     return std::forward<Self>(self);
@@ -139,8 +139,8 @@ public:
   ///  is defined by `derive_vector_space_operations`.
   ///
   template <class V1, class V2>
-    requires (std::is_same_v<multivector, std::remove_cvref_t<V1>> !=
-              std::is_same_v<multivector, std::remove_cvref_t<V2>>) and
+    requires (detail::decays_to_v<V1, multivector> !=
+              detail::decays_to_v<V2, multivector>) and
                  requires {
                    to_multivector(std::declval<V1>());
                    to_multivector(std::declval<V2>());
@@ -200,8 +200,8 @@ public:
   /// if `(b1...)` and `(b2...)` were valid ranges.
   ///
   template <class V1, class V2>
-    requires (std::is_same_v<multivector, std::remove_cvref_t<V1>> or
-              std::is_same_v<multivector, std::remove_cvref_t<V2>>) and
+    requires (detail::decays_to_v<V1, multivector> or
+              detail::decays_to_v<V2, multivector>) and
              requires {
                to_multivector(std::declval<V1>());
                to_multivector(std::declval<V2>());

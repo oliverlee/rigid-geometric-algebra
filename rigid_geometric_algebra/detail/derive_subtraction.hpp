@@ -1,5 +1,6 @@
 #pragma once
 
+#include "rigid_geometric_algebra/detail/decays_to.hpp"
 #include "rigid_geometric_algebra/detail/define_prioritized_overload.hpp"
 #include "rigid_geometric_algebra/detail/invoke_prioritized_overload.hpp"
 #include "rigid_geometric_algebra/detail/overload.hpp"
@@ -33,14 +34,10 @@ template <class D>
 class derive_subtraction
 {
 public:
-  template <class T>
-  static constexpr auto is_derived_reference_v =
-      std::is_same_v<D, std::remove_cvref_t<T>>;
-
   /// subtraction
   ///
   template <class T1, class T2>
-    requires (is_derived_reference_v<T1> or is_derived_reference_v<T2>) and
+    requires (detail::decays_to_v<T1, D> or detail::decays_to_v<T2, D>) and
                  std::is_invocable_v<std::plus<>, T1, T2> and
                  define_prioritized_overload_v<
                      priority_for<std::minus<>, derive_subtraction<>>,

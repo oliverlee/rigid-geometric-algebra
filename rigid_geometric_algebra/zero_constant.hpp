@@ -1,6 +1,7 @@
 #pragma once
 
 #include "rigid_geometric_algebra/common_algebra_type.hpp"
+#include "rigid_geometric_algebra/detail/decays_to.hpp"
 #include "rigid_geometric_algebra/detail/derive_subtraction.hpp"
 
 #include <type_traits>
@@ -57,18 +58,15 @@ struct zero_constant : detail::derive_subtraction<zero_constant<A>>
   /// * T1 is `zero_constant` xor T2 is `zero_constant`
   /// @returns the non-zero value
   ///
-  template <
-      class T1,
-      class T2,
-      class D1 = std::remove_cvref_t<T1>,
-      class D2 = std::remove_cvref_t<T2>>
-    requires has_common_algebra_type_v<D1, D2> and
-                 (std::is_same_v<zero_constant, D1> !=
-                  std::is_same_v<zero_constant, D2>)
+  template <class T1, class T2>
+    requires has_common_algebra_type_v<T1, T2> and
+                 (detail::decays_to_v<T1, zero_constant> !=
+                  detail::decays_to_v<T2, zero_constant>)
   friend constexpr auto operator+(T1&& lhs, T2&& rhs)
-      -> std::conditional_t<std::is_same_v<zero_constant, D2>, D1, D2>
+      -> std::remove_cvref_t<
+          std::conditional_t<detail::decays_to_v<T2, zero_constant>, T1, T2>>
   {
-    if constexpr (std::is_same_v<zero_constant, D2>) {
+    if constexpr (detail::decays_to_v<T2, zero_constant>) {
       return std::forward<T1>(lhs);
     } else {
       return std::forward<T2>(rhs);

@@ -49,6 +49,15 @@ cc_test(
 )
 
 cc_test(
+    name = "decays_to_test",
+    size = "small",
+    srcs = ["decays_to_test.cpp"],
+    deps = [
+        "//rigid_geometric_algebra",
+    ],
+)
+
+cc_test(
     name = "disjoint_subset_test",
     size = "small",
     srcs = ["disjoint_subset_test.cpp"],

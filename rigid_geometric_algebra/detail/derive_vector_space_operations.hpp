@@ -1,5 +1,6 @@
 #pragma once
 
+#include "rigid_geometric_algebra/detail/decays_to.hpp"
 #include "rigid_geometric_algebra/detail/define_prioritized_overload.hpp"
 #include "rigid_geometric_algebra/detail/invoke_prioritized_overload.hpp"
 #include "rigid_geometric_algebra/detail/overload.hpp"
@@ -40,14 +41,10 @@ class derive_vector_space_operations
   };
 
 public:
-  template <class T>
-  static constexpr auto is_derived_reference_v =
-      std::is_same_v<D, std::remove_cvref_t<T>>;
-
   /// negation
   ///
   template <class T1>
-    requires is_derived_reference_v<T1>
+    requires detail::decays_to_v<T1, D>
   friend constexpr auto operator-(T1&& t1) -> D
   {
     return D{-(F{}(std::forward<T1>(t1)))...};
@@ -56,7 +53,7 @@ public:
   /// subtraction
   ///
   template <class T1, class T2>
-    requires is_derived_reference_v<T1> and is_derived_reference_v<T2> and
+    requires decays_to_v<T1, D> and decays_to_v<T2, D> and
                  define_prioritized_overload_v<
                      priority_for<std::minus<>,
                                   derive_vector_space_operations<>>,
@@ -71,7 +68,7 @@ public:
   /// addition
   ///
   template <class T1, class T2>
-    requires is_derived_reference_v<T1> and is_derived_reference_v<T2>
+    requires decays_to_v<T1, D> and decays_to_v<T2, D>
   friend constexpr auto operator+(T1&& t1, T2&& t2) -> D
   {
     return D{(F{}(std::forward<T1>(t1)) + F{}(std::forward<T2>(t2)))...};
@@ -80,7 +77,7 @@ public:
   /// scalar multiplication
   ///
   template <class S, class T2>
-    requires (is_derived_reference_v<T2> and
+    requires (decays_to_v<T2, D> and
               (std::is_invocable_r_v<
                    std::remove_cvref_t<std::invoke_result_t<F, T2>>,
                    std::multiplies<>,
