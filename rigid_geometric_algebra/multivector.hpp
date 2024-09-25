@@ -15,6 +15,7 @@
 #include "rigid_geometric_algebra/get.hpp"
 #include "rigid_geometric_algebra/get_or.hpp"
 #include "rigid_geometric_algebra/is_algebra.hpp"
+#include "rigid_geometric_algebra/is_blade.hpp"
 #include "rigid_geometric_algebra/is_canonical_blade_order.hpp"
 #include "rigid_geometric_algebra/sorted_canonical_blades.hpp"
 #include "rigid_geometric_algebra/wedge.hpp"
@@ -250,13 +251,21 @@ multivector(const B0&, const Bs&...)
 ///
 /// Constructs a multivector containing the canonical form of `b1` and `b2`.
 ///
-template <class B1, class B2, class A = common_algebra_type_t<B1, B2>>
-  requires is_blade_v<std::remove_cvref_t<B1>> and
-           is_blade_v<std::remove_cvref_t<B2>> and
-           (not std::is_same_v<canonical_type_t<B1>, canonical_type_t<B2>>)
+template <
+    detail::blade B1,
+    detail::blade B2,
+    class A = common_algebra_type_t<B1, B2>>
+  requires (not std::is_same_v<canonical_type_t<B1>, canonical_type_t<B2>>)
 // false positive
 // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
 constexpr auto operator+(B1&& b1, B2&& b2)
+    -> detail::rebind_args_into_t<
+        detail::type_concat_t<
+            detail::type_list<A>,
+            sorted_canonical_blades_t<
+                canonical_type_t<B1>,
+                canonical_type_t<B2>>>,
+        multivector>
 {
   // clang-format off
   return [
