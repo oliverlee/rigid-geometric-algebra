@@ -73,23 +73,22 @@ public:
 };
 
 template <class Dir, class B>
-inline constexpr auto blade_complement_negates =
-    blade_complement_negates_fn{}(Dir{}, std::type_identity<B>{});
+inline constexpr auto blade_complement_negates = blade_complement_negates_fn{}(
+    Dir{}, std::type_identity<std::remove_cvref_t<B>>{});
 
 /// @}
 
 class complement_fn
 {
   template <class Dir, class B>
-  static constexpr auto
-  impl(Dir, B&& b) -> blade_complement_type_t<std::remove_cvref_t<B>>
+  static constexpr auto impl(Dir, B&& b) -> blade_complement_type_t<B>
   {
     using maybe_negate = std::conditional_t<
-        detail::blade_complement_negates<Dir, std::remove_cvref_t<B>>,
+        detail::blade_complement_negates<Dir, B>,
         std::identity,
         std::negate<>>;
 
-    return blade_complement_type_t<std::remove_cvref_t<B>>{
+    return blade_complement_type_t<B>{
         maybe_negate{}(std::forward<B>(b).coefficient)};
   }
 
@@ -99,7 +98,7 @@ class complement_fn
       class list,
       class... Bs,
       class V,
-      class A = algebra_type_t<std::remove_cvref_t<V>>>
+      class A = algebra_type_t<V>>
   static constexpr auto mv_impl2(Dir, list<Bs...>, V&& v)
       -> multivector_type_from_blade_list_t<
           sorted_canonical_blades_t<blade_complement_type_t<Bs>...>>
@@ -142,15 +141,13 @@ public:
 
   template <class B>
     requires is_blade_v<std::remove_cvref_t<B>>
-  static constexpr auto
-  operator()(left_t, B&& b) -> blade_complement_type_t<std::remove_cvref_t<B>>
+  static constexpr auto operator()(left_t, B&& b) -> blade_complement_type_t<B>
   {
     return impl(left_t{}, std::forward<B>(b));
   }
   template <class B>
     requires is_blade_v<std::remove_cvref_t<B>>
-  static constexpr auto
-  operator()(right_t, B&& b) -> blade_complement_type_t<std::remove_cvref_t<B>>
+  static constexpr auto operator()(right_t, B&& b) -> blade_complement_type_t<B>
   {
     return impl(right_t{}, std::forward<B>(b));
   }

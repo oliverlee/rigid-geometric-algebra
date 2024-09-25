@@ -1,5 +1,6 @@
 #pragma once
 
+#include "rigid_geometric_algebra/algebra_type.hpp"
 #include "rigid_geometric_algebra/complement.hpp"
 #include "rigid_geometric_algebra/detail/even.hpp"
 #include "rigid_geometric_algebra/wedge.hpp"
@@ -26,9 +27,11 @@ public:
   {
     using result_type =
         decltype(left_complement(right_complement(b1) ^ right_complement(b2)));
-    using algebra_type = typename result_type::algebra_type;
 
-    if constexpr (std::is_same_v<result_type, zero_constant<algebra_type>>) {
+    if constexpr (
+        std::is_same_v<
+            result_type,
+            zero_constant<algebra_type_t<result_type>>>) {
       return {};
     } else {
       using C1 = std::invoke_result_t<decltype(right_complement), B1>;

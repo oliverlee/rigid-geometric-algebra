@@ -2,6 +2,7 @@
 
 #include "rigid_geometric_algebra/algebra_dimension.hpp"
 #include "rigid_geometric_algebra/algebra_field.hpp"
+#include "rigid_geometric_algebra/canonical_type.hpp"
 #include "rigid_geometric_algebra/detail/are_dimensions_unique.hpp"
 #include "rigid_geometric_algebra/detail/derive_subtraction.hpp"
 #include "rigid_geometric_algebra/detail/derive_vector_space_operations.hpp"
@@ -158,16 +159,15 @@ public:
 
   /// add different blades types with the same canonical type
   ///
-  template <class T, class B>
-    requires std::is_same_v<blade, std::remove_cvref_t<T>> and
-                 (not std::is_same_v<std::remove_cvref_t<B>,
-                                     std::remove_cvref_t<T>>) and
-                 std::is_same_v<typename blade::canonical_type,
-                                typename std::remove_cvref_t<B>::canonical_type>
-  friend constexpr auto
-  operator+(T&& lhs, B&& rhs) -> typename blade::canonical_type
+  template <class B1, class B2>
+    requires std::is_same_v<blade, std::remove_cvref_t<B1>> and
+                 (not std::is_same_v<std::remove_cvref_t<B1>,
+                                     std::remove_cvref_t<B2>>) and
+                 std::is_same_v<canonical_type, canonical_type_t<B2>>
+  friend constexpr auto operator+(B1&& lhs, B2&& rhs) -> canonical_type
   {
-    return std::forward<T>(lhs).canonical() + std::forward<B>(rhs).canonical();
+    return std::forward<B1>(lhs).canonical() +
+           std::forward<B2>(rhs).canonical();
   }
 
   /// @}
@@ -177,9 +177,8 @@ public:
   /// @{
 
   template <std::size_t... Js>
-  friend constexpr auto
-  operator^(const blade& lhs, const blade<A, Js...>& rhs) ->
-      typename blade<A, Is..., Js...>::canonical_type
+  friend constexpr auto operator^(const blade& lhs, const blade<A, Js...>& rhs)
+      -> canonical_type_t<blade<A, Is..., Js...>>
   {
     return blade<A, Is..., Js...>{lhs.coefficient * rhs.coefficient}
         .canonical();
@@ -202,8 +201,7 @@ public:
   friend auto operator==(const blade&, const blade&) -> bool = default;
 
   template <std::size_t... Js>
-    requires (std::is_same_v<typename blade::canonical_type,
-                             typename blade<A, Js...>::canonical_type>)
+    requires (std::is_same_v<canonical_type, canonical_type_t<blade<A, Js...>>>)
   friend constexpr auto
   operator==(const blade& lhs, const blade<A, Js...>& rhs) -> bool
   {

@@ -29,7 +29,7 @@ namespace rigid_geometric_algebra {
 /// @{
 
 template <class... Bs>
-  requires (is_blade_v<Bs> and ...) and
+  requires (is_blade_v<std::remove_cvref_t<Bs>> and ...) and
            (sizeof...(Bs) == 0 or
             detail::has_type_v<common_algebra_type<Bs...>>)
 struct sorted_canonical_blades
@@ -37,7 +37,8 @@ struct sorted_canonical_blades
   using A = common_algebra_type_t<Bs...>;
 
   static constexpr auto sorted_blades = [] {
-    auto values = std::array{blade_ordering{std::type_identity<Bs>{}}...};
+    auto values = std::array{
+        blade_ordering{std::type_identity<std::remove_cvref_t<Bs>>{}}...};
     std::ranges::sort(values);
     auto subset = std::ranges::unique(values);
     return std::pair{values, values.size() - subset.size()};
