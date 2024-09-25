@@ -160,9 +160,8 @@ public:
   /// add different blades types with the same canonical type
   ///
   template <class B1, class B2>
-    requires std::is_same_v<blade, std::remove_cvref_t<B1>> and
-                 (not std::is_same_v<std::remove_cvref_t<B1>,
-                                     std::remove_cvref_t<B2>>) and
+    requires detail::decays_to_v<B1, blade> and
+                 (not detail::decays_to_v<B2, blade>) and
                  std::is_same_v<canonical_type, canonical_type_t<B2>>
   friend constexpr auto operator+(B1&& lhs, B2&& rhs) -> canonical_type
   {
