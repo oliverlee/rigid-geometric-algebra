@@ -4,6 +4,7 @@
 #include "rigid_geometric_algebra/is_blade.hpp"
 
 #include <cstddef>
+#include <type_traits>
 #include <utility>
 
 namespace rigid_geometric_algebra {
@@ -50,7 +51,10 @@ struct blade_complement_type_<true, blade_<A, Is...>>
 /// @{
 
 template <class T>
-struct blade_complement_type : detail::blade_complement_type_<is_blade_v<T>, T>
+struct blade_complement_type
+    : detail::blade_complement_type_<
+          is_blade_v<std::remove_cvref_t<T>>,
+          std::remove_cvref_t<T>>
 {};
 
 template <class T>

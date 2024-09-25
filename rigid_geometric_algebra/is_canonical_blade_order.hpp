@@ -3,7 +3,6 @@
 #include "rigid_geometric_algebra/blade_ordering.hpp"
 #include "rigid_geometric_algebra/canonical_type.hpp"
 #include "rigid_geometric_algebra/common_algebra_type.hpp"
-#include "rigid_geometric_algebra/detail/has_type.hpp"
 #include "rigid_geometric_algebra/is_blade.hpp"
 
 #include <algorithm>
@@ -39,7 +38,7 @@ public:
       return false;
     } else if constexpr (
         (std::is_same_v<Bs, canonical_type_t<Bs>> and ...) and
-        detail::has_type_v<common_algebra_type<Bs...>>) {
+        has_common_algebra_type_v<Bs...>) {
       using A = common_algebra_type_t<Bs...>;
       const auto data = std::array<blade_ordering<A>, sizeof...(Bs)>{
           std::type_identity<Bs>{}...};

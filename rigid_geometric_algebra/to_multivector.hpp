@@ -18,10 +18,8 @@ namespace rigid_geometric_algebra {
 ///
 template <class B>
   requires is_blade_v<std::remove_cvref_t<B>>
-constexpr auto to_multivector(B&& b)
-    -> multivector<
-        algebra_type_t<std::remove_cvref_t<B>>,
-        canonical_type_t<std::remove_cvref_t<B>>>
+constexpr auto
+to_multivector(B&& b) -> multivector<algebra_type_t<B>, canonical_type_t<B>>
 {
   return {std::forward<B>(b).canonical()};
 }

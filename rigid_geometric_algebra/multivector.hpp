@@ -250,23 +250,19 @@ multivector(const B0&, const Bs&...)
 ///
 /// Constructs a multivector containing the canonical form of `b1` and `b2`.
 ///
-template <
-    class T1,
-    class T2,
-    class B1 = std::remove_cvref_t<T1>,
-    class B2 = std::remove_cvref_t<T2>,
-    class A = common_algebra_type_t<B1, B2>>
-  requires is_blade_v<B1> and is_blade_v<B2> and
+template <class B1, class B2, class A = common_algebra_type_t<B1, B2>>
+  requires is_blade_v<std::remove_cvref_t<B1>> and
+           is_blade_v<std::remove_cvref_t<B2>> and
            (not std::is_same_v<canonical_type_t<B1>, canonical_type_t<B2>>)
 // false positive
 // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
-constexpr auto operator+(T1&& b1, T2&& b2)
+constexpr auto operator+(B1&& b1, B2&& b2)
 {
   // clang-format off
   return [
     tmp = std::tuple{
-      std::forward<T1>(b1).canonical(),
-      std::forward<T2>(b2).canonical()
+      std::forward<B1>(b1).canonical(),
+      std::forward<B2>(b2).canonical()
     }  // clang-format on
   ]<template <class...> class list, class... Bs>(list<Bs...>) mutable {
     return multivector{std::get<Bs>(std::move(tmp))...};
