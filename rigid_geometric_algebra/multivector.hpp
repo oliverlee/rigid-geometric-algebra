@@ -1,5 +1,6 @@
 #pragma once
 
+#include "blade_ordering.hpp"
 #include "rigid_geometric_algebra/algebra_field.hpp"
 #include "rigid_geometric_algebra/algebra_type.hpp"
 #include "rigid_geometric_algebra/canonical_type.hpp"
@@ -248,21 +249,17 @@ template <
     detail::blade B2,
     class A = common_algebra_type_t<B1, B2>>
   requires (not std::is_same_v<canonical_type_t<B1>, canonical_type_t<B2>>)
-// false positive
-// NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
 constexpr auto operator+(B1&& b1, B2&& b2)
     -> sorted_canonical_blades_t<canonical_type_t<B1>, canonical_type_t<B2>>::
         template insert_into_t<multivector<A>>
 {
-  // clang-format off
-  return [
-    tmp = std::tuple{
-      std::forward<B1>(b1).canonical(),
-      std::forward<B2>(b2).canonical()
-    }  // clang-format on
-  ]<template <class...> class list, class... Bs>(list<Bs...>) mutable {
-    return multivector{std::get<Bs>(std::move(tmp))...};
-  }(sorted_canonical_blades_t<B1, B2>{});
+  if constexpr (
+      blade_ordering{std::type_identity<B1>{}} <
+      blade_ordering{std::type_identity<B2>{}}) {
+    return {std::forward<B1>(b1).canonical(), std::forward<B2>(b2).canonical()};
+  } else {
+    return {std::forward<B2>(b2).canonical(), std::forward<B1>(b1).canonical()};
+  }
 }
 
 /// @}
