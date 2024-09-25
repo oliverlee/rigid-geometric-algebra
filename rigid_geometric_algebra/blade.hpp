@@ -4,6 +4,7 @@
 #include "rigid_geometric_algebra/algebra_field.hpp"
 #include "rigid_geometric_algebra/canonical_type.hpp"
 #include "rigid_geometric_algebra/detail/are_dimensions_unique.hpp"
+#include "rigid_geometric_algebra/detail/decays_to.hpp"
 #include "rigid_geometric_algebra/detail/derive_subtraction.hpp"
 #include "rigid_geometric_algebra/detail/derive_vector_space_operations.hpp"
 #include "rigid_geometric_algebra/detail/even.hpp"
@@ -159,9 +160,8 @@ public:
 
   /// add different blades types with the same canonical type
   ///
-  template <class B1, class B2>
-    requires detail::decays_to_v<B1, blade> and
-                 (not detail::decays_to_v<B2, blade>) and
+  template <detail::decays_to<blade> B1, class B2>
+    requires (not detail::decays_to<B2, blade>) and
                  std::is_same_v<canonical_type, canonical_type_t<B2>>
   friend constexpr auto operator+(B1&& lhs, B2&& rhs) -> canonical_type
   {

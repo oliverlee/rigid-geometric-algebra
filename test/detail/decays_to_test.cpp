@@ -8,14 +8,14 @@ struct S : T
 
 auto main() -> int
 {
-  using ::rigid_geometric_algebra::detail::decays_to_v;
+  using ::rigid_geometric_algebra::detail::decays_to;
 
-  static_assert(decays_to_v<T, T>);
-  static_assert(decays_to_v<const T, T>);
-  static_assert(decays_to_v<T&, T>);
-  static_assert(decays_to_v<const T&, T>);
-  static_assert(decays_to_v<T&&, T>);
-  static_assert(decays_to_v<const T&&, T>);
+  static_assert(decays_to<T, T>);
+  static_assert(decays_to<const T, T>);
+  static_assert(decays_to<T&, T>);
+  static_assert(decays_to<const T&, T>);
+  static_assert(decays_to<T&&, T>);
+  static_assert(decays_to<const T&&, T>);
 
-  static_assert(not decays_to_v<S, T>);
+  static_assert(not decays_to<S, T>);
 }

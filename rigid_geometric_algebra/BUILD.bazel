@@ -30,6 +30,7 @@ cc_library(
         "detail/invoke_prioritized_overload.hpp",
         "detail/is_defined.hpp",
         "detail/is_specialization_of.hpp",
+        "detail/multivector_promotable.hpp",
         "detail/overload.hpp",
         "detail/priority.hpp",
         "detail/priority_list.hpp",

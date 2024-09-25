@@ -60,13 +60,13 @@ struct zero_constant : detail::derive_subtraction<zero_constant<A>>
   ///
   template <class T1, class T2>
     requires has_common_algebra_type_v<T1, T2> and
-                 (detail::decays_to_v<T1, zero_constant> !=
-                  detail::decays_to_v<T2, zero_constant>)
+                 (detail::decays_to<T1, zero_constant> !=
+                  detail::decays_to<T2, zero_constant>)
   friend constexpr auto operator+(T1&& lhs, T2&& rhs)
       -> std::remove_cvref_t<
-          std::conditional_t<detail::decays_to_v<T2, zero_constant>, T1, T2>>
+          std::conditional_t<detail::decays_to<T2, zero_constant>, T1, T2>>
   {
-    if constexpr (detail::decays_to_v<T2, zero_constant>) {
+    if constexpr (detail::decays_to<T2, zero_constant>) {
       return std::forward<T1>(lhs);
     } else {
       return std::forward<T2>(rhs);

@@ -1,13 +1,15 @@
 #pragma once
 
-#include "detail/overload.hpp"
 #include "rigid_geometric_algebra/algebra_field.hpp"
 #include "rigid_geometric_algebra/algebra_type.hpp"
 #include "rigid_geometric_algebra/canonical_type.hpp"
 #include "rigid_geometric_algebra/common_algebra_type.hpp"
+#include "rigid_geometric_algebra/detail/decays_to.hpp"
 #include "rigid_geometric_algebra/detail/derive_subtraction.hpp"
 #include "rigid_geometric_algebra/detail/derive_vector_space_operations.hpp"
 #include "rigid_geometric_algebra/detail/is_defined.hpp"
+#include "rigid_geometric_algebra/detail/multivector_promotable.hpp"
+#include "rigid_geometric_algebra/detail/overload.hpp"
 #include "rigid_geometric_algebra/detail/rebind_args_into.hpp"
 #include "rigid_geometric_algebra/detail/size_checked_subrange.hpp"
 #include "rigid_geometric_algebra/detail/type_concat.hpp"
@@ -105,8 +107,7 @@ public:
   ///
   /// Forwards `value` unchanged.
   ///
-  template <class Self>
-    requires (detail::decays_to_v<Self, multivector>)
+  template <detail::decays_to<multivector> Self>
   friend constexpr auto to_multivector(Self&& self) noexcept -> Self&&
   {
     return std::forward<Self>(self);
@@ -139,13 +140,11 @@ public:
   ///    std::is_same_v<multivector, std::remove_cvref_t<V2>>` is `true`
   ///  is defined by `derive_vector_space_operations`.
   ///
-  template <class V1, class V2>
-    requires (detail::decays_to_v<V1, multivector> !=
-              detail::decays_to_v<V2, multivector>) and
-                 requires {
-                   to_multivector(std::declval<V1>());
-                   to_multivector(std::declval<V2>());
-                 } and
+  template <
+      detail::multivector_promotable V1,
+      detail::multivector_promotable V2>
+    requires (detail::decays_to<V1, multivector> !=
+              detail::decays_to<V2, multivector>) and
                  (not detail::is_defined_v<
                      detail::overload<std::plus<>, V1, V2>>)
   friend constexpr auto operator+(V1&& v1, V2&& v2)
@@ -200,16 +199,15 @@ public:
   /// ~~~
   /// if `(b1...)` and `(b2...)` were valid ranges.
   ///
-  template <class V1, class V2>
-    requires (detail::decays_to_v<V1, multivector> or
-              detail::decays_to_v<V2, multivector>) and
-             requires {
-               to_multivector(std::declval<V1>());
-               to_multivector(std::declval<V2>());
-             } and
+  template <
+      detail::multivector_promotable V1,
+      detail::multivector_promotable V2>
+    requires (detail::decays_to<V1, multivector> or
+              detail::decays_to<V2, multivector>) and
              (not detail::is_defined_v<
                  detail::overload<decltype(wedge), V1, V2>>)
   friend constexpr auto operator^(V1&& v1, V2&& v2)
+  // TODO return type
   {
     const auto& v3 = to_multivector(std::forward<V1>(v1));
     const auto& v4 = to_multivector(std::forward<V2>(v2));
