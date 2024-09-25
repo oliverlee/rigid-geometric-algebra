@@ -1,8 +1,11 @@
 #pragma once
 
 #include "rigid_geometric_algebra/algebra_dimension.hpp"
+#include "rigid_geometric_algebra/algebra_type.hpp"
 #include "rigid_geometric_algebra/blade.hpp"
 #include "rigid_geometric_algebra/detail/structural_bitset.hpp"
+#include "rigid_geometric_algebra/is_algebra.hpp"
+#include "rigid_geometric_algebra/is_blade.hpp"
 
 #include <compare>
 #include <cstddef>
@@ -30,6 +33,12 @@ struct blade_ordering
       : mask{(mask_type{}.set(Is) | ... | mask_type{})}
   {}
 
+  template <detail::blade B>
+    requires has_common_algebra_type_v<B, blade_ordering>
+  constexpr blade_ordering(std::type_identity<B>) noexcept
+      : blade_ordering(std::type_identity<std::remove_cvref_t<B>>{})
+  {}
+
   /// equality operator
   ///
   friend constexpr auto operator==(
@@ -55,6 +64,10 @@ struct blade_ordering
 };
 
 template <class A>
+  requires is_algebra_v<A>
 blade_ordering(std::type_identity<A>) -> blade_ordering<A>;
+
+template <detail::blade B>
+blade_ordering(std::type_identity<B>) -> blade_ordering<algebra_type_t<B>>;
 
 }  // namespace rigid_geometric_algebra
