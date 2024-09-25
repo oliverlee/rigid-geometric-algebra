@@ -88,6 +88,15 @@ cc_test(
 )
 
 cc_test(
+    name = "multivector_promotable_test",
+    size = "small",
+    srcs = ["multivector_promotable_test.cpp"],
+    deps = [
+        "//rigid_geometric_algebra",
+    ],
+)
+
+cc_test(
     name = "priority_list_test",
     size = "small",
     srcs = ["priority_list_test.cpp"],

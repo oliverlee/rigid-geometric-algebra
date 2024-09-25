@@ -11,11 +11,7 @@ namespace rigid_geometric_algebra::detail {
 /// @{
 
 template <class From, class To>
-struct decays_to : std::is_same<std::decay_t<From>, To>
-{};
-
-template <class From, class To>
-inline constexpr auto decays_to_v = decays_to<From, To>::value;
+concept decays_to = std::is_same_v<std::decay_t<From>, To>;
 
 /// @}
 

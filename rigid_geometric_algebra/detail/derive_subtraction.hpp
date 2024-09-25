@@ -37,7 +37,7 @@ public:
   /// subtraction
   ///
   template <class T1, class T2>
-    requires (detail::decays_to_v<T1, D> or detail::decays_to_v<T2, D>) and
+    requires (detail::decays_to<T1, D> or detail::decays_to<T2, D>) and
                  std::is_invocable_v<std::plus<>, T1, T2> and
                  define_prioritized_overload_v<
                      priority_for<std::minus<>, derive_subtraction<>>,
