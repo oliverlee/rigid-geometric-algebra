@@ -4,7 +4,6 @@
 #include "rigid_geometric_algebra/blade.hpp"
 #include "rigid_geometric_algebra/glz_fwd.hpp"
 #include "rigid_geometric_algebra/multivector.hpp"
-#include "rigid_geometric_algebra/tuple_type.hpp"
 
 #include <array>
 #include <concepts>
@@ -152,14 +151,10 @@ struct ::glz::meta<::rigid_geometric_algebra::point<A>>
     std::reference_wrapper<P> point;
   };
 
-  static constexpr auto value = [](auto& self) {
-    using T = ::rigid_geometric_algebra::tuple_type_t<
-        typename ::rigid_geometric_algebra::point<A>::multivector_type>;
+  template <class T>
+  point_wrapper(T&) -> point_wrapper<T>;
 
-    using R = std::conditional_t<
-        std::is_const_v<std::remove_reference_t<decltype(self)>>,
-        std::add_const_t<T>,
-        T>;
-    return point_wrapper<R>{static_cast<R&>(self.multivector())};
+  static constexpr auto value = [](auto& self) {
+    return point_wrapper{self.multivector().as_tuple()};
   };
 };

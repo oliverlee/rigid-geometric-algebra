@@ -3,7 +3,6 @@
 
 #include <format>
 #include <symengine/compat.hpp>
-#include <tuple>
 #include <type_traits>
 #include <utility>
 
@@ -95,11 +94,9 @@ auto main() -> int
         GS3::blade<1, 2>{S{"px"} * S{"qy"} - S{"py"} * S{"qx"}};
 
     const auto compare_each_element =
-        []<class... Ts, class... Us>(
-            const std::tuple<Ts...>& tup1,
-            const std::tuple<Us...>& tup2,
-            auto cmp) {
-          return (cmp(std::get<Ts>(tup1), std::get<Us>(tup2)) and ...);
+        []<class A, class... Bs>(
+            const multivector<A, Bs...>& v1, const auto& v2, auto cmp) {
+          return (cmp(get<Bs>(v1), get<Bs>(v2)) and ...);
         };
 
     const auto cmp = [](const auto& b1, const auto& b2) {

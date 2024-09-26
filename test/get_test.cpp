@@ -18,21 +18,17 @@ auto main() -> int
 
   "get invocable on tuples"_test = [] {
     return expect(
-        std::is_invocable_v<decltype(get<B0>), std::tuple<B0>> and
-        std::is_invocable_v<decltype(get<B0>), std::tuple<B0, B1>> and
         std::is_invocable_v<decltype(get<B0>), multivector<G2, B0>> and
         std::is_invocable_v<decltype(get<B0>), multivector<G2, B0, B1>>);
   };
 
   "get not invocable on tuples missing element"_test = [] {
     return expect(
-        (not std::is_invocable_v<decltype(get<B1>), std::tuple<B0>>) and
         (not std::is_invocable_v<decltype(get<B1>), multivector<G2, B0>>));
   };
 
-  "get not invocable on tuples with duplicate element"_test = [] {
-    return expect(
-        not std::is_invocable_v<decltype(get<B0>), std::tuple<B0, B0>>);
+  "get not invocable on tuples"_test = [] {
+    return expect(not std::is_invocable_v<decltype(get<B0>), std::tuple<B0>>);
   };
 
   "get not invocable on blades"_test = [] {
@@ -43,15 +39,19 @@ auto main() -> int
     return expect(
         std::is_same_v<
             B0&,
-            std::invoke_result_t<decltype(get<B0>), std::tuple<B0>&>> and
+            std::invoke_result_t<decltype(get<B0>), multivector<G2, B0>&>> and
         std::is_same_v<
             const B0&,
-            std::invoke_result_t<decltype(get<B0>), const std::tuple<B0>&>> and
+            std::invoke_result_t<
+                decltype(get<B0>),
+                const multivector<G2, B0>&>> and
         std::is_same_v<
             B0&&,
-            std::invoke_result_t<decltype(get<B0>), std::tuple<B0>&&>> and
+            std::invoke_result_t<decltype(get<B0>), multivector<G2, B0>&&>> and
         std::is_same_v<
             const B0&&,
-            std::invoke_result_t<decltype(get<B0>), const std::tuple<B0>&&>>);
+            std::invoke_result_t<
+                decltype(get<B0>),
+                const multivector<G2, B0>&&>>);
   };
 }

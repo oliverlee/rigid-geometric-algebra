@@ -38,6 +38,14 @@ sh_test(
     data = [":contract_handler_test"],
 )
 
+cc_binary(
+    name = "copy_ref_qual_test",
+    srcs = ["copy_ref_qual_test.cpp"],
+    deps = [
+        "//rigid_geometric_algebra",
+    ],
+)
+
 cc_test(
     name = "define_prioritized_overload_test",
     size = "small",
@@ -139,16 +147,6 @@ cc_test(
     name = "swaps_to_sorted_dimensions_test",
     size = "small",
     srcs = ["swaps_to_sorted_dimensions_test.cpp"],
-    deps = [
-        "//rigid_geometric_algebra",
-        "@skytest",
-    ],
-)
-
-cc_test(
-    name = "tuple_cref_test",
-    size = "small",
-    srcs = ["tuple_cref_test.cpp"],
     deps = [
         "//rigid_geometric_algebra",
         "@skytest",

@@ -5,6 +5,7 @@
 #include "rigid_geometric_algebra/algebra_type.hpp"
 #include "rigid_geometric_algebra/canonical_type.hpp"
 #include "rigid_geometric_algebra/common_algebra_type.hpp"
+#include "rigid_geometric_algebra/detail/copy_ref_qual.hpp"
 #include "rigid_geometric_algebra/detail/decays_to.hpp"
 #include "rigid_geometric_algebra/detail/derive_subtraction.hpp"
 #include "rigid_geometric_algebra/detail/derive_vector_space_operations.hpp"
@@ -44,12 +45,14 @@ template <class A, class... Bs>
   requires is_algebra_v<A> and (is_canonical_blade_order<Bs...>()) and
                (std::is_same_v<A, algebra_type_t<Bs>> and ...)
 class multivector
-    : public std::tuple<Bs...>,
+    : std::tuple<Bs...>,
       detail::derive_vector_space_operations<
           multivector<A, Bs...>,
           detail::get_fn<Bs>...>,
       detail::derive_subtraction<multivector<A, Bs...>>
 {
+  using base_type = std::tuple<Bs...>;
+
 public:
   using type = multivector;
 
@@ -68,7 +71,7 @@ public:
 
   /// inherited constructors from std::tuple
   ///
-  using std::tuple<Bs...>::tuple;
+  using base_type::base_type;
 
   /// blade list
   ///
@@ -102,6 +105,61 @@ public:
   ///
   template <class B>
   static constexpr auto contains = (std::is_same_v<B, Bs> or ...);
+
+  /// access the underlying tuple
+  ///
+  template <class Self>
+  constexpr auto
+  as_tuple(this Self&& self) -> detail::copy_ref_qual_t<Self, std::tuple<Bs...>>
+  {
+    return static_cast<detail::copy_ref_qual_t<Self, std::tuple<Bs...>>>(
+        std::forward<Self>(self));
+  }
+
+  /// access blade element
+  /// @tparam B blade type to access
+  ///
+  /// @{
+
+  template <class B, class Self>
+    requires contains<B>
+  constexpr auto get(this Self&& self) -> detail::copy_ref_qual_t<Self&&, B>
+  {
+    return std::get<B>(std::forward<Self>(self).as_tuple());
+  }
+
+  template <class B, detail::decays_to<multivector> Self>
+  friend constexpr auto
+  get(Self&& self) -> decltype(std::forward<Self>(self).template get<B>())
+  {
+    return std::forward<Self>(self).template get<B>();
+  }
+
+  /// @}
+
+  /// access blade element
+  /// @tparam I blade type to access
+  ///
+  /// @{
+
+  template <std::size_t I, class Self>
+    requires (I < size)
+  constexpr auto get(this Self&& self)
+      -> decltype(std::forward<Self>(self)
+                      .template get<std::tuple_element_t<I, multivector>>())
+  {
+    return std::forward<Self>(self)
+        .template get<std::tuple_element_t<I, multivector>>();
+  }
+
+  template <std::size_t I, detail::decays_to<multivector> Self>
+  friend constexpr auto
+  get(Self&& self) -> decltype(std::forward<Self>(self).template get<I>())
+  {
+    return std::forward<Self>(self).template get<I>();
+  }
+
+  /// @}
 
   /// promote value to a `multivector`
   /// @tparam Self `multivector` type
@@ -210,9 +268,11 @@ public:
     static constexpr auto N = std::remove_cvref_t<decltype(v3)>::size;
     static constexpr auto M = std::remove_cvref_t<decltype(v4)>::size;
 
+    using std::get;
+
     return []<std::size_t... Is>(
                std::index_sequence<Is...>, const auto& t1, const auto& t2) {
-      return ((std::get<Is / M>(t1) ^ std::get<Is % M>(t2)) + ...);
+      return ((get<Is / M>(t1) ^ get<Is % M>(t2)) + ...);
     }(std::make_index_sequence<N * M>{}, v3, v4);
   }
 
@@ -224,6 +284,11 @@ public:
 
   friend auto
   operator==(const multivector&, const multivector&) -> bool = default;
+
+  template <class... B2s>
+    requires (not std::is_same_v<multivector, multivector<A, B2s...>>)
+  friend auto operator==(const multivector&, const multivector<A, B2s...>&)
+      -> bool = delete;
 
   /// @}
 };
@@ -266,6 +331,17 @@ constexpr auto operator+(B1&& b1, B2&& b2)
 
 }  // namespace rigid_geometric_algebra
 
+template <class A, class... Bs>
+struct std::tuple_size<::rigid_geometric_algebra::multivector<A, Bs...>>
+    : std::integral_constant<std::size_t, sizeof...(Bs)>
+{};
+
+template <std::size_t I, class A, class... Bs>
+struct std::tuple_element<I, ::rigid_geometric_algebra::multivector<A, Bs...>>
+{
+  using type = std::tuple_element_t<I, std::tuple<Bs...>>;
+};
+
 template <class A, class... Bs, class CharT>
 struct std::formatter<::rigid_geometric_algebra::multivector<A, Bs...>, CharT>
     : std::formatter<::rigid_geometric_algebra::algebra_field_t<A>, CharT>
@@ -282,11 +358,12 @@ struct std::formatter<::rigid_geometric_algebra::multivector<A, Bs...>, CharT>
       return std::format_to(
           out, "{}", ::rigid_geometric_algebra::algebra_field_t<A>{});
     } else {
-      out = std::format_to(out, "{}", std::get<0>(v));
+      out = std::format_to(out, "{}", v.template get<0>());
 
       [&out, &v]<std::size_t... Is>(std::index_sequence<Is...>) {
         std::ignore =
-            ((out = std::format_to(out, " + {}", std::get<Is + 1>(v)), true) and
+            ((out = std::format_to(out, " + {}", v.template get<Is + 1>()),
+              true) and
              ...);
       }(std::make_index_sequence<sizeof...(Bs) - 1>{});
 
