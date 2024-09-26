@@ -27,7 +27,8 @@ struct common_algebra_type_<
 /// @tparam Ts types
 ///
 /// Defines member typedef `type` as the algebra type if all `Ts` define member
-/// typedef `algebra_type`. Otherwise; does not define member typedef `type`.
+/// typedef `algebra_type` as the same type. Otherwise; does not define member
+/// typedef `type`.
 ///
 /// @{
 
