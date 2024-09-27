@@ -1,25 +1,33 @@
 #pragma once
 
-#include "algebra_type.hpp"
-#include "rigid_geometric_algebra/canonical_type.hpp"
-#include "rigid_geometric_algebra/is_blade.hpp"
-#include "rigid_geometric_algebra/multivector.hpp"
-
 #include <utility>
 
 namespace rigid_geometric_algebra {
+namespace detail {
 
-/// promote value to a `multivector`
-/// @tparam B cv-ref qualified `blade` type
-/// @tparam b `blade` value
-///
-/// Returns a `multivector` containing a single `blade`.
-///
-template <detail::blade B>
-constexpr auto
-to_multivector(B&& b) -> multivector<algebra_type_t<B>, canonical_type_t<B>>
+auto to_multivector() -> void;
+
+class to_multivector_fn
 {
-  return {std::forward<B>(b).canonical()};
+public:
+  template <class T>
+  static constexpr auto
+  operator()(T&& t) -> decltype(to_multivector(std::forward<T>(t)))
+  {
+    return to_multivector(std::forward<T>(t));
+  }
+};
+
+}  // namespace detail
+
+inline namespace cpo {
+inline constexpr auto to_multivector = detail::to_multivector_fn{};
 }
+
+/// obtain the type after from invoking `to_multivector` on
+/// `std::declval<T>()`
+///
+template <class T>
+using to_multivector_t = decltype(to_multivector(std::declval<T>()));
 
 }  // namespace rigid_geometric_algebra

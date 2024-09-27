@@ -2,6 +2,8 @@
 
 #include "rigid_geometric_algebra/algebra_type.hpp"
 #include "rigid_geometric_algebra/complement.hpp"
+#include "rigid_geometric_algebra/detail/derive_multivector_overload.hpp"
+#include "rigid_geometric_algebra/detail/derive_zero_constant_overload.hpp"
 #include "rigid_geometric_algebra/detail/even.hpp"
 #include "rigid_geometric_algebra/is_blade.hpp"
 #include "rigid_geometric_algebra/wedge.hpp"
@@ -12,15 +14,16 @@
 #include <type_traits>
 
 namespace rigid_geometric_algebra {
+namespace detail {
 
-/// antiwedge product
-///
-/// @see eq. 2.25
-///
-inline constexpr class
-// TODO derive nary multivector operation
+class antiwedge_fn
+    : detail::derive_zero_constant_overload<antiwedge_fn>,
+      detail::derive_multivector_overload<antiwedge_fn>
 {
 public:
+  using detail::derive_zero_constant_overload<antiwedge_fn>::operator();
+  using detail::derive_multivector_overload<antiwedge_fn>::operator();
+
   template <detail::blade B1, detail::blade B2>
   static constexpr auto operator()(const B1& b1, const B2& b2)
       -> decltype(left_complement(right_complement(b1) ^ right_complement(b2)))
@@ -52,6 +55,14 @@ public:
       return result_type{maybe_negate{}(b1.coefficient * b2.coefficient)};
     }
   }
-} antiwedge{};
+};
+
+}  // namespace detail
+
+/// antiwedge product
+///
+/// @see eq. 2.25
+///
+inline constexpr auto antiwedge = detail::antiwedge_fn{};
 
 }  // namespace rigid_geometric_algebra

@@ -21,6 +21,7 @@
 #include "rigid_geometric_algebra/is_blade.hpp"
 #include "rigid_geometric_algebra/is_canonical_blade_order.hpp"
 #include "rigid_geometric_algebra/sorted_canonical_blades.hpp"
+#include "rigid_geometric_algebra/to_multivector.hpp"
 #include "rigid_geometric_algebra/wedge.hpp"
 #include "rigid_geometric_algebra/zero_constant.hpp"
 
@@ -173,12 +174,6 @@ public:
     return std::forward<Self>(self);
   }
 
-  /// obtain the type after from invoking `to_multivector` on
-  /// `std::declval<T>()`
-  ///
-  template <class T>
-  using to_multivector_t = decltype(to_multivector(std::declval<T>()));
-
   /// addition
   ///
   /// @{
@@ -298,6 +293,19 @@ public:
 template <class B0, class... Bs>
 multivector(const B0&, const Bs&...)
     -> multivector<algebra_type_t<B0>, B0, Bs...>;
+
+/// promote `blade` to a `multivector`
+/// @tparam B cv-ref qualified `blade` type
+/// @tparam b `blade` value
+///
+/// Returns a `multivector` containing a single `blade`.
+///
+template <detail::blade B>
+constexpr auto
+to_multivector(B&& b) -> multivector<algebra_type_t<B>, canonical_type_t<B>>
+{
+  return {std::forward<B>(b).canonical()};
+}
 
 /// addition
 ///
