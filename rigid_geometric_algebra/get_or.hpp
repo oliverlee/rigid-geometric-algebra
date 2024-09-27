@@ -1,6 +1,6 @@
 #pragma once
 
-#include "rigid_geometric_algebra/detail/tuple_cref.hpp"
+#include "rigid_geometric_algebra/detail/has_value.hpp"
 #include "rigid_geometric_algebra/get.hpp"
 
 #include <type_traits>
@@ -27,7 +27,7 @@ class get_or_fn
 {
 public:
   template <class V, class U>
-    requires std::is_invocable_v<decltype(detail::tuple_cref), V&>
+    requires detail::has_value_v<std::tuple_size<std::remove_cvref_t<V>>>
   constexpr static auto operator()(V&& v, U&& u) ->
       typename std::conditional_t<
           std::is_invocable_v<decltype(get<B>), V&&>,

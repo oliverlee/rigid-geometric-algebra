@@ -35,7 +35,6 @@ namespace rigid_geometric_algebra {}  // namespace rigid_geometric_algebra
 #include "rigid_geometric_algebra/point.hpp"
 #include "rigid_geometric_algebra/scalar_type.hpp"
 #include "rigid_geometric_algebra/to_multivector.hpp"
-#include "rigid_geometric_algebra/tuple_type.hpp"
 #include "rigid_geometric_algebra/unit_hypervolume.hpp"
 #include "rigid_geometric_algebra/wedge.hpp"
 #include "rigid_geometric_algebra/zero_constant.hpp"

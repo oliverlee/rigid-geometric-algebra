@@ -106,7 +106,7 @@ class complement_fn
       -> multivector_type_from_blade_list_t<
           sorted_canonical_blades_t<blade_complement_type_t<Bs>...>>
   {
-    return blade_sum(operator()(Dir{}, std::get<Bs>(std::forward<V>(v)))...);
+    return blade_sum(operator()(Dir{}, get<Bs>(std::forward<V>(v)))...);
   }
 
   template <class Dir, class V>

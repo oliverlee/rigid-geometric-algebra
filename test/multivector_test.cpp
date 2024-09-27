@@ -2,6 +2,7 @@
 #include "skytest/skytest.hpp"
 
 #include <format>
+#include <functional>
 #include <type_traits>
 
 auto main() -> int
@@ -160,6 +161,20 @@ auto main() -> int
         std::is_same_v<
             ::rigid_geometric_algebra::zero_constant<G2>,
             decltype(b012 ^ b012)>);
+  };
+
+  "comparison of different multivector types not hard error"_test = [] {
+    using V1 = G2::multivector<>;
+    using V2 = G2::multivector<G2::blade<>, G2::blade<1>>;
+
+    return expect(not std::is_invocable_v<std::equal_to<>, V1, V2>);
+  };
+
+  "multivector types usable with structured bindings"_test = [] {
+    const auto v = G2::multivector<G2::blade<>, G2::blade<1>>{0, 1};
+    const auto [a, b] = v;
+
+    return expect(eq(get<0>(v), a) and eq(get<1>(v), b));
   };
 
   "formattable"_test = [] {
