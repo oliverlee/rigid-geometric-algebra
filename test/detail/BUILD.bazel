@@ -163,9 +163,27 @@ cc_test(
 )
 
 cc_test(
+    name = "type_filter_test",
+    size = "small",
+    srcs = ["type_filter_test.cpp"],
+    deps = [
+        "//rigid_geometric_algebra",
+    ],
+)
+
+cc_test(
     name = "type_insert_test",
     size = "small",
     srcs = ["type_insert_test.cpp"],
+    deps = [
+        "//rigid_geometric_algebra",
+    ],
+)
+
+cc_test(
+    name = "type_product_test",
+    size = "small",
+    srcs = ["type_product_test.cpp"],
     deps = [
         "//rigid_geometric_algebra",
     ],
