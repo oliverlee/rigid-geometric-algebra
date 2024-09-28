@@ -53,9 +53,9 @@ public:
   ///
   template <detail::decays_to<D> T1, detail::decays_to<D> T2>
     requires define_prioritized_overload_v<
-                 priority_for<std::minus<>, derive_vector_space_operations<>>,
-                 overload<std::minus<>, T1, T2>,
-                 minus_impl>
+        priority_for<std::minus<>, derive_vector_space_operations<>>,
+        overload<std::minus<>, T1, T2>,
+        minus_impl>
   friend constexpr auto operator-(T1&& t1, T2&& t2) -> D
   {
     return invoke_prioritized_overload<std::minus<>>(
@@ -73,12 +73,13 @@ public:
   /// scalar multiplication
   ///
   template <class S, detail::decays_to<D> T2>
-    requires ((std::is_invocable_r_v<
-                   std::remove_cvref_t<std::invoke_result_t<F, T2>>,
-                   std::multiplies<>,
-                   S,
-                   std::invoke_result_t<F, T2>> and
-               ...))
+    requires ((
+        std::is_invocable_r_v<
+            std::remove_cvref_t<std::invoke_result_t<F, T2>>,
+            std::multiplies<>,
+            S,
+            std::invoke_result_t<F, T2>> and
+        ...))
   friend constexpr auto operator*(const S& s, T2&& t2) -> D
   {
     return D{(s * F{}(std::forward<T2>(t2)))...};

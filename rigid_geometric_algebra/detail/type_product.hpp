@@ -13,9 +13,10 @@ template <
     class Tuple1,
     class Tuple2,
     std::size_t M = std::tuple_size_v<Tuple2>>
-constexpr auto ith_pair(const Tuple1& tuple1, const Tuple2& tuple2)
-    -> std::pair<std::tuple_element_t<I / M, Tuple1>,
-                 std::tuple_element_t<I % M, Tuple2>>;
+constexpr auto
+ith_pair(const Tuple1& tuple1, const Tuple2& tuple2) -> std::pair<
+    std::tuple_element_t<I / M, Tuple1>,
+    std::tuple_element_t<I % M, Tuple2>>;
 
 /// defines the cartesian product of two type lists
 ///
@@ -28,10 +29,8 @@ struct type_product
 {};
 
 template <
-    template <class...>
-    class list1,
-    template <class...>
-    class list2,
+    template <class...> class list1,
+    template <class...> class list2,
     class... T1s,
     class... T2s>
 struct type_product<list1<T1s...>, list2<T2s...>>

@@ -15,8 +15,7 @@ struct blade_complement_type_
 {};
 
 template <
-    template <class, std::size_t...>
-    class blade_,
+    template <class, std::size_t...> class blade_,
     class A,
     std::size_t... Is>
 struct blade_complement_type_<true, blade_<A, Is...>>

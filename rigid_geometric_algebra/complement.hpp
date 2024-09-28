@@ -46,8 +46,7 @@ class blade_complement_negates_fn
   {};
 
   template <
-      template <class, std::size_t...>
-      class blade_,
+      template <class, std::size_t...> class blade_,
       class A,
       std::size_t... Is,
       std::size_t... Js>

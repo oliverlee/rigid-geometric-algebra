@@ -11,5 +11,5 @@ auto main() -> int
   const auto points = std::vector<G2::point>{
       {1, 2, 3}, {2, 3, 4}, {3, 4, 5}, {4, 5, 6}, {5, 6, 7}};
 
-  std::cout << glz::write_json(points).value() << "\n";
+  std::cout << *glz::write_json(points) << "\n";
 }

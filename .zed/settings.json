@@ -37,7 +37,7 @@
   "lsp": {
     "clangd": {
       "binary": {
-        "path": "./external/llvm18_toolchain_llvm/bin/clangd",
+        "path": "./external/llvm_toolchain_llvm/bin/clangd",
         "arguments": [
           "--function-arg-placeholders=0",
           "--completion-parse=always",

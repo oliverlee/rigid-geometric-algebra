@@ -38,11 +38,11 @@ public:
   ///
   template <class T1, class T2>
     requires (detail::decays_to<T1, D> or detail::decays_to<T2, D>) and
-                 std::is_invocable_v<std::plus<>, T1, T2> and
-                 define_prioritized_overload_v<
-                     priority_for<std::minus<>, derive_subtraction<>>,
-                     overload<std::minus<>, T1, T2>,
-                     default_subtraction>
+             std::is_invocable_v<std::plus<>, T1, T2> and
+             define_prioritized_overload_v<
+                 priority_for<std::minus<>, derive_subtraction<>>,
+                 overload<std::minus<>, T1, T2>,
+                 default_subtraction>
   friend constexpr auto
   operator-(T1&& t1, T2&& t2) -> std::invoke_result_t<std::plus<>, T1, T2>
   {

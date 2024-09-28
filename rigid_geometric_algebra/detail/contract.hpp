@@ -112,9 +112,9 @@ struct contract_violation_handler : logging_violation_handler<Args...>
 
 template <class Handler>
   requires std::is_invocable_v<
-               const Handler&,
-               precondition_contract,
-               const std::source_location&>
+      const Handler&,
+      precondition_contract,
+      const std::source_location&>
 constexpr auto precondition(
     const std::convertible_to<bool> auto& cond,
     const Handler& violation_handler,
@@ -148,9 +148,9 @@ constexpr auto precondition(
 
 template <class Handler>
   requires std::is_invocable_v<
-               const Handler&,
-               postcondition_contract,
-               const std::source_location&>
+      const Handler&,
+      postcondition_contract,
+      const std::source_location&>
 constexpr auto postcondition(
     const std::convertible_to<bool> auto& cond,
     const Handler& violation_handler,

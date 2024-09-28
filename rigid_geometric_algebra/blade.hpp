@@ -162,7 +162,7 @@ public:
   ///
   template <detail::decays_to<blade> B1, class B2>
     requires (not detail::decays_to<B2, blade>) and
-                 std::is_same_v<canonical_type, canonical_type_t<B2>>
+             std::is_same_v<canonical_type, canonical_type_t<B2>>
   friend constexpr auto operator+(B1&& lhs, B2&& rhs) -> canonical_type
   {
     return std::forward<B1>(lhs).canonical() +

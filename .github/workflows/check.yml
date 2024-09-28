@@ -18,7 +18,7 @@ jobs:
           - 'opt'
         toolchain:
           #- 'gcc12' # GCC12 has missing support for C++23
-          - 'clang18'
+          - 'clang19'
         os:
           - 'ubuntu-latest'
           - 'macos-latest'
@@ -26,15 +26,15 @@ jobs:
           - ''
         include:
           - compilation_mode: 'fastbuild'
-            toolchain: 'clang18'
+            toolchain: 'clang19'
             os: 'ubuntu-latest'
             feature: 'asan'
           - compilation_mode: 'fastbuild'
-            toolchain: 'clang18'
+            toolchain: 'clang19'
             os: 'ubuntu-latest'
             feature: 'tsan'
           - compilation_mode: 'fastbuild'
-            toolchain: 'clang18'
+            toolchain: 'clang19'
             os: 'ubuntu-latest'
             feature: 'ubsan'
     runs-on: ${{ matrix.os }}

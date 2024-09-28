@@ -200,14 +200,13 @@ public:
       detail::multivector_promotable V2>
     requires (detail::decays_to<V1, multivector> !=
               detail::decays_to<V2, multivector>) and
-                 (not detail::is_defined_v<
-                     detail::overload<std::plus<>, V1, V2>>)
-  friend constexpr auto operator+(V1&& v1, V2&& v2) ->
-      typename detail::type_concat_t<
-          typename std::remove_cvref_t<to_multivector_t<V1>>::blade_list_type,
-          typename std::remove_cvref_t<to_multivector_t<V2>>::blade_list_type>::
-          template insert_into_t<sorted_canonical_blades<>>::
-              template insert_into_t<multivector<algebra_type>>
+             (not detail::is_defined_v<detail::overload<std::plus<>, V1, V2>>)
+  friend constexpr auto
+  operator+(V1&& v1, V2&& v2) -> typename detail::type_concat_t<
+      typename std::remove_cvref_t<to_multivector_t<V1>>::blade_list_type,
+      typename std::remove_cvref_t<to_multivector_t<V2>>::blade_list_type>::
+      template insert_into_t<sorted_canonical_blades<>>::template insert_into_t<
+          multivector<algebra_type>>
   {
     using result_blade_list_type = typename detail::type_concat_t<
         typename std::remove_cvref_t<to_multivector_t<V1>>::blade_list_type,
@@ -322,9 +321,9 @@ template <
     detail::blade B2,
     class A = common_algebra_type_t<B1, B2>>
   requires (not std::is_same_v<canonical_type_t<B1>, canonical_type_t<B2>>)
-constexpr auto operator+(B1&& b1, B2&& b2)
-    -> sorted_canonical_blades_t<canonical_type_t<B1>, canonical_type_t<B2>>::
-        template insert_into_t<multivector<A>>
+constexpr auto operator+(B1&& b1, B2&& b2) -> sorted_canonical_blades_t<
+    canonical_type_t<B1>,
+    canonical_type_t<B2>>::template insert_into_t<multivector<A>>
 {
   if constexpr (
       blade_ordering{std::type_identity<B1>{}} <
