@@ -3,6 +3,7 @@
 #include "rigid_geometric_algebra/blade_ordering.hpp"
 #include "rigid_geometric_algebra/blade_type_from.hpp"
 #include "rigid_geometric_algebra/common_algebra_type.hpp"
+#include "rigid_geometric_algebra/detail/array_subset.hpp"
 #include "rigid_geometric_algebra/detail/has_type.hpp"
 #include "rigid_geometric_algebra/detail/type_list.hpp"
 #include "rigid_geometric_algebra/is_blade.hpp"
@@ -36,21 +37,20 @@ struct sorted_canonical_blades
 {
   using A = common_algebra_type_t<Bs...>;
 
-  static constexpr auto sorted_blades = [] {
-    auto values = std::array{
-        blade_ordering{std::type_identity<std::remove_cvref_t<Bs>>{}}...};
+  static constexpr auto sorted = [] {
+    auto values = std::array{blade_ordering{std::type_identity<Bs>{}}...};
     std::ranges::sort(values);
-    auto subset = std::ranges::unique(values);
-    return std::pair{values, values.size() - subset.size()};
+    const auto duplicates = std::ranges::unique(values);
+    return detail::array_subset(values, values.size() - duplicates.size());
   }();
 
-  static_assert(sorted_blades.second != 0);
+  static_assert(sorted.size() != 0);
 
   template <std::size_t... Is>
-  static constexpr auto impl(std::index_sequence<Is...>) -> detail::type_list<
-      blade_type_from_t<std::get<Is>(sorted_blades.first)>...>;
+  static constexpr auto impl(std::index_sequence<Is...>)
+      -> detail::type_list<blade_type_from_t<A, sorted[Is].mask>...>;
 
-  using type = decltype(impl(std::make_index_sequence<sorted_blades.second>{}));
+  using type = decltype(impl(std::make_index_sequence<sorted.size()>{}));
 };
 
 template <>

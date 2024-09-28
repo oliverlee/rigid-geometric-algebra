@@ -1,9 +1,7 @@
-#include "rigid_geometric_algebra/blade_ordering.hpp"
 #include "rigid_geometric_algebra/rigid_geometric_algebra.hpp"
 #include "skytest/skytest.hpp"
 
 #include <type_traits>
-#include <utility>
 
 template <class Out, class In>
 struct impl
@@ -12,12 +10,12 @@ struct impl
   {
     using ::rigid_geometric_algebra::algebra_type_t;
     using ::rigid_geometric_algebra::blade_ordering;
-    using ::rigid_geometric_algebra::blade_type_from;
-    constexpr auto ord = blade_ordering{std::type_identity<In>{}};
+    using ::rigid_geometric_algebra::blade_type_from_t;
 
     return Out{} ==
-           blade_type_from<ord>{}.impl(
-               std::make_index_sequence<ord.mask.count()>{});
+           blade_type_from_t<
+               algebra_type_t<In>,
+               blade_ordering{std::type_identity<In>{}}.mask>{};
   }
 };
 
