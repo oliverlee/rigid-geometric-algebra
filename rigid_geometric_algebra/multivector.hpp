@@ -326,8 +326,8 @@ constexpr auto operator+(B1&& b1, B2&& b2) -> sorted_canonical_blades_t<
     canonical_type_t<B2>>::template insert_into_t<multivector<A>>
 {
   if constexpr (
-      blade_ordering{std::type_identity<B1>{}} <
-      blade_ordering{std::type_identity<B2>{}}) {
+      blade_ordering<A>{std::remove_cvref_t<B1>::dimension_mask} <
+      blade_ordering<A>{std::remove_cvref_t<B2>::dimension_mask}) {
     return {std::forward<B1>(b1).canonical(), std::forward<B2>(b2).canonical()};
   } else {
     return {std::forward<B2>(b2).canonical(), std::forward<B1>(b1).canonical()};

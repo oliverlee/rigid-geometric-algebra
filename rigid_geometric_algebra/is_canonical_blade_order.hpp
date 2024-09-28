@@ -40,8 +40,8 @@ public:
         (std::is_same_v<Bs, canonical_type_t<Bs>> and ...) and
         has_common_algebra_type_v<Bs...>) {
       using A = common_algebra_type_t<Bs...>;
-      const auto data = std::array<blade_ordering<A>, sizeof...(Bs)>{
-          std::type_identity<Bs>{}...};
+      const auto data =
+          std::array<blade_ordering<A>, sizeof...(Bs)>{Bs::dimension_mask...};
       return std::ranges::is_sorted(data, std::ranges::less_equal{});
     }
 

@@ -2,13 +2,12 @@
 #include "skytest/skytest.hpp"
 
 #include <cstddef>
-#include <type_traits>
 
-using rga = ::rigid_geometric_algebra::algebra<double, 2>;
+using G2 = ::rigid_geometric_algebra::algebra<double, 2>;
 using ::rigid_geometric_algebra::blade_ordering;
 
 template <std::size_t... Is>
-constexpr auto ord = blade_ordering{std::type_identity<rga::blade<Is...>>{}};
+constexpr auto ord = blade_ordering<G2>{G2::blade<Is...>::dimension_mask};
 
 auto main() -> int
 {
