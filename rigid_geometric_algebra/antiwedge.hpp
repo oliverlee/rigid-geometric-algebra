@@ -2,14 +2,14 @@
 
 #include "rigid_geometric_algebra/algebra_type.hpp"
 #include "rigid_geometric_algebra/complement.hpp"
-#include "rigid_geometric_algebra/detail/even.hpp"
+#include "rigid_geometric_algebra/detail/concat_ranges.hpp"
+#include "rigid_geometric_algebra/detail/counted_sort.hpp"
 #include "rigid_geometric_algebra/detail/linear_operator.hpp"
+#include "rigid_geometric_algebra/detail/negate_if_odd.hpp"
 #include "rigid_geometric_algebra/is_blade.hpp"
-#include "rigid_geometric_algebra/wedge.hpp"
 #include "rigid_geometric_algebra/zero_constant.hpp"
 
 #include <cstddef>
-#include <functional>
 #include <type_traits>
 
 namespace rigid_geometric_algebra {
@@ -31,22 +31,18 @@ public:
             zero_constant<algebra_type_t<result_type>>>) {
       return {};
     } else {
-      using C1 = std::invoke_result_t<decltype(right_complement), B1>;
-      using C2 = std::invoke_result_t<decltype(right_complement), B2>;
-
       static constexpr auto negate_count =
           std::size_t(detail::blade_complement_negates<right_t, B1>) +
           std::size_t(detail::blade_complement_negates<right_t, B2>) +
+          detail::counted_sort(detail::concat_ranges(
+              decltype(right_complement(b1))::dimensions,
+              decltype(right_complement(b2))::dimensions)) +
           std::size_t(detail::blade_complement_negates<
                       left_t,
-                      std::invoke_result_t<decltype(wedge), C1, C2>>);
+                      decltype(right_complement(b1) ^ right_complement(b2))>);
 
-      using maybe_negate = std::conditional_t<
-          detail::even(negate_count),
-          std::identity,
-          std::negate<>>;
-
-      return result_type{maybe_negate{}(b1.coefficient * b2.coefficient)};
+      return result_type{detail::negate_if_odd<negate_count>{}(
+          b1.coefficient * b2.coefficient)};
     }
   }
 };

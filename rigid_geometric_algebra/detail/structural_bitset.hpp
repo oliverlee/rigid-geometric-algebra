@@ -124,6 +124,15 @@ struct structural_bitset
     return {lhs.value |= rhs.value};
   }
 
+  /// returns the binary AND between two `structural_bitset`s
+  ///
+  friend constexpr auto
+  operator&(structural_bitset lhs, structural_bitset rhs) noexcept
+      -> structural_bitset
+  {
+    return {lhs.value &= rhs.value};
+  }
+
   /// returns an unsigned integer representation of the data
   ///
   [[nodiscard]]

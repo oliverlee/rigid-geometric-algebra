@@ -1,3 +1,4 @@
+#include "rigid_geometric_algebra/complement.hpp"
 #include "rigid_geometric_algebra/rigid_geometric_algebra.hpp"
 #include "skytest/skytest.hpp"
 
@@ -22,16 +23,25 @@ auto main() -> int
     const auto a = G2::template blade<1>{3};
     const auto b = G2::template blade<0, 2>{4};
 
-    return expect(eq(
-        left_complement(right_complement(a) ^ right_complement(b)).coefficient,
-        antiwedge(a, b).coefficient));
+    return expect(
+        eq(left_complement(right_complement(a) ^ right_complement(b))
+               .coefficient,
+           antiwedge(a, b).coefficient) and
+        eq(right_complement(left_complement(a) ^ left_complement(b))
+               .coefficient,
+           antiwedge(a, b).coefficient));
   };
 
   "antiwedge returns common blade component"_ctest = [] {
     const auto a = G2::template blade<0, 2>{3};
     const auto b = G2::template blade<0, 1>{2};
 
-    return expect(eq(G2::blade<0>{6}, antiwedge(a, b)));
+    return expect(
+        eq(left_complement(right_complement(a) ^ right_complement(b)),
+           antiwedge(a, b)) and
+        eq(right_complement(left_complement(a) ^ left_complement(b)),
+           antiwedge(a, b)) and
+        eq(G2::blade<0>{-6}, antiwedge(a, b)));
   };
 
   "antiwedge returns zero constant"_ctest = [] {
@@ -79,8 +89,10 @@ auto main() -> int
     const auto a = GS2::blade<1>{"a"};
     const auto b = GS2::blade<0, 2>{"b"};
 
-    return expect(eq(
-        left_complement(right_complement(a) ^ right_complement(b)),
-        antiwedge(a, b)));
+    return expect(
+        eq(left_complement(right_complement(a) ^ right_complement(b)),
+           antiwedge(a, b)) and
+        eq(right_complement(left_complement(a) ^ left_complement(b)),
+           antiwedge(a, b)));
   };
 }

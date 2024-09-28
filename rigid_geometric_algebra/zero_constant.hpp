@@ -7,6 +7,11 @@
 #include <type_traits>
 
 namespace rigid_geometric_algebra {
+namespace detail {
+// forward declaration
+// this function object is invoked by hidden friend operator^
+class wedge_fn;
+}  // namespace detail
 
 /// compile time zero constant
 /// @tparam A specialization of `algebra`
@@ -32,14 +37,11 @@ struct zero_constant : detail::derive_subtraction<zero_constant<A>>
   /// * T1 is `zero_constant` xor T2 is `zero_constant`
   /// @returns `zero_constant` value
   ///
-  template <class T1, class T2>
-    requires has_common_algebra_type_v<T1, T2> and
-             (std::is_same_v<zero_constant, T1> or
-              std::is_same_v<zero_constant, T2>)
-  friend constexpr auto
-  operator^(const T1&, const T2&) noexcept -> zero_constant
+  template <class F = detail::wedge_fn>
+  friend constexpr auto operator^(zero_constant lhs, const auto& rhs)
+      -> decltype(std::declval<F>()(lhs, rhs))
   {
-    return {};
+    return F{}(lhs, rhs);
   }
 
   /// negation

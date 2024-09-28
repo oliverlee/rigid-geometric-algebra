@@ -8,18 +8,16 @@
 #include "rigid_geometric_algebra/detail/decays_to.hpp"
 #include "rigid_geometric_algebra/detail/derive_subtraction.hpp"
 #include "rigid_geometric_algebra/detail/derive_vector_space_operations.hpp"
-#include "rigid_geometric_algebra/detail/even.hpp"
 #include "rigid_geometric_algebra/detail/indices_array.hpp"
+#include "rigid_geometric_algebra/detail/negate_if_odd.hpp"
 #include "rigid_geometric_algebra/detail/size_checked_subrange.hpp"
 #include "rigid_geometric_algebra/detail/structural_bitset.hpp"
 #include "rigid_geometric_algebra/glz_fwd.hpp"
-#include "rigid_geometric_algebra/zero_constant.hpp"
 
 #include <array>
 #include <concepts>
 #include <cstddef>
 #include <format>
-#include <functional>
 #include <initializer_list>
 #include <tuple>
 #include <type_traits>
@@ -39,6 +37,10 @@ struct get_coefficient
     return std::forward<Self>(self).coefficient;
   }
 };
+
+// forward declaration
+// this function object is invoked by hidden friend operator^
+class wedge_fn;
 }  // namespace detail
 
 /// basis element of a geometric algebra
@@ -154,12 +156,8 @@ public:
   template <class Self>
   constexpr auto canonical(this Self&& self) -> canonical_type
   {
-    using maybe_negate = std::conditional_t<
-        detail::even(detail::counted_sort(auto{dimensions})),
-        std::identity,
-        std::negate<>>;
-
-    return canonical_type{maybe_negate{}(std::forward<Self>(self).coefficient)};
+    return canonical_type{detail::negate_if_odd<detail::counted_sort(
+        auto{dimensions})>{}(std::forward<Self>(self).coefficient)};
   }
 
   /// addition
@@ -183,20 +181,11 @@ public:
   ///
   /// @{
 
-  template <std::size_t... Js>
-  friend constexpr auto operator^(const blade& lhs, const blade<A, Js...>& rhs)
-      -> canonical_type_t<blade<A, Is..., Js...>>
+  template <class F = detail::wedge_fn>
+  friend constexpr auto operator^(const blade& lhs, const auto& rhs)
+      -> decltype(std::declval<F>()(lhs, rhs))
   {
-    return blade<A, Is..., Js...>{lhs.coefficient * rhs.coefficient}
-        .canonical();
-  }
-
-  template <std::size_t... Js>
-    requires (not detail::are_dimensions_unique(Is..., Js...))
-  friend constexpr auto
-  operator^(const blade&, const blade<A, Js...>&) -> zero_constant<A>
-  {
-    return {};
+    return F{}(lhs, rhs);
   }
 
   /// @}

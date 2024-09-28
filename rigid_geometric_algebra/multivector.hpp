@@ -1,8 +1,8 @@
 #pragma once
 
-#include "blade_ordering.hpp"
 #include "rigid_geometric_algebra/algebra_field.hpp"
 #include "rigid_geometric_algebra/algebra_type.hpp"
+#include "rigid_geometric_algebra/blade_ordering.hpp"
 #include "rigid_geometric_algebra/canonical_type.hpp"
 #include "rigid_geometric_algebra/common_algebra_type.hpp"
 #include "rigid_geometric_algebra/detail/copy_ref_qual.hpp"
@@ -22,7 +22,6 @@
 #include "rigid_geometric_algebra/is_canonical_blade_order.hpp"
 #include "rigid_geometric_algebra/sorted_canonical_blades.hpp"
 #include "rigid_geometric_algebra/to_multivector.hpp"
-#include "rigid_geometric_algebra/wedge.hpp"
 #include "rigid_geometric_algebra/zero_constant.hpp"
 
 #include <concepts>
@@ -35,6 +34,11 @@
 #include <utility>
 
 namespace rigid_geometric_algebra {
+namespace detail {
+// forward declaration
+// this function object is invoked by hidden friend operator^
+class wedge_fn;
+}  // namespace detail
 
 /// linear combination of basis elements of a geometric algebra
 /// @tparam A specialization of `algebra`
@@ -245,29 +249,11 @@ public:
   /// ~~~
   /// if `(b1...)` and `(b2...)` were valid ranges.
   ///
-  template <
-      detail::multivector_promotable V1,
-      detail::multivector_promotable V2>
-    requires (detail::decays_to<V1, multivector> or
-              detail::decays_to<V2, multivector>) and
-             (not detail::is_defined_v<
-                 detail::overload<decltype(wedge), V1, V2>>)
-  friend constexpr auto operator^(V1&& v1, V2&& v2)
-  // TODO return type
-  // invoke wedge function object
+  template <class F = detail::wedge_fn>
+  friend constexpr auto operator^(const multivector& lhs, const auto& rhs)
+      -> decltype(std::declval<F>()(lhs, rhs))
   {
-    const auto& v3 = to_multivector(std::forward<V1>(v1));
-    const auto& v4 = to_multivector(std::forward<V2>(v2));
-
-    static constexpr auto N = std::remove_cvref_t<decltype(v3)>::size;
-    static constexpr auto M = std::remove_cvref_t<decltype(v4)>::size;
-
-    using std::get;
-
-    return []<std::size_t... Is>(
-               std::index_sequence<Is...>, const auto& t1, const auto& t2) {
-      return ((get<Is / M>(t1) ^ get<Is % M>(t2)) + ...);
-    }(std::make_index_sequence<N * M>{}, v3, v4);
+    return F{}(lhs, rhs);
   }
 
   /// @}
