@@ -7,11 +7,12 @@
 
 namespace rigid_geometric_algebra::detail {
 
-/// synthesizes a multivector overload as a linear combination of blade
-/// overloads
-/// @tparam D derived type
+/// helper type that synthesizes overloads for `zero_constant` arguments
 ///
-template <class D>
+/// Provides overloads if `zero_constant` is a function argument. The derived
+/// function object must implement a linear transformation - these overloads
+/// always return `zero_constant`.
+///
 class derive_zero_constant_overload
 {
 public:
