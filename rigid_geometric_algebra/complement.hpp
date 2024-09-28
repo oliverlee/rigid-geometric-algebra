@@ -2,14 +2,17 @@
 
 #include "detail/even.hpp"
 #include "rigid_geometric_algebra/blade_complement_type.hpp"
+#include "rigid_geometric_algebra/detail/counted_sort.hpp"
 #include "rigid_geometric_algebra/detail/linear_operator.hpp"
-#include "rigid_geometric_algebra/detail/swaps_to_sorted_dimensions.hpp"
 #include "rigid_geometric_algebra/is_blade.hpp"
 
+#include <algorithm>
 #include <cstddef>
 #include <functional>
+#include <ranges>
 #include <type_traits>
 #include <utility>
+#include <vector>
 
 namespace rigid_geometric_algebra {
 
@@ -40,29 +43,40 @@ namespace detail {
 
 class blade_complement_negates_fn
 {
-  template <class B1, class B2>
-  struct num_swaps
-  {};
-
   template <
-      template <class, std::size_t...> class blade_,
-      class A,
-      std::size_t... Is,
-      std::size_t... Js>
-  struct num_swaps<blade_<A, Is...>, blade_<A, Js...>>
-      : std::integral_constant<
-            std::size_t,
-            detail::swaps_to_sorted_dimensions(Is..., Js...)>
-  {};
+      std::ranges::random_access_range R1,
+      std::ranges::random_access_range R2>
+    requires std::is_same_v<
+        std::ranges::range_value_t<R1>,
+        std::ranges::range_value_t<R2>>
+  static constexpr auto concat(const R1& r1, const R2& r2)
+  {
+    auto out = std::vector<std::ranges::range_value_t<R1>>{};
+    out.resize(r1.size() + r2.size());
+
+    const auto [_, it] = std::ranges::copy(r1, out.begin());
+    std::ranges::copy(r2, it);
+
+    return out;
+  }
 
 public:
   template <class Dir, detail::blade B>
   static consteval auto operator()(Dir, std::type_identity<B>) -> bool
   {
+    static constexpr auto even_number_of_swaps =
+        [](const auto& r1, const auto& r2) {
+          return detail::even(detail::counted_sort(concat(r1, r2)));
+        };
+
     if constexpr (std::is_same_v<Dir, left_t>) {
-      return detail::even(num_swaps<blade_complement_type_t<B>, B>{});
+      return even_number_of_swaps(
+          blade_complement_type_t<B>::dimensions,
+          std::remove_cvref_t<B>::dimensions);
     } else if constexpr (std::is_same_v<Dir, right_t>) {
-      return detail::even(num_swaps<B, blade_complement_type_t<B>>{});
+      return even_number_of_swaps(
+          std::remove_cvref_t<B>::dimensions,
+          blade_complement_type_t<B>::dimensions);
     } else {
       static_assert(false, "invalid direction type");
     }
