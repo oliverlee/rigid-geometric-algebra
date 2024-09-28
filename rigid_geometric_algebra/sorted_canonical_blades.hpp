@@ -47,9 +47,8 @@ struct sorted_canonical_blades
   static_assert(sorted_blades.second != 0);
 
   template <std::size_t... Is>
-  static constexpr auto impl(std::index_sequence<Is...>)
-      -> detail::type_list<
-          blade_type_from_t<std::get<Is>(sorted_blades.first)>...>;
+  static constexpr auto impl(std::index_sequence<Is...>) -> detail::type_list<
+      blade_type_from_t<std::get<Is>(sorted_blades.first)>...>;
 
   using type = decltype(impl(std::make_index_sequence<sorted_blades.second>{}));
 };

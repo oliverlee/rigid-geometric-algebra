@@ -11,11 +11,9 @@ struct rebind_args_into
 {};
 
 template <
-    template <class...>
-    class from,
+    template <class...> class from,
     class... Ts,
-    template <class...>
-    class to>
+    template <class...> class to>
 struct rebind_args_into<from<Ts...>, to>
 {
   using type = to<Ts...>;

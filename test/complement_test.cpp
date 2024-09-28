@@ -48,7 +48,7 @@ auto main() -> int
           G2::blade<1>{},
           G3::blade<1, 2>{},
           GS2::blade<>{},
-          GS2::blade<1>{}} = []<class B>(B b) {
+          GS2::blade<1>{}} = []<class B>(const B& b) {
     using T = typename B::value_type;
     return expect(
         eq(T{}, complement(left, b).coefficient) and

@@ -28,11 +28,10 @@ class get_or_fn
 public:
   template <class V, class U>
     requires detail::has_value_v<std::tuple_size<std::remove_cvref_t<V>>>
-  constexpr static auto operator()(V&& v, U&& u) ->
-      typename std::conditional_t<
-          std::is_invocable_v<decltype(get<B>), V&&>,
-          std::invoke_result<decltype(get<B>), V&&>,
-          std::type_identity<U&&>>::type
+  constexpr static auto operator()(V&& v, U&& u) -> typename std::conditional_t<
+      std::is_invocable_v<decltype(get<B>), V&&>,
+      std::invoke_result<decltype(get<B>), V&&>,
+      std::type_identity<U&&>>::type
   {
     if constexpr (std::is_invocable_v<decltype(get<B>), V>) {
       return get<B>(std::forward<V>(v));

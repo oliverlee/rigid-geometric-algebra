@@ -41,8 +41,9 @@ struct blade_ordering
 
   /// equality operator
   ///
-  friend constexpr auto operator==(
-      const blade_ordering& lhs, const blade_ordering& rhs) noexcept -> bool
+  friend constexpr auto
+  operator==(const blade_ordering& lhs, const blade_ordering& rhs) noexcept
+      -> bool
   {
     return lhs.mask == rhs.mask;
   }

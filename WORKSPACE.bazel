@@ -31,15 +31,15 @@ http_archive(
     urls = ["https://github.com/bazelbuild/rules_cc/releases/download/0.0.9/rules_cc-0.0.9.tar.gz"],
 )
 
-TOOLCHAINS_LLVM_COMMIT = "b1a6c86b42ee2373574d0e6862d9d9d5405c3146"
+TOOLCHAINS_LLVM_COMMIT = "4ab573b1b87a57791ef2f9ccee71cbad80a2abb9"
 
 http_archive(
     name = "toolchains_llvm",
-    integrity = "sha256-hdEfwQEvZaPD/gp6A9iDSIxxKOBYrn+ttFYjAHfFby8=",
-    strip_prefix = "bazel-toolchain-{commit}".format(
+    integrity = "sha256-sCbaVUYAogO0jJ8N8CY4DYNdJLVLV0Z3TiPMKl81f44=",
+    strip_prefix = "toolchains_llvm-{commit}".format(
         commit = TOOLCHAINS_LLVM_COMMIT,
     ),
-    url = "https://github.com/oliverlee/bazel-toolchain/archive/{commit}.tar.gz".format(
+    url = "https://github.com/bazel-contrib/toolchains_llvm/archive/{commit}.tar.gz".format(
         commit = TOOLCHAINS_LLVM_COMMIT,
     ),
 )
@@ -52,7 +52,7 @@ load("@toolchains_llvm//toolchain:rules.bzl", "llvm_toolchain")
 
 # https://github.com/bazel-contrib/toolchains_llvm/blob/192cf04bbb11b29a8ca6756e269d27a840bfa14b/toolchain/internal/repo.bzl
 llvm_toolchain(
-    name = "llvm18_toolchain",
+    name = "llvm19_toolchain",
     cxx_flags = {
         "": [
             "-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE",
@@ -67,11 +67,11 @@ llvm_toolchain(
     link_libs = {
         "": ["-fsanitize-link-c++-runtime"],
     },
-    llvm_version = "18.1.8",
+    llvm_version = "19.1.0",
 )
 
 # register llvm first, it has better error messages
-load("@llvm18_toolchain//:toolchains.bzl", "llvm_register_toolchains")
+load("@llvm19_toolchain//:toolchains.bzl", "llvm_register_toolchains")
 
 llvm_register_toolchains()
 

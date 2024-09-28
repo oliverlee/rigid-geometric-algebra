@@ -22,8 +22,8 @@ public:
   }
   template <class T1, class T2>
     requires has_common_algebra_type_v<T1, T2> and
-                 (detail::decays_to<T1, zero_constant<algebra_type_t<T1>>> or
-                  detail::decays_to<T2, zero_constant<algebra_type_t<T2>>>)
+             (detail::decays_to<T1, zero_constant<algebra_type_t<T1>>> or
+              detail::decays_to<T2, zero_constant<algebra_type_t<T2>>>)
   static constexpr auto operator()(const T1&, const T2&)
       -> zero_constant<common_algebra_type_t<T1, T2>>
   {
