@@ -1,7 +1,8 @@
 #pragma once
 
+#include "rigid_geometric_algebra/detail/contract.hpp"
+
 #include <array>
-#include <cassert>
 #include <cstddef>
 #include <ranges>
 
@@ -26,7 +27,7 @@ public:
   constexpr array_subset(const base_type& base, std::size_t size)
       : base_{base}, size_{size}
   {
-    assert(size_ <= Capacity);
+    detail::precondition(size_ <= Capacity);
   }
 
   constexpr auto begin() const noexcept { return base_.begin(); }

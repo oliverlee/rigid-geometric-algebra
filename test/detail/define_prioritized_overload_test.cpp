@@ -6,7 +6,6 @@
 #include "rigid_geometric_algebra/detail/priority_list.hpp"
 #include "skytest/skytest.hpp"
 
-#include <cassert>
 #include <cstddef>
 #include <cstdlib>
 #include <type_traits>

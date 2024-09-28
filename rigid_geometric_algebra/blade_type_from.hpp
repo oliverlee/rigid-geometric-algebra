@@ -3,9 +3,9 @@
 #include "rigid_geometric_algebra/algebra_type.hpp"
 #include "rigid_geometric_algebra/blade.hpp"
 #include "rigid_geometric_algebra/blade_ordering.hpp"
+#include "rigid_geometric_algebra/detail/contract.hpp"
 
 #include <array>
-#include <cassert>
 #include <cstddef>
 #include <utility>
 
@@ -30,12 +30,12 @@ struct blade_type_from
 
       for (auto index = 0UZ; index != mask.size(); ++index) {
         if (mask.test(index)) {
-          assert(it != dims.end());
+          detail::invariant(it != dims.end());
           *it++ = index;
         }
       }
-      assert(it == dims.end());
 
+      detail::postcondition(it == dims.end());
       return dims;
     }();
 

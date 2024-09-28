@@ -13,9 +13,6 @@ Checks: >
     # Bazel does this for determinism,
     -clang-diagnostic-builtin-macro-redefined,
 
-    # suppress due to assert,
-    -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
-
     # short names are fine for short lifetimes,
     -readability-identifier-length,
 
