@@ -13,12 +13,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: install libtinfo5
-      if: runner.os == 'Linux'
-      shell: bash
-      run: |
-        sudo apt-get install -y libtinfo5
-
     - name: setup ci bazelrc
       shell: bash
       run: |
