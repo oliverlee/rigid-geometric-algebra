@@ -2,15 +2,14 @@
 
 #include "rigid_geometric_algebra/canonical_type.hpp"
 #include "rigid_geometric_algebra/common_algebra_type.hpp"
+#include "rigid_geometric_algebra/detail/indices_array.hpp"
 #include "rigid_geometric_algebra/detail/type_list.hpp"
 #include "rigid_geometric_algebra/is_blade.hpp"
 #include "rigid_geometric_algebra/multivector.hpp"
 #include "rigid_geometric_algebra/sorted_canonical_blades.hpp"
 
-#include <algorithm>
 #include <array>
 #include <cstddef>
-#include <ranges>
 #include <tuple>
 #include <type_traits>
 #include <utility>
@@ -26,26 +25,14 @@ class blade_sum_fn
     template <detail::blade... Bs>
     static constexpr auto operator()(const std::tuple<Bs...>& bs) -> Canonical
     {
-      static constexpr auto mask =
-          std::array{std::is_same_v<canonical_type_t<Bs>, Canonical>...};
-      static constexpr auto count = std::ranges::count(mask, true);
-      static_assert(count >= 1);
+      static constexpr auto indices = detail::indices_array<std::array{
+          std::is_same_v<canonical_type_t<Bs>, Canonical>...}>;
 
-      static constexpr auto indices = []() consteval {
-        auto indices = std::array<std::size_t, count>{};
-        auto it = indices.begin();
-        for (const auto [i, convertible] :
-             std::views::zip(std::views::iota(0UZ), mask)) {
-          if (convertible) {
-            *it++ = i;
-          }
-        }
-        return indices;
-      }();
+      static_assert(indices.size() >= 1);
 
       return [&bs]<std::size_t... Is>(std::index_sequence<Is...>) {
         return (std::get<indices[Is]>(bs).canonical() + ...);
-      }(std::make_index_sequence<count>{});
+      }(std::make_index_sequence<indices.size()>{});
     }
   };
 

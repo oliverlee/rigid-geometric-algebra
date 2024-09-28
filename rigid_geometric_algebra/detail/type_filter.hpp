@@ -1,8 +1,11 @@
 #pragma once
 
-#include "rigid_geometric_algebra/detail/type_concat.hpp"
+#include "rigid_geometric_algebra/detail/indices_array.hpp"
 
-#include <type_traits>
+#include <array>
+#include <cstddef>
+#include <tuple>
+#include <utility>
 namespace rigid_geometric_algebra::detail {
 
 /// filter types in a type list
@@ -16,22 +19,23 @@ template <class L, auto pred>
 struct type_filter
 {};
 
+template <template <class...> class list, class... Ts, auto pred>
+struct type_filter<list<Ts...>, pred>
+{
+  static constexpr auto indices = detail::indices_array<
+      std::array<bool, sizeof...(Ts)>{pred.template operator()<Ts>()...}>;
+
+  using type =
+      decltype([]<std::size_t... Is>(std::index_sequence<Is...>)
+                   -> list<std::tuple_element_t<
+                       indices[Is],
+                       std::tuple<Ts...>>...> {
+        return {};
+      }(std::make_index_sequence<indices.size()>{}));
+};
+
 template <class L, auto pred>
 using type_filter_t = typename type_filter<L, pred>::type;
-
-template <template <class...> class list, auto pred>
-struct type_filter<list<>, pred>
-{
-  using type = list<>;
-};
-
-template <template <class...> class list, class T0, class... Ts, auto pred>
-struct type_filter<list<T0, Ts...>, pred>
-{
-  using type = detail::type_concat_t<
-      std::conditional_t<pred.template operator()<T0>(), list<T0>, list<>>,
-      type_filter_t<list<Ts...>, pred>>;
-};
 
 /// @}
 

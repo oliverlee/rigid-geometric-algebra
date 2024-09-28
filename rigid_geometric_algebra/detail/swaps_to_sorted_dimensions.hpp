@@ -46,7 +46,7 @@ inline constexpr class
 
 public:
   template <std::same_as<std::size_t>... Ts>
-  constexpr static auto operator()(Ts... is) -> std::size_t
+  static constexpr auto operator()(Ts... is) -> std::size_t
   {
     auto unsorted = std::array<std::size_t, sizeof...(is)>{is...};
 
@@ -62,7 +62,6 @@ public:
         std::ranges::is_sorted(sorted, std::ranges::less_equal{}));
     return impl(std::ranges::subrange(unsorted), std::ranges::subrange(sorted));
   }
-
 } swaps_to_sorted_dimensions{};
 
 }  // namespace rigid_geometric_algebra::detail

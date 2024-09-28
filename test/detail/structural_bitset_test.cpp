@@ -1,6 +1,8 @@
 #include "rigid_geometric_algebra/detail/structural_bitset.hpp"
 #include "skytest/skytest.hpp"
 
+#include <algorithm>
+#include <array>
 #include <tuple>
 
 auto main() -> int
@@ -56,5 +58,16 @@ auto main() -> int
     return expect(
         eq(0, B2{}.to_unsigned()) and eq(1, B2{1}.to_unsigned()) and
         eq(2, B2{2}.to_unsigned()) and eq(3, B2{3}.to_unsigned()));
+  };
+
+  "as range"_test = [] {
+    const auto equal = ::skytest::pred(std::ranges::equal);
+
+    return expect(
+        equal(B2{0b01}, B2{0b01}) and
+        equal(std::array{false, false}, B2{0b00}) and
+        equal(std::array{true, true}, B2{0b11}) and
+        equal(std::array{true, false}, B2{0b01}) and
+        equal(std::array{false, true}, B2{0b10}));
   };
 }

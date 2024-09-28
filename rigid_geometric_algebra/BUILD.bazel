@@ -31,6 +31,8 @@ cc_library(
         "detail/even.hpp",
         "detail/has_type.hpp",
         "detail/has_value.hpp",
+        "detail/indices_array.hpp",
+        "detail/indices_of.hpp",
         "detail/invoke_prioritized_overload.hpp",
         "detail/is_complete.hpp",
         "detail/is_defined.hpp",
