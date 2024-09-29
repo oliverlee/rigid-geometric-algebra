@@ -5,6 +5,7 @@
 #include <bit>
 #include <cstddef>
 #include <cstdint>
+#include <iterator>
 #include <type_traits>
 
 namespace rigid_geometric_algebra::detail {
@@ -17,6 +18,50 @@ struct structural_bitset
 {
   static_assert(N <= 8);
   using value_type = std::uint8_t;
+
+  class const_iterator
+  {
+    const structural_bitset* parent_{};
+    structural_bitset::value_type pos_{};
+
+  public:
+    using iterator_category = std::forward_iterator_tag;
+    using value_type = bool;
+    using reference = bool;
+    using difference_type = std::ptrdiff_t;
+    using pointer = void;
+
+    constexpr const_iterator()
+    {
+      // https://stackoverflow.com/questions/28832492/why-do-iterators-need-to-be-default-constructible
+      detail::precondition(true);
+    }
+
+    constexpr const_iterator(
+        const structural_bitset& parent, structural_bitset::value_type pos)
+        : parent_{&parent}, pos_{pos}
+    {
+      detail::precondition(pos_ <= parent_->size());
+    }
+
+    constexpr auto operator*() const noexcept -> reference
+    {
+      return parent_->test(pos_);
+    }
+    constexpr auto operator++() & -> const_iterator&
+    {
+      ++pos_;
+      return *this;
+    }
+    constexpr auto operator++(int) & -> const_iterator
+    {
+      auto tmp = *this;
+      ++(*this);
+      return tmp;
+    }
+
+    friend auto operator==(const_iterator, const_iterator) -> bool = default;
+  };
 
   /// the number of bits the `structural_bitset` holds
   ///
@@ -87,10 +132,27 @@ struct structural_bitset
     return value;
   }
 
+  /// iterators for range-based access
+  ///
+  /// @{
+
+  [[nodiscard]]
+  constexpr auto begin() const noexcept -> const_iterator
+  {
+    return {*this, 0};
+  }
+  [[nodiscard]]
+  constexpr auto end() const noexcept -> const_iterator
+  {
+    return {*this, size};
+  }
+
+  /// @}
+
   /// equality comparison
   ///
-  friend constexpr auto
-  operator==(structural_bitset, structural_bitset) noexcept -> bool = default;
+  friend auto
+  operator==(structural_bitset, structural_bitset) -> bool = default;
 };
 
 }  // namespace rigid_geometric_algebra::detail

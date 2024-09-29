@@ -74,6 +74,7 @@ class blade
           detail::get_coefficient>,
       detail::derive_subtraction<blade<A, Is...>>
 {
+  // TODO replace
   static constexpr auto sorted_dimensions = [] {
     auto dims = std::array<std::size_t, sizeof...(Is)>{Is...};
     std::ranges::sort(dims);

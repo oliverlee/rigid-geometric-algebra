@@ -86,6 +86,16 @@ cc_test(
 )
 
 cc_test(
+    name = "indices_of_test",
+    size = "small",
+    srcs = ["indices_of_test.cpp"],
+    deps = [
+        "//rigid_geometric_algebra",
+        "@skytest",
+    ],
+)
+
+cc_test(
     name = "is_defined_test",
     size = "small",
     srcs = ["is_defined_test.cpp"],
