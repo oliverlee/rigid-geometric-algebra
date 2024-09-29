@@ -87,6 +87,8 @@ auto main() -> int
     using ::SymEngine::Expression;
 
     const auto abs = []<class T>(T&& arg) -> Expression {
+      // string literal decays to pointer
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
       return {::SymEngine::abs(Expression{std::forward<T>(arg)})};
     };
 

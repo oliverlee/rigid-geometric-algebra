@@ -3,7 +3,6 @@
 #include "rigid_geometric_algebra/detail/contract.hpp"
 
 #include <bit>
-#include <cassert>
 #include <cstddef>
 #include <cstdint>
 #include <type_traits>

@@ -24,6 +24,12 @@ struct precondition_contract
   explicit precondition_contract() = default;
 };
 
+struct invariant_contract
+{
+  static constexpr auto name = "INVARIANT";
+  explicit invariant_contract() = default;
+};
+
 struct postcondition_contract
 {
   static constexpr auto name = "POSTCONDITION";
@@ -136,6 +142,40 @@ constexpr auto precondition(
 }
 
 /// @}
+
+/// check an invariant, optionally printing a message on failure
+/// @param cond boolean-convertible value
+/// @param violation_handler handler to invoke on contract violation.
+/// @param sl source location
+///
+/// Check invariant `cond`. If `false`, invoke `handler(sl)`.
+///
+/// @{
+
+template <class Handler>
+  requires std::is_invocable_v<
+      const Handler&,
+      invariant_contract,
+      const std::source_location&>
+constexpr auto invariant(
+    const std::convertible_to<bool> auto& cond,
+    const Handler& violation_handler,
+    const std::source_location& sl = std::source_location::current()) -> void
+{
+  if (cond) {
+    return;
+  }
+
+  violation_handler(invariant_contract{}, sl);
+}
+
+constexpr auto invariant(
+    const std::convertible_to<bool> auto& cond,
+    std::format_string<> message = "",  // NOLINT(misc-include-cleaner)
+    const std::source_location& sl = std::source_location::current()) -> void
+{
+  return invariant(cond, contract_violation_handler{message}, sl);
+}
 
 /// check a postcondition, optionally printing a message on failure
 /// @param cond boolean-convertible value
