@@ -6,6 +6,7 @@ build --curses=yes
 build --incompatible_strict_action_env
 build --ui_actions_shown=20
 build --progress_in_terminal_title
+build --enable_platform_specific_config
 
 build --@bazel_clang_format//:binary=@llvm19_toolchain//:clang-format
 build --@bazel_clang_format//:config=//:format-config
@@ -31,5 +32,32 @@ coverage --copt=-ffile-compilation-dir=.
 coverage --combined_report=lcov
 coverage --experimental_generate_llvm_lcov
 coverage --instrumentation_filter=//rigid_geometric_algebra
+
+# generate gcov format with llvm
+#
+# https://github.com/bazelbuild/bazel/issues/23247
+# this currently requires Bazel < 7.2
+#
+# https://github.com/bazelbuild/bazel/blob/master/tools/test/collect_coverage.sh
+# https://github.com/bazelbuild/bazel/blob/master/tools/test/collect_cc_coverage.sh
+#
+# disable use of llvm profdata
+coverage:gcov --experimental_generate_llvm_lcov=false
+# replace default coverage flags to generate gcov instead of profdata
+#
+# https://clang.llvm.org/docs/SourceBasedCodeCoverage.html#compiling-with-coverage-enabled
+# https://llvm.org/docs/CommandGuide/llvm-cov.html#id1
+# https://github.com/bazel-contrib/toolchains_llvm/blob/4ab573b1b87a57791ef2f9ccee71cbad80a2abb9/toolchain/cc_toolchain_config.bzl#L264-L266
+coverage:gcov --features=-coverage
+coverage:gcov --copt=--coverage
+coverage:gcov --linkopt=--coverage
+coverage:gcov --test_env=COVERAGE_GCOV_PATH=./external/llvm19_toolchain_llvm/bin/llvm-cov
+# https://llvm.org/docs/CommandGuide/llvm-cov.html#llvm-cov-gcov
+coverage:gcov --test_env=COVERAGE_GCOV_OPTIONS="-a -b -c -m -f"
+
+# https://github.com/bazelbuild/bazel/issues/23719
+coverage:macos --test_env=GCOV_PREFIX_STRIP=10
+
+coverage --config=gcov
 
 try-import %workspace%/user.bazelrc
