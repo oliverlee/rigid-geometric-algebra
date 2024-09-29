@@ -47,6 +47,16 @@ cc_binary(
 )
 
 cc_test(
+    name = "counted_sort_test",
+    size = "small",
+    srcs = ["counted_sort_test.cpp"],
+    deps = [
+        "//rigid_geometric_algebra",
+        "@skytest",
+    ],
+)
+
+cc_test(
     name = "define_prioritized_overload_test",
     size = "small",
     srcs = ["define_prioritized_overload_test.cpp"],
@@ -147,16 +157,6 @@ cc_test(
     name = "structural_bitset_test",
     size = "small",
     srcs = ["structural_bitset_test.cpp"],
-    deps = [
-        "//rigid_geometric_algebra",
-        "@skytest",
-    ],
-)
-
-cc_test(
-    name = "swaps_to_sorted_dimensions_test",
-    size = "small",
-    srcs = ["swaps_to_sorted_dimensions_test.cpp"],
     deps = [
         "//rigid_geometric_algebra",
         "@skytest",

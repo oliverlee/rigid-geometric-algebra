@@ -4,6 +4,7 @@
 #include "rigid_geometric_algebra/algebra_field.hpp"
 #include "rigid_geometric_algebra/canonical_type.hpp"
 #include "rigid_geometric_algebra/detail/are_dimensions_unique.hpp"
+#include "rigid_geometric_algebra/detail/counted_sort.hpp"
 #include "rigid_geometric_algebra/detail/decays_to.hpp"
 #include "rigid_geometric_algebra/detail/derive_subtraction.hpp"
 #include "rigid_geometric_algebra/detail/derive_vector_space_operations.hpp"
@@ -11,7 +12,6 @@
 #include "rigid_geometric_algebra/detail/indices_array.hpp"
 #include "rigid_geometric_algebra/detail/size_checked_subrange.hpp"
 #include "rigid_geometric_algebra/detail/structural_bitset.hpp"
-#include "rigid_geometric_algebra/detail/swaps_to_sorted_dimensions.hpp"
 #include "rigid_geometric_algebra/glz_fwd.hpp"
 #include "rigid_geometric_algebra/zero_constant.hpp"
 
@@ -94,6 +94,10 @@ public:
   static constexpr auto dimension_mask =
       (dimension_mask_type{}.set(Is) | ... | dimension_mask_type{});
 
+  /// factors
+  ///
+  static constexpr auto dimensions = std::array<std::size_t, grade>{Is...};
+
   /// blade scalar type
   ///
   using value_type = algebra_field_t<A>;
@@ -151,7 +155,7 @@ public:
   constexpr auto canonical(this Self&& self) -> canonical_type
   {
     using maybe_negate = std::conditional_t<
-        detail::even(detail::swaps_to_sorted_dimensions(Is...)),
+        detail::even(detail::counted_sort(auto{dimensions})),
         std::identity,
         std::negate<>>;
 
