@@ -49,7 +49,7 @@ public:
       pending = {pending.begin(), last};
     }
 
-    return {dims, static_cast<std::size_t>(pending.begin() - dims.begin())};
+    return {dims.begin(), pending.begin()};
   }
 
 } disjoint_subset{};

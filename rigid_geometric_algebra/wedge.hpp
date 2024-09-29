@@ -31,11 +31,11 @@ class wedge_blade_fn
   using blade_result_t = decltype([] {
     using A = common_algebra_type_t<B1, B2>;
 
-    static constexpr auto joined =
+    static constexpr auto mask =
         (std::remove_cvref_t<B1>::dimension_mask |
          std::remove_cvref_t<B2>::dimension_mask);
 
-    return blade_type_from_t<A, joined>{};
+    return blade_type_from_mask_t<A, mask>{};
   }());
 
 public:

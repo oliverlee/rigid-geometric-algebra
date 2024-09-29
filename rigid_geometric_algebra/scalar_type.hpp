@@ -2,10 +2,11 @@
 
 #include "rigid_geometric_algebra/algebra_dimension.hpp"
 #include "rigid_geometric_algebra/blade.hpp"
+#include "rigid_geometric_algebra/blade_type_from.hpp"
 #include "rigid_geometric_algebra/is_algebra.hpp"
 
 #include <cstddef>
-#include <utility>
+#include <ranges>
 
 namespace rigid_geometric_algebra {
 
@@ -28,11 +29,9 @@ struct antiscalar_
 template <class A>
 struct antiscalar_<true, A>
 {
-  using type =
-      decltype([]<std::size_t... Is>(std::index_sequence<Is...>)
-                   -> ::rigid_geometric_algebra::blade<A, Is...> {
-        return {};
-      }(std::make_index_sequence<algebra_dimension_v<A>>{}));
+  using type = blade_type_from_dimensions_t<
+      A,
+      std::views::iota(0UZ, algebra_dimension_v<A>)>;
 };
 
 }  // namespace detail

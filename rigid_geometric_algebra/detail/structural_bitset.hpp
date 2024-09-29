@@ -16,7 +16,7 @@ namespace rigid_geometric_algebra::detail {
 template <std::size_t N>
 struct structural_bitset
 {
-  static_assert(N <= 8);
+  static_assert(N <= 8, "this type only supports algebras up to 8 dimensions");
   using value_type = std::uint8_t;
 
   class const_iterator
@@ -69,7 +69,24 @@ struct structural_bitset
 
   /// unsigned integer representation of the data
   ///
-  value_type value{};
+  /// @note bits at index size or higher are ignored
+  ///
+  value_type value_{};
+
+  /// construct with no bits
+  ///
+  structural_bitset() = default;
+
+  /// construct from bits
+  /// @pre bits does not set bits at size or higher
+  ///
+  constexpr structural_bitset(value_type bits) : value_{bits}
+  {
+    static constexpr auto mask = (value_type{} - value_type{1}) << size;
+    detail::precondition(
+        (bits &= mask) == value_type{},
+        "`bits` has bits higher than structural_bitset size");
+  }
 
   /// sets bits to `true`
   /// @tparam Self reference to `structural_bitset` type
@@ -90,7 +107,7 @@ struct structural_bitset
   {
     detail::precondition(
         pos < size, "`pos` exceeds number of bits in `structural_bitset`");
-    self.value |= std::uint8_t{1} << pos;
+    self.value_ |= std::uint8_t{1} << pos;
     return std::forward<Self>(self);
   }
 
@@ -99,7 +116,7 @@ struct structural_bitset
   [[nodiscard]]
   constexpr auto count() const noexcept -> std::size_t
   {
-    return std::size_t(std::popcount(value));
+    return std::size_t(std::popcount(value_));
   }
 
   /// returns the value of a bit
@@ -112,7 +129,7 @@ struct structural_bitset
   {
     detail::precondition(
         pos < size, "`pos` exceeds number of bits in `structural_bitset`");
-    return (value & (std::uint8_t{1} << pos)) != 0;
+    return (value_ & (std::uint8_t{1} << pos)) != 0;
   }
 
   /// returns the binary OR between two `structural_bitset`s
@@ -121,7 +138,7 @@ struct structural_bitset
   operator|(structural_bitset lhs, structural_bitset rhs) noexcept
       -> structural_bitset
   {
-    return {lhs.value |= rhs.value};
+    return {lhs.value_ |= rhs.value_};
   }
 
   /// returns the binary AND between two `structural_bitset`s
@@ -130,7 +147,7 @@ struct structural_bitset
   operator&(structural_bitset lhs, structural_bitset rhs) noexcept
       -> structural_bitset
   {
-    return {lhs.value &= rhs.value};
+    return {lhs.value_ &= rhs.value_};
   }
 
   /// returns an unsigned integer representation of the data
@@ -138,7 +155,7 @@ struct structural_bitset
   [[nodiscard]]
   constexpr auto to_unsigned() const noexcept -> value_type
   {
-    return value;
+    return value_;
   }
 
   /// iterators for range-based access
