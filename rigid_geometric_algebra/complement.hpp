@@ -2,8 +2,7 @@
 
 #include "detail/even.hpp"
 #include "rigid_geometric_algebra/blade_complement_type.hpp"
-#include "rigid_geometric_algebra/detail/derive_multivector_overload.hpp"
-#include "rigid_geometric_algebra/detail/derive_zero_constant_overload.hpp"
+#include "rigid_geometric_algebra/detail/linear_operator.hpp"
 #include "rigid_geometric_algebra/detail/swaps_to_sorted_dimensions.hpp"
 #include "rigid_geometric_algebra/is_blade.hpp"
 
@@ -77,16 +76,11 @@ inline constexpr auto blade_complement_negates = blade_complement_negates_fn{}(
 /// @}
 
 template <class Dir>
-class complement_fn
-    : detail::derive_zero_constant_overload<complement_fn<Dir>>,
-      detail::derive_multivector_overload<complement_fn<Dir>>
+class complement_blade_fn
 {
   static_assert(std::is_same_v<Dir, left_t> or std::is_same_v<Dir, right_t>);
 
 public:
-  using detail::derive_zero_constant_overload<complement_fn<Dir>>::operator();
-  using detail::derive_multivector_overload<complement_fn<Dir>>::operator();
-
   template <class B>
     requires is_blade_v<std::remove_cvref_t<B>>
   static constexpr auto
@@ -101,6 +95,9 @@ public:
         maybe_negate{}(std::forward<B>(b).coefficient)};
   }
 };
+
+template <class Dir>
+using complement_fn = detail::linear_operator<detail::complement_blade_fn<Dir>>;
 
 }  // namespace detail
 
