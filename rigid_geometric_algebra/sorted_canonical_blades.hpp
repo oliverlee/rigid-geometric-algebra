@@ -38,7 +38,7 @@ struct sorted_canonical_blades
   using A = common_algebra_type_t<Bs...>;
 
   static constexpr auto sorted = [] {
-    auto values = std::array{blade_ordering{std::type_identity<Bs>{}}...};
+    auto values = std::array{blade_ordering<A>{Bs::dimension_mask}...};
     std::ranges::sort(values);
     const auto duplicates = std::ranges::unique(values);
     return detail::array_subset(values, values.size() - duplicates.size());

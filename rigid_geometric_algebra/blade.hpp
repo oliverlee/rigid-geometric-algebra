@@ -8,12 +8,13 @@
 #include "rigid_geometric_algebra/detail/derive_subtraction.hpp"
 #include "rigid_geometric_algebra/detail/derive_vector_space_operations.hpp"
 #include "rigid_geometric_algebra/detail/even.hpp"
+#include "rigid_geometric_algebra/detail/indices_array.hpp"
 #include "rigid_geometric_algebra/detail/size_checked_subrange.hpp"
+#include "rigid_geometric_algebra/detail/structural_bitset.hpp"
 #include "rigid_geometric_algebra/detail/swaps_to_sorted_dimensions.hpp"
 #include "rigid_geometric_algebra/glz_fwd.hpp"
 #include "rigid_geometric_algebra/zero_constant.hpp"
 
-#include <algorithm>
 #include <array>
 #include <concepts>
 #include <cstddef>
@@ -74,13 +75,6 @@ class blade
           detail::get_coefficient>,
       detail::derive_subtraction<blade<A, Is...>>
 {
-  // TODO replace
-  static constexpr auto sorted_dimensions = [] {
-    auto dims = std::array<std::size_t, sizeof...(Is)>{Is...};
-    std::ranges::sort(dims);
-    return dims;
-  }();
-
 public:
   /// algebra this blade belongs to
   ///
@@ -91,6 +85,15 @@ public:
   static constexpr auto grade =
       std::integral_constant<std::size_t, sizeof...(Is)>{};
 
+  /// bitset type specifying the dimension mask
+  ///
+  using dimension_mask_type = detail::structural_bitset<algebra_dimension_v<A>>;
+
+  /// factors that are present in this blade
+  ///
+  static constexpr auto dimension_mask =
+      (dimension_mask_type{}.set(Is) | ... | dimension_mask_type{});
+
   /// blade scalar type
   ///
   using value_type = algebra_field_t<A>;
@@ -99,7 +102,7 @@ public:
   ///
   using canonical_type =
       decltype([]<std::size_t... Js>(std::index_sequence<Js...>)
-                   -> blade<A, sorted_dimensions[Js]...> {
+                   -> blade<A, detail::indices_array<dimension_mask>[Js]...> {
         return {};
       }(std::make_index_sequence<sizeof...(Is)>{}));
 

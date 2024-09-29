@@ -1,15 +1,10 @@
 #pragma once
 
 #include "rigid_geometric_algebra/algebra_dimension.hpp"
-#include "rigid_geometric_algebra/algebra_type.hpp"
-#include "rigid_geometric_algebra/blade.hpp"
 #include "rigid_geometric_algebra/detail/structural_bitset.hpp"
-#include "rigid_geometric_algebra/is_algebra.hpp"
-#include "rigid_geometric_algebra/is_blade.hpp"
 
 #include <compare>
 #include <cstddef>
-#include <type_traits>
 
 namespace rigid_geometric_algebra {
 
@@ -26,18 +21,13 @@ struct blade_ordering
   ///
   mask_type mask{};
 
-  /// construct a `blade_ordering` from a blade type
+  /// construct with empty mask
   ///
-  template <std::size_t... Is>
-  constexpr blade_ordering(std::type_identity<blade<A, Is...>>) noexcept
-      : mask{(mask_type{}.set(Is) | ... | mask_type{})}
-  {}
+  blade_ordering() = default;
 
-  template <detail::blade B>
-    requires has_common_algebra_type_v<B, blade_ordering>
-  constexpr blade_ordering(std::type_identity<B>) noexcept
-      : blade_ordering(std::type_identity<std::remove_cvref_t<B>>{})
-  {}
+  /// construct from mask
+  ///
+  constexpr blade_ordering(mask_type mask) : mask{mask} {}
 
   /// equality operator
   ///
@@ -63,12 +53,5 @@ struct blade_ordering
     return lhs.mask.to_unsigned() <=> rhs.mask.to_unsigned();
   }
 };
-
-template <class A>
-  requires is_algebra_v<A>
-blade_ordering(std::type_identity<A>) -> blade_ordering<A>;
-
-template <detail::blade B>
-blade_ordering(std::type_identity<B>) -> blade_ordering<algebra_type_t<B>>;
 
 }  // namespace rigid_geometric_algebra
