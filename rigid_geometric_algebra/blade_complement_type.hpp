@@ -1,12 +1,16 @@
 #pragma once
 
+#include "rigid_geometric_algebra/algebra_dimension.hpp"
+#include "rigid_geometric_algebra/algebra_type.hpp"
 #include "rigid_geometric_algebra/blade_type_from.hpp"
-#include "rigid_geometric_algebra/detail/disjoint_subset.hpp"
+#include "rigid_geometric_algebra/canonical_type.hpp"
 #include "rigid_geometric_algebra/is_blade.hpp"
 
+#include <algorithm>
+#include <array>
 #include <cstddef>
+#include <ranges>
 #include <type_traits>
-#include <utility>
 
 namespace rigid_geometric_algebra {
 namespace detail {
@@ -15,18 +19,21 @@ template <bool, class>
 struct blade_complement_type_
 {};
 
-template <
-    template <class, std::size_t...> class blade_,
-    class A,
-    std::size_t... Is>
-struct blade_complement_type_<true, blade_<A, Is...>>
+template <class B>
+struct blade_complement_type_<true, B>
 {
-  static constexpr auto complement_dimensions =
-      []<std::size_t... Js>(std::index_sequence<Js...>) {
-        return detail::disjoint_subset(Is..., Js...);
-      }(std::make_index_sequence<algebra_dimension_v<A>>{});
+  using A = algebra_type_t<B>;
 
-  using type = blade_type_from_dimensions_t<A, complement_dimensions>;
+  using type = blade_type_from_dimensions_t<A, [] {
+    auto missing = std::array<std::size_t, algebra_dimension_v<A> - B::grade>{};
+
+    std::ranges::set_difference(
+        std::views::iota(0UZ, algebra_dimension_v<A>),
+        canonical_type_t<B>::dimensions,
+        missing.begin());
+
+    return missing;
+  }()>;
 };
 
 }  // namespace detail

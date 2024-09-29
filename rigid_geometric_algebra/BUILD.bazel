@@ -29,7 +29,6 @@ cc_library(
         "detail/derive_subtraction.hpp",
         "detail/derive_vector_space_operations.hpp",
         "detail/derive_zero_constant_overload.hpp",
-        "detail/disjoint_subset.hpp",
         "detail/even.hpp",
         "detail/has_type.hpp",
         "detail/has_value.hpp",
