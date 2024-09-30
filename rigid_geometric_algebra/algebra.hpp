@@ -2,8 +2,8 @@
 
 #include "rigid_geometric_algebra/blade_fwd.hpp"
 #include "rigid_geometric_algebra/field.hpp"
+#include "rigid_geometric_algebra/geometric_fwd.hpp"
 #include "rigid_geometric_algebra/multivector_fwd.hpp"
-#include "rigid_geometric_algebra/point.hpp"
 #include "rigid_geometric_algebra/scalar_type.hpp"
 #include "rigid_geometric_algebra/unit_hypervolume.hpp"
 #include "rigid_geometric_algebra/zero_constant_fwd.hpp"
@@ -33,14 +33,16 @@ struct algebra
   template <class... Bs>
   using multivector = ::rigid_geometric_algebra::multivector<algebra, Bs...>;
 
-  using point = ::rigid_geometric_algebra::point<algebra>;
-
   using scalar = ::rigid_geometric_algebra::scalar_type_t<algebra>;
 
   using antiscalar = ::rigid_geometric_algebra::antiscalar_type_t<algebra>;
 
   static constexpr const auto& unit_hypervolume =
       ::rigid_geometric_algebra::unit_hypervolume<algebra>;
+
+  using point = ::rigid_geometric_algebra::point<algebra>;
+
+  using line = ::rigid_geometric_algebra::line<algebra>;
 };
 
 }  // namespace rigid_geometric_algebra

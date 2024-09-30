@@ -7,6 +7,7 @@
 #include "rigid_geometric_algebra/is_multivector.hpp"
 
 #include <array>
+#include <compare>
 #include <concepts>
 #include <cstddef>
 #include <cstdint>
@@ -14,6 +15,7 @@
 #include <functional>
 #include <initializer_list>
 #include <iterator>
+#include <ranges>
 #include <type_traits>
 #include <utility>
 
@@ -64,9 +66,7 @@ public:
     using difference_type = std::ptrdiff_t;
     using pointer = std::add_pointer_t<value_type>;
 
-    // declare but don't define
-    // https://stackoverflow.com/questions/28832492/why-do-iterators-need-to-be-default-constructible
-    constexpr iterator();
+    iterator() = default;
 
     constexpr iterator(parent_type& p, index_type i) : parent_{&p}, index_{i}
     {
@@ -75,6 +75,7 @@ public:
 
     constexpr auto operator*() const -> reference
     {
+      detail::precondition(parent_ != nullptr);
       detail::precondition(index_ < multivector_type::size);
 
       const auto refs =
@@ -162,8 +163,19 @@ public:
       return *(*this + n);
     }
 
-    friend auto operator==(iterator, iterator) -> bool = default;
+    constexpr friend auto
+    operator<=>(iterator i, iterator j) -> std::strong_ordering
+    {
+      detail::precondition(i.parent_ == j.parent_);
+      return i.index_ <=> j.index_;
+    }
+
+    friend auto operator==(iterator i, iterator j) -> bool = default;
   };
+
+  /// const iterator alias
+  ///
+  using const_iterator = iterator<true>;
 
   /// construct a zero geometric type
   ///
@@ -191,7 +203,16 @@ public:
   ///
   constexpr geometric_interface(std::initializer_list<value_type> il)
     requires std::floating_point<value_type>
-      : values_{il}
+      : values_{[il] {
+          detail::precondition(
+              il.size() == multivector_type::size,
+              detail::contract_violation_handler{
+                  "size of initializer_list ({}) must match underlying "
+                  "multivector size ({})",
+                  il.size(),
+                  multivector_type::size()});
+          return il;
+        }()}
   {}
 
   /// access the underlying `multivector`
@@ -210,7 +231,7 @@ public:
 
   template <class Self>
   // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
-  constexpr auto begin(this Self&& self)
+  constexpr auto begin(this Self&& self) noexcept
       -> iterator<std::is_const_v<std::remove_reference_t<Self>>>
   {
     return {self, 0};
@@ -218,7 +239,7 @@ public:
 
   template <class Self>
   // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
-  constexpr auto end(this Self&& self)
+  constexpr auto end(this Self&& self) noexcept
       -> iterator<std::is_const_v<std::remove_reference_t<Self>>>
   {
     return {self, multivector_type::size};
@@ -235,14 +256,22 @@ public:
   /// (reference to `scalar_type`)
   ///
   template <class Self>
-  // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
-  constexpr auto operator[](this Self&& self, std::size_t i)
-      -> decltype(std::forward_like<Self>(std::declval<value_type>()))
+  constexpr auto
+  operator[](this Self&& self, std::size_t i) -> std::conditional_t<
+      std::is_lvalue_reference_v<Self&&>,
+      std::ranges::range_reference_t<Self&&>,
+      std::ranges::range_rvalue_reference_t<Self&&>>
   {
     detail::precondition(i < multivector_type::size);
 
-    return std::forward_like<Self>(
-        self.begin()[static_cast<iterator<true>::difference_type>(i)]);
+    using D = iterator<true>::difference_type;
+    using R = std::conditional_t<
+        std::is_lvalue_reference_v<Self&&>,
+        std::ranges::range_reference_t<Self&&>,
+        std::ranges::range_rvalue_reference_t<Self&&>>;
+
+    auto&& ref = std::forward<Self>(self).begin()[static_cast<D>(i)];
+    return static_cast<R>(ref);
   }
 
   /// equality comparison
