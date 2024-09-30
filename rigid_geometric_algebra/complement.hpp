@@ -2,17 +2,15 @@
 
 #include "detail/even.hpp"
 #include "rigid_geometric_algebra/blade_complement_type.hpp"
+#include "rigid_geometric_algebra/detail/concat_ranges.hpp"
 #include "rigid_geometric_algebra/detail/counted_sort.hpp"
 #include "rigid_geometric_algebra/detail/linear_operator.hpp"
+#include "rigid_geometric_algebra/detail/negate_if_odd.hpp"
 #include "rigid_geometric_algebra/is_blade.hpp"
 
-#include <algorithm>
 #include <cstddef>
-#include <functional>
-#include <ranges>
 #include <type_traits>
 #include <utility>
-#include <vector>
 
 namespace rigid_geometric_algebra {
 
@@ -43,38 +41,22 @@ namespace detail {
 
 class blade_complement_negates_fn
 {
-  template <
-      std::ranges::random_access_range R1,
-      std::ranges::random_access_range R2>
-    requires std::is_same_v<
-        std::ranges::range_value_t<R1>,
-        std::ranges::range_value_t<R2>>
-  static constexpr auto concat(const R1& r1, const R2& r2)
-  {
-    auto out = std::vector<std::ranges::range_value_t<R1>>{};
-    out.resize(r1.size() + r2.size());
-
-    const auto [_, it] = std::ranges::copy(r1, out.begin());
-    std::ranges::copy(r2, it);
-
-    return out;
-  }
-
 public:
   template <class Dir, detail::blade B>
   static consteval auto operator()(Dir, std::type_identity<B>) -> bool
   {
-    static constexpr auto even_number_of_swaps =
+    static constexpr auto odd_number_of_swaps =
         [](const auto& r1, const auto& r2) {
-          return detail::even(detail::counted_sort(concat(r1, r2)));
+          return not detail::even(
+              detail::counted_sort(detail::concat_ranges(r1, r2)));
         };
 
     if constexpr (std::is_same_v<Dir, left_t>) {
-      return even_number_of_swaps(
+      return odd_number_of_swaps(
           blade_complement_type_t<B>::dimensions,
           std::remove_cvref_t<B>::dimensions);
     } else if constexpr (std::is_same_v<Dir, right_t>) {
-      return even_number_of_swaps(
+      return odd_number_of_swaps(
           std::remove_cvref_t<B>::dimensions,
           blade_complement_type_t<B>::dimensions);
     } else {
@@ -95,18 +77,14 @@ class complement_blade_fn
   static_assert(std::is_same_v<Dir, left_t> or std::is_same_v<Dir, right_t>);
 
 public:
-  template <class B>
-    requires is_blade_v<std::remove_cvref_t<B>>
-  static constexpr auto
-  operator()(B&& b) -> blade_complement_type_t<std::remove_cvref_t<B>>
+  template <detail::blade B>
+  static constexpr auto operator()(B&& b) -> blade_complement_type_t<B>
   {
-    using maybe_negate = std::conditional_t<
-        detail::blade_complement_negates<Dir, B>,
-        std::identity,
-        std::negate<>>;
+    static constexpr auto sign =
+        std::size_t(detail::blade_complement_negates<Dir, B>);
 
     return blade_complement_type_t<B>{
-        maybe_negate{}(std::forward<B>(b).coefficient)};
+        detail::negate_if_odd<sign>{}(std::forward<B>(b).coefficient)};
   }
 };
 

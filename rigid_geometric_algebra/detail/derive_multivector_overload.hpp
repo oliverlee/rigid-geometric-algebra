@@ -103,8 +103,8 @@ public:
   template <
       detail::multivector_promotable V1,
       detail::multivector_promotable V2>
-    requires (not(detail::blade<V1> and detail::blade<V2>)) and
-             has_common_algebra_type_v<V1, V2>
+    requires has_common_algebra_type_v<V1, V2> and
+             (not(detail::blade<V1> and detail::blade<V2>))
   static constexpr auto operator()(V1&& v1, V2&& v2) -> decltype(impl(
       to_multivector(std::forward<V1>(v1)),
       to_multivector(std::forward<V2>(v2))))

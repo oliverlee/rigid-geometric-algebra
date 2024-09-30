@@ -54,6 +54,13 @@ auto main() -> int
         eq(B2{2}, B2{} | B2{2}));
   };
 
+  "bitwise AND"_test = [] {
+    return expect(
+        eq(B2{1}, B2{1} & B2{3}) and eq(B2{0}, B2{2} & B2{1}) and
+        eq(B2{}, B2{} & B2{}) and eq(B2{0}, B2{0} & B2{2}) and
+        eq(B2{2}, B2{3} & B2{2}));
+  };
+
   "to unsigned "_test = [] {
     return expect(
         eq(0, B2{}.to_unsigned()) and eq(1, B2{1}.to_unsigned()) and
