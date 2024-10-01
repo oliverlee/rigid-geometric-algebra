@@ -125,11 +125,11 @@ http_archive(
     ),
 )
 
-RULES_CLANG_TIDY_COMMIT = "efa53bab83ee4a631f80d3581f51b51d5ca00143"
+RULES_CLANG_TIDY_COMMIT = "7c7278c9fa91471f7197455bcd8c2d1ffdd0ddeb"
 
 http_archive(
     name = "rules_clang_tidy",
-    integrity = "sha256-tDxw/Y7S7/qBp/a+4pTEz3VUb2SPA0klz4/liNSCivo=",
+    integrity = "sha256-Lj5bI21yP04iFHRWiLvegD510bCJvbbVIRSTQ5+NA+4=",
     strip_prefix = "rules_clang_tidy-{commit}".format(
         commit = RULES_CLANG_TIDY_COMMIT,
     ),
