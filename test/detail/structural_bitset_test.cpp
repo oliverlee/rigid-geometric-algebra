@@ -16,6 +16,10 @@ auto main() -> int
 
   using B2 = structural_bitset<2>;
 
+  "bits constructor pre"_test = [] {
+    return expect(aborts([] { B2{0b1000}; }));
+  };
+
   "set pre"_test = [] { return expect(aborts([] { B2{}.set(4); })); };
 
   "set"_test = [] {

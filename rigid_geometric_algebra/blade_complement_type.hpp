@@ -1,5 +1,6 @@
 #pragma once
 
+#include "rigid_geometric_algebra/blade_type_from.hpp"
 #include "rigid_geometric_algebra/detail/disjoint_subset.hpp"
 #include "rigid_geometric_algebra/is_blade.hpp"
 
@@ -25,12 +26,7 @@ struct blade_complement_type_<true, blade_<A, Is...>>
         return detail::disjoint_subset(Is..., Js...);
       }(std::make_index_sequence<algebra_dimension_v<A>>{});
 
-  template <std::size_t... Ks>
-  static constexpr auto type_impl(std::index_sequence<Ks...>)
-      -> blade_<A, complement_dimensions[Ks]...>;
-
-  using type = decltype(type_impl(
-      std::make_index_sequence<complement_dimensions.size()>{}));
+  using type = blade_type_from_dimensions_t<A, complement_dimensions>;
 };
 
 }  // namespace detail

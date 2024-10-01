@@ -38,17 +38,20 @@ struct sorted_canonical_blades
   using A = common_algebra_type_t<Bs...>;
 
   static constexpr auto sorted = [] {
-    auto values = std::array{blade_ordering<A>{Bs::dimension_mask}...};
-    std::ranges::sort(values);
-    const auto duplicates = std::ranges::unique(values);
-    return detail::array_subset(values, values.size() - duplicates.size());
+    auto blades = std::array{blade_ordering<A>{Bs::dimension_mask}...};
+
+    std::ranges::sort(blades);
+    const auto [last, _] = std::ranges::unique(blades);
+
+    return detail::array_subset<blade_ordering<A>, sizeof...(Bs)>{
+        blades.begin(), last};
   }();
 
   static_assert(sorted.size() != 0);
 
   template <std::size_t... Is>
   static constexpr auto impl(std::index_sequence<Is...>)
-      -> detail::type_list<blade_type_from_t<A, sorted[Is].mask>...>;
+      -> detail::type_list<blade_type_from_mask_t<A, sorted[Is].mask>...>;
 
   using type = decltype(impl(std::make_index_sequence<sorted.size()>{}));
 };
