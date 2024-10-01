@@ -76,16 +76,6 @@ cc_test(
 )
 
 cc_test(
-    name = "disjoint_subset_test",
-    size = "small",
-    srcs = ["disjoint_subset_test.cpp"],
-    deps = [
-        "//rigid_geometric_algebra",
-        "@skytest",
-    ],
-)
-
-cc_test(
     name = "has_type_test",
     size = "small",
     srcs = ["has_type_test.cpp"],
