@@ -37,20 +37,20 @@
   "lsp": {
     "clangd": {
       "binary": {
-        "path": "./external/llvm19_toolchain_llvm/bin/clangd",
+        "path": "./external/llvm18_toolchain_llvm/bin/clangd",
         "arguments": [
           "--function-arg-placeholders=0",
           "--completion-parse=always",
-          "--parse-forwarding-functions",
-          "--use-dirty-headers",
-          "--include-ineligible-results",
-          "--header-insertion-decorators",
+          "--all-scopes-completion",
+          "--clang-tidy",
+          "--debug-origin",
           "--header-insertion=iwyu",
+          "--header-insertion-decorators",
+          "--include-ineligible-results",
           "--import-insertions",
           "--limit-references=0",
           "--limit-results=0",
-          "--rename-file-limit=0",
-          "--enable-config"
+          "--rename-file-limit=0"
         ]
       }
     },
@@ -66,6 +66,8 @@
           "autoImportCompletions": "true",
           "typeCheckingMode": "off",
           "logLevel": "trace",
+          // create with:
+          // bazel fetch @python3_fake_venv//...
           "extraPaths": ["./external/python3_fake_venv/pypi/site-packages"]
         },
         "pyright": {

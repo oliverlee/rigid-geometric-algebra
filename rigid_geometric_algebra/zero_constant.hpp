@@ -37,8 +37,8 @@ struct zero_constant : detail::derive_subtraction<zero_constant<A>>
   /// * T1 is `zero_constant` xor T2 is `zero_constant`
   /// @returns `zero_constant` value
   ///
-  template <class F = detail::wedge_fn>
-  friend constexpr auto operator^(zero_constant lhs, const auto& rhs)
+  template <class T, class F = detail::wedge_fn>
+  friend constexpr auto operator^(zero_constant lhs, const T& rhs)
       -> decltype(std::declval<F>()(lhs, rhs))
   {
     return F{}(lhs, rhs);
