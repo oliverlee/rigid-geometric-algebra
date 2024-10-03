@@ -48,7 +48,7 @@ echo "$packages"
 
     result = rctx.execute(
         ["./requirements.bash"],
-        timeout = 3,
+        timeout = 1,
     )
     if result.return_code != 0:
         fail(result.stderr)
@@ -56,17 +56,42 @@ echo "$packages"
     pyenv = rctx.attr.pip_requirements.workspace_name
     external = str(rctx.path(rctx.attr.pip_requirements)).rsplit("/", 2)[0]
     for pkg in result.stdout.splitlines():
-        rctx.symlink(
-            "{external}/{pyenv}_{pkg}/site-packages/{pkg}".format(
-                external = external,
-                pyenv = pyenv,
-                pkg = pkg,
-            ),
-            "{pyenv}/site-packages/{pkg}".format(
-                pyenv = pyenv,
-                pkg = pkg,
-            ),
+        site_packages = "{external}/{pyenv}_{pkg}/site-packages".format(
+            external = external,
+            pyenv = pyenv,
+            pkg = pkg,
         )
+
+        result = rctx.execute(
+            [
+                "find",
+                site_packages,
+                "!",
+                "-name",
+                "*-*",
+                "-maxdepth",
+                "1",
+                "-type",
+                "d",
+            ],
+            timeout = 1,
+        )
+        modules = [
+            p.rpartition("/")[-1]
+            for p in result.stdout.strip().splitlines()
+        ]
+
+        for mod in modules:
+            rctx.symlink(
+                "{source}/{mod}".format(
+                    source = site_packages,
+                    mod = mod,
+                ),
+                "{pyenv}/site-packages/{mod}".format(
+                    pyenv = pyenv,
+                    mod = mod,
+                ),
+            )
 
 local_python_fake_venv = repository_rule(
     implementation = _impl,
