@@ -55,8 +55,8 @@ public:
   template <detail::blade B1, detail::blade B2>
     requires has_common_algebra_type_v<B1, B2> and
              (not unique_factors_v<B1, B2>)
-  static constexpr auto
-  operator()(B1&&, B2&&) -> zero_constant<common_algebra_type_t<B1, B2>>
+  static constexpr auto operator()(const B1&, const B2&)
+      -> zero_constant<common_algebra_type_t<B1, B2>>
   {
     return {};
   }

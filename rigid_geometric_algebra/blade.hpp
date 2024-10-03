@@ -181,8 +181,8 @@ public:
   ///
   /// @{
 
-  template <class F = detail::wedge_fn>
-  friend constexpr auto operator^(const blade& lhs, const auto& rhs)
+  template <class T, class F = detail::wedge_fn>
+  friend constexpr auto operator^(const blade& lhs, const T& rhs)
       -> decltype(std::declval<F>()(lhs, rhs))
   {
     return F{}(lhs, rhs);
