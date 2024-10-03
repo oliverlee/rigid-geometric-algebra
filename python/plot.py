@@ -5,8 +5,8 @@ import sys
 from collections.abc import Iterable
 from dataclasses import dataclass
 
+import matplotlib.pyplot as plt
 import numpy as np
-import pyvista as pv
 
 
 @dataclass
@@ -36,23 +36,16 @@ def parse(raw: dict[str, Iterable[float]]) -> Point:
     }[k](v)
 
 
-def plot(data: Iterable[Point]) -> None:
+def plot(data: Iterable[Point]) -> plt.Figure:
     points = np.stack([d.data for d in data if isinstance(d, Point)])
 
-    rgba = points - points.min(axis=0)
-    rgba /= rgba.max(axis=0)
-    pl = pv.Plotter(
-        title="plot",
-    )
-    pl.add_axes_at_origin()
-    pl.add_mesh(
-        points,
-        scalars=rgba,
-        render_points_as_spheres=True,
-        point_size=10,
-        rgba=True,
-    )
-    pl.show()
+    fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+    ax.set_xlabel("X")
+    ax.set_ylabel("Y")
+    ax.set_zlabel("Z")
+    ax.scatter(*np.unstack(points, axis=1))
+
+    return fig
 
 
 if __name__ == "__main__":
@@ -74,4 +67,5 @@ replaced with sys.stdin.
         sys.exit(1)
 
     raw_values = json.loads(line)
-    plot(map(parse, raw_values))
+    fig = plot(map(parse, raw_values))
+    plt.show()
