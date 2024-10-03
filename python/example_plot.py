@@ -10,6 +10,8 @@ if __name__ == "__main__":
         geom.Point([1, 0, 0]),
         geom.Point([0, 1, 0]),
         geom.Point([0, 0, 1]),
+        geom.Line([0, 1, 0, 0, 0, 1]),
+        geom.Line([0, 1, 0, 0, 0, 0.5]),
     ]
 
     fig = geom.plot(elements)
