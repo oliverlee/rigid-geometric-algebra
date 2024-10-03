@@ -5,14 +5,23 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.axes import Axes
 from matplotlib.collections import PathCollection
+from mpl_toolkits.mplot3d.art3d import Line3DCollection
+
+
+class GeomError(ArithmeticError):
+    pass
+
+
+def require(cond: bool, message: str) -> None:  # noqa: FBT001
+    # https://github.com/astral-sh/ruff/issues/9497
+    if not cond:
+        raise GeomError(message)
 
 
 @dataclass
 class _Data:
     data: np.ndarray
 
-
-class Point(_Data):
     @property
     def data(self) -> np.ndarray:
         return self._data
@@ -21,11 +30,67 @@ class Point(_Data):
     def data(self, value: Iterable[float]) -> None:
         self._data = np.array(value, dtype=np.float64)
 
+    @property
+    def view(self) -> np.ndarray:
+        v = self.data.view()
+        v.setflags(write=False)
+        return v
+
+    def _invariant(self) -> None:
+        pass
+
+    def __post_init__(self) -> None:
+        self._invariant()
+
+
+class Point(_Data):
     def add_to(self, ax: Axes) -> PathCollection:
-        return ax.scatter(*self.data)
+        return ax.scatter(*self.view)
 
 
-def plot(data: Iterable[Point]) -> plt.Figure:
+class Line(_Data):
+    def _invariant(self) -> None:
+        require(
+            self.view.size % 2 == 0, "`Line` must contain an even number of elements"
+        )
+        require(
+            np.dot(self.direction, self.moment) == 0,
+            "The `direction` and `moment` of a `Line` must be orthogonal",
+        )
+
+    @property
+    def direction(self) -> np.ndarray:
+        return self.view[: (self.view.size // 2)]
+
+    @property
+    def moment(self) -> np.ndarray:
+        return self.view[(self.view.size // 2) :]
+
+    def add_to(self, ax: Axes) -> PathCollection:
+        norm = np.linalg.norm
+        u = np.cross(self.direction, self.moment)
+        p = norm(self.moment) / norm(self.direction) * u / norm(u)
+
+        # these lines should "extend" to infinity
+        lines = Line3DCollection(
+            [
+                np.vstack(
+                    [
+                        p - 1000 * self.direction,
+                        p - 10 * self.direction,
+                        p - self.direction,
+                        p,
+                        p + self.direction,
+                        p + 10 * self.direction,
+                        p + 1000 * self.direction,
+                    ]
+                )
+            ]
+        )
+        return ax.add_collection(lines)
+
+
+def plot(data: Iterable[_Data]) -> plt.Figure:
     fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
     ax.set_xlabel("x")
     ax.set_ylabel("y")
