@@ -1,4 +1,4 @@
-load("@rules_python//python:defs.bzl", "py_binary")
+load("@rules_python//python:defs.bzl", "py_binary", "py_library")
 load("@rules_python//python:pip.bzl", "compile_pip_requirements")
 load("@pypi//:requirements.bzl", "all_requirements")
 
@@ -8,8 +8,21 @@ compile_pip_requirements(
     requirements_txt = "requirements_lock.txt",
 )
 
+py_library(
+    name = "geom",
+    srcs = ["geom.py"],
+    imports = ["rigid_geometric_algebra.python"],
+    deps = all_requirements,
+)
+
 py_binary(
     name = "plot",
     srcs = ["plot.py"],
-    deps = all_requirements,
+    deps = [":geom"] + all_requirements,
+)
+
+py_binary(
+    name = "example_plot",
+    srcs = ["example_plot.py"],
+    deps = [":geom"] + all_requirements,
 )
