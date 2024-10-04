@@ -4,8 +4,8 @@ from dataclasses import dataclass
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.axes import Axes
-from matplotlib.collections import PathCollection
-from mpl_toolkits.mplot3d.art3d import Line3DCollection
+from matplotlib.collections import PathCollection, PolyCollection
+from mpl_toolkits.mplot3d.art3d import Line3DCollection, Poly3DCollection
 
 
 class GeomError(ArithmeticError):
@@ -22,6 +22,12 @@ def require(cond: bool, message: str) -> None:  # noqa: FBT001
 class _Data:
     data: np.ndarray
 
+    def __post_init__(self) -> None:
+        self._invariant()
+
+    def _invariant(self) -> None:
+        pass
+
     @property
     def data(self) -> np.ndarray:
         return self._data
@@ -29,18 +35,13 @@ class _Data:
     @data.setter
     def data(self, value: Iterable[float]) -> None:
         self._data = np.array(value, dtype=np.float64)
+        self._invariant()
 
     @property
     def view(self) -> np.ndarray:
         v = self.data.view()
         v.setflags(write=False)
         return v
-
-    def _invariant(self) -> None:
-        pass
-
-    def __post_init__(self) -> None:
-        self._invariant()
 
 
 class Point(_Data):
@@ -68,10 +69,12 @@ class Line(_Data):
 
     def add_to(self, ax: Axes) -> PathCollection:
         norm = np.linalg.norm
+
+        # project origin onto line
         u = np.cross(self.direction, self.moment)
         p = norm(self.moment) / norm(self.direction) * u / norm(u)
 
-        # these lines should "extend" to infinity
+        # these lines should extend to infinity
         lines = Line3DCollection(
             [
                 np.vstack(
@@ -88,6 +91,49 @@ class Line(_Data):
             ]
         )
         return ax.add_collection(lines)
+
+
+class Plane(_Data):
+    @property
+    def normal(self) -> np.array:
+        return self.view[:-1]
+
+    @property
+    def position(self) -> np.array:
+        return self.view[-1:]
+
+    def add_to(self, ax: Axes) -> PolyCollection:
+        norm = np.linalg.norm
+
+        # obtain vectors orthogonal to self.normal
+        u = np.cross(self.normal, [1, 0, 0])
+        if not u.any():
+            _, u, v = np.unstack(np.eye(3))
+        else:
+            v = np.cross(self.normal, u)
+            u /= norm(u)
+            v /= norm(v)
+
+        # project origin onto plane
+        d = self.position / norm(self.normal)
+        p = -self.normal / norm(self.normal) * d
+
+        # these vertices should extend to infinity but that makes it hard to see
+        scaling = 1
+        planes = Poly3DCollection(
+            [
+                np.vstack(
+                    [
+                        p - scaling * u,
+                        p - scaling * v,
+                        p + scaling * u,
+                        p + scaling * v,
+                    ]
+                )
+            ],
+            alpha=0.3,
+        )
+        return ax.add_collection(planes)
 
 
 def plot(data: Iterable[_Data]) -> plt.Figure:
