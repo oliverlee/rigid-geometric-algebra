@@ -3,6 +3,7 @@
 #include "rigid_geometric_algebra/algebra_field.hpp"
 #include "rigid_geometric_algebra/algebra_type.hpp"
 #include "rigid_geometric_algebra/detail/contract.hpp"
+#include "rigid_geometric_algebra/detail/decays_to.hpp"
 #include "rigid_geometric_algebra/glz_fwd.hpp"
 #include "rigid_geometric_algebra/is_multivector.hpp"
 
@@ -181,6 +182,12 @@ public:
   ///
   geometric_interface() = default;
 
+  /// construct from multivector
+  ///
+  template <detail::decays_to<multivector_type> T>
+  constexpr explicit geometric_interface(T&& v) : values_{std::forward<T>(v)}
+  {}
+
   /// construct a geometric type, specifying the coefficients
   /// @tparam Ts parameter pack of types
   /// @param coeffs coefficient values
@@ -283,6 +290,13 @@ public:
 
   /// @}
 };
+
+template <class T>
+concept geometric =
+    requires { typename std::remove_cvref_t<T>::geometric_interface_type; } and
+    detail::is_specialization_of_v<
+        typename std::remove_cvref_t<T>::geometric_interface_type,
+        detail::geometric_interface>;
 
 }  // namespace rigid_geometric_algebra::detail
 

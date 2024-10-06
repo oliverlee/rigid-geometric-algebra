@@ -110,7 +110,8 @@ auto main() -> int
     const auto compare_each_element =
         []<class A, class... Bs>(
             const multivector<A, Bs...>& v1, const auto& v2, auto cmp) {
-          return (cmp(get<Bs>(v1), get<Bs>(v2)) and ...);
+          using ::rigid_geometric_algebra::get;
+          return (cmp(get<Bs>(v1), get<Bs>(v2.multivector())) and ...);
         };
 
     const auto cmp = [](const auto& b1, const auto& b2) {
