@@ -41,6 +41,7 @@ cc_library(
         "detail/is_specialization_of.hpp",
         "detail/linear_operator.hpp",
         "detail/multivector_promotable.hpp",
+        "detail/multivector_sum.hpp",
         "detail/negate_if_odd.hpp",
         "detail/overload.hpp",
         "detail/priority.hpp",

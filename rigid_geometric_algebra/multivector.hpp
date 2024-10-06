@@ -2,33 +2,25 @@
 
 #include "rigid_geometric_algebra/algebra_field.hpp"
 #include "rigid_geometric_algebra/algebra_type.hpp"
-#include "rigid_geometric_algebra/blade_ordering.hpp"
-#include "rigid_geometric_algebra/canonical_type.hpp"
 #include "rigid_geometric_algebra/common_algebra_type.hpp"
 #include "rigid_geometric_algebra/detail/copy_ref_qual.hpp"
 #include "rigid_geometric_algebra/detail/decays_to.hpp"
 #include "rigid_geometric_algebra/detail/derive_subtraction.hpp"
 #include "rigid_geometric_algebra/detail/derive_vector_space_operations.hpp"
-#include "rigid_geometric_algebra/detail/is_defined.hpp"
 #include "rigid_geometric_algebra/detail/multivector_promotable.hpp"
-#include "rigid_geometric_algebra/detail/overload.hpp"
+#include "rigid_geometric_algebra/detail/multivector_sum.hpp"
 #include "rigid_geometric_algebra/detail/size_checked_subrange.hpp"
-#include "rigid_geometric_algebra/detail/type_concat.hpp"
 #include "rigid_geometric_algebra/detail/type_list.hpp"
 #include "rigid_geometric_algebra/get.hpp"
 #include "rigid_geometric_algebra/get_or.hpp"
 #include "rigid_geometric_algebra/is_algebra.hpp"
-#include "rigid_geometric_algebra/is_blade.hpp"
 #include "rigid_geometric_algebra/is_canonical_blade_order.hpp"
-#include "rigid_geometric_algebra/sorted_canonical_blades.hpp"
 #include "rigid_geometric_algebra/to_multivector.hpp"
 #include "rigid_geometric_algebra/wedge.hpp"
-#include "rigid_geometric_algebra/zero_constant.hpp"
 
 #include <concepts>
 #include <cstddef>
 #include <format>
-#include <functional>
 #include <initializer_list>
 #include <tuple>
 #include <type_traits>
@@ -196,31 +188,16 @@ public:
   ///  is defined by `derive_vector_space_operations`.
   ///
   template <
-      detail::multivector_promotable V1,
+      detail::decays_to<multivector> V1,
       detail::multivector_promotable V2>
-    requires (detail::decays_to<V1, multivector> !=
-              detail::decays_to<V2, multivector>) and
-             (not detail::is_defined_v<detail::overload<std::plus<>, V1, V2>>)
+    requires has_common_algebra_type_v<V1, V2> and
+             (not detail::decays_to<V2, multivector>)
   friend constexpr auto
-  operator+(V1&& v1, V2&& v2) -> typename detail::type_concat_t<
-      typename std::remove_cvref_t<to_multivector_t<V1>>::blade_list_type,
-      typename std::remove_cvref_t<to_multivector_t<V2>>::blade_list_type>::
-      template insert_into_t<sorted_canonical_blades<>>::template insert_into_t<
-          multivector<algebra_type>>
+  operator+(V1&& v1, V2&& v2) -> decltype(detail::multivector_sum(
+      std::forward<V1>(v1), to_multivector(std::forward<V2>(v2))))
   {
-    using result_blade_list_type = typename detail::type_concat_t<
-        typename std::remove_cvref_t<to_multivector_t<V1>>::blade_list_type,
-        typename std::remove_cvref_t<to_multivector_t<V2>>::blade_list_type>::
-        template insert_into_t<sorted_canonical_blades<>>;
-
-    return []<class... Ts, class V3, class V4>(
-               detail::type_list<Ts...>, V3&& v3, V4&& v4) {
-      return multivector<A, Ts...>{(
-          get_or<Ts>(std::forward<V3>(v3), zero_constant<A>{}) +
-          get_or<Ts>(std::forward<V4>(v4), zero_constant<A>{}))...};
-    }(result_blade_list_type{},
-           to_multivector(std::forward<V1>(v1)),
-           to_multivector(std::forward<V2>(v2)));
+    return detail::multivector_sum(
+        std::forward<V1>(v1), to_multivector(std::forward<V2>(v2)));
   }
 
   /// @}
@@ -274,49 +251,6 @@ public:
 template <class B0, class... Bs>
 multivector(const B0&, const Bs&...)
     -> multivector<algebra_type_t<B0>, B0, Bs...>;
-
-/// promote `blade` to a `multivector`
-/// @tparam B cv-ref qualified `blade` type
-/// @tparam b `blade` value
-///
-/// Returns a `multivector` containing a single `blade`.
-///
-template <detail::blade B>
-constexpr auto
-to_multivector(B&& b) -> multivector<algebra_type_t<B>, canonical_type_t<B>>
-{
-  return {std::forward<B>(b).canonical()};
-}
-
-/// addition
-///
-/// @{
-
-/// addition of  different `blade` types
-/// @tparam T1, T2 cv-ref qualified `blade` type
-/// @param b1, b2 `blade` value
-///
-/// Constructs a multivector containing the canonical form of `b1` and `b2`.
-///
-template <
-    detail::blade B1,
-    detail::blade B2,
-    class A = common_algebra_type_t<B1, B2>>
-  requires (not std::is_same_v<canonical_type_t<B1>, canonical_type_t<B2>>)
-constexpr auto operator+(B1&& b1, B2&& b2) -> sorted_canonical_blades_t<
-    canonical_type_t<B1>,
-    canonical_type_t<B2>>::template insert_into_t<multivector<A>>
-{
-  if constexpr (
-      blade_ordering<A>{std::remove_cvref_t<B1>::dimension_mask} <
-      blade_ordering<A>{std::remove_cvref_t<B2>::dimension_mask}) {
-    return {std::forward<B1>(b1).canonical(), std::forward<B2>(b2).canonical()};
-  } else {
-    return {std::forward<B2>(b2).canonical(), std::forward<B1>(b1).canonical()};
-  }
-}
-
-/// @}
 
 }  // namespace rigid_geometric_algebra
 
