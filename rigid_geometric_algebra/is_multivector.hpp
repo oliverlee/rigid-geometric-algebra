@@ -1,7 +1,7 @@
 #pragma once
 
 #include "rigid_geometric_algebra/detail/is_specialization_of.hpp"
-#include "rigid_geometric_algebra/multivector.hpp"
+#include "rigid_geometric_algebra/multivector_fwd.hpp"
 
 #include <type_traits>
 

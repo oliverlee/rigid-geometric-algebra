@@ -3,7 +3,7 @@
 #include "rigid_geometric_algebra/algebra_type.hpp"
 #include "rigid_geometric_algebra/common_algebra_type.hpp"
 #include "rigid_geometric_algebra/detail/decays_to.hpp"
-#include "rigid_geometric_algebra/zero_constant.hpp"
+#include "rigid_geometric_algebra/zero_constant_fwd.hpp"
 
 namespace rigid_geometric_algebra::detail {
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "rigid_geometric_algebra/algebra_dimension.hpp"
-#include "rigid_geometric_algebra/blade.hpp"
+#include "rigid_geometric_algebra/blade_fwd.hpp"
 #include "rigid_geometric_algebra/blade_type_from.hpp"
 #include "rigid_geometric_algebra/is_algebra.hpp"
 

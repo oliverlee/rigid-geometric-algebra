@@ -1,7 +1,7 @@
 #pragma once
 
 #include "rigid_geometric_algebra/common_algebra_type.hpp"
-#include "rigid_geometric_algebra/multivector.hpp"
+#include "rigid_geometric_algebra/multivector_fwd.hpp"
 
 namespace rigid_geometric_algebra {
 

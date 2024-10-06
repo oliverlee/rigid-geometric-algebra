@@ -7,7 +7,7 @@
 #include "rigid_geometric_algebra/detail/linear_operator.hpp"
 #include "rigid_geometric_algebra/detail/negate_if_odd.hpp"
 #include "rigid_geometric_algebra/is_blade.hpp"
-#include "rigid_geometric_algebra/zero_constant.hpp"
+#include "rigid_geometric_algebra/zero_constant_fwd.hpp"
 
 #include <cstddef>
 #include <type_traits>
