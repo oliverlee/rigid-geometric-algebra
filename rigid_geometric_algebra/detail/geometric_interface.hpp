@@ -2,15 +2,19 @@
 
 #include "rigid_geometric_algebra/algebra_field.hpp"
 #include "rigid_geometric_algebra/algebra_type.hpp"
+#include "rigid_geometric_algebra/detail/contract.hpp"
 #include "rigid_geometric_algebra/glz_fwd.hpp"
 #include "rigid_geometric_algebra/is_multivector.hpp"
 
 #include <array>
 #include <concepts>
 #include <cstddef>
+#include <cstdint>
 #include <format>
 #include <functional>
 #include <initializer_list>
+#include <iterator>
+#include <type_traits>
 #include <utility>
 
 namespace rigid_geometric_algebra::detail {
@@ -42,6 +46,124 @@ public:
   /// multivector type
   ///
   using multivector_type = V;
+
+  template <bool Const>
+  class iterator
+  {
+    using parent_type = std::
+        conditional_t<Const, const geometric_interface, geometric_interface>;
+    using index_type = std::uint8_t;
+
+    parent_type* parent_{};
+    index_type index_{};
+
+  public:
+    using iterator_category = std::random_access_iterator_tag;
+    using value_type = std::conditional_t<Const, const value_type, value_type>;
+    using reference = std::add_lvalue_reference_t<value_type>;
+    using difference_type = std::ptrdiff_t;
+    using pointer = std::add_pointer_t<value_type>;
+
+    // declare but don't define
+    // https://stackoverflow.com/questions/28832492/why-do-iterators-need-to-be-default-constructible
+    constexpr iterator();
+
+    constexpr iterator(parent_type& p, index_type i) : parent_{&p}, index_{i}
+    {
+      detail::precondition(i <= multivector_type::size);
+    }
+
+    constexpr auto operator*() const -> reference
+    {
+      detail::precondition(index_ < multivector_type::size);
+
+      const auto refs =
+          [&v = this->parent_->multivector()]<std::size_t... Is>(
+              std::index_sequence<Is...>) {
+            return std::array{std::ref(v.template get<Is>().coefficient)...};
+          }(std::make_index_sequence<multivector_type::size>{});
+
+      return refs[index_];
+    };
+
+    constexpr auto operator++() -> iterator&
+    {
+      detail::precondition(index_ < multivector_type::size);
+
+      ++index_;
+      return *this;
+    }
+
+    constexpr auto operator++(int) -> iterator
+    {
+      auto tmp = *this;
+      ++(*this);
+      return tmp;
+    }
+
+    constexpr auto operator--() -> iterator&
+    {
+      detail::precondition(index_ > 0);
+
+      --index_;
+      return *this;
+    }
+
+    constexpr auto operator--(int) -> iterator
+    {
+      auto tmp = *this;
+      --(*this);
+      return tmp;
+    }
+
+    friend constexpr auto
+    operator-(iterator i, iterator j) noexcept -> difference_type
+    {
+      return static_cast<difference_type>(i.index_) -
+             static_cast<difference_type>(j.index_);
+    }
+
+    constexpr auto operator+=(difference_type n) -> iterator&
+    {
+      const auto i = static_cast<difference_type>(index_) + n;
+
+      detail::precondition(i >= 0);
+      detail::precondition(
+          i <= static_cast<difference_type>(multivector_type::size));
+
+      index_ = static_cast<index_type>(i);
+      return *this;
+    }
+
+    friend constexpr auto operator+(iterator j, difference_type n) -> iterator
+    {
+      j += n;
+      return j;
+    }
+
+    friend constexpr auto operator+(difference_type n, iterator j) -> iterator
+    {
+      return j + n;
+    }
+
+    constexpr auto operator-=(difference_type n) -> iterator&
+    {
+      return *this += -n;
+    }
+
+    friend constexpr auto operator-(iterator j, difference_type n) -> iterator
+    {
+      j -= n;
+      return j;
+    }
+
+    constexpr auto operator[](difference_type n) const -> reference
+    {
+      return *(*this + n);
+    }
+
+    friend auto operator==(iterator, iterator) -> bool = default;
+  };
 
   /// construct a zero geometric type
   ///
@@ -83,6 +205,28 @@ public:
   }
 
   /// coefficient access
+  ///
+  /// @{
+
+  template <class Self>
+  // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
+  constexpr auto begin(this Self&& self)
+      -> iterator<std::is_const_v<std::remove_reference_t<Self>>>
+  {
+    return {self, 0};
+  }
+
+  template <class Self>
+  // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
+  constexpr auto end(this Self&& self)
+      -> iterator<std::is_const_v<std::remove_reference_t<Self>>>
+  {
+    return {self, multivector_type::size};
+  }
+
+  /// @}
+
+  /// coefficient access
   /// @tparam Self `this` type
   /// @param self explicit `this` parameter
   /// @param i coefficient to access
@@ -95,12 +239,10 @@ public:
   constexpr auto operator[](this Self&& self, std::size_t i)
       -> decltype(std::forward_like<Self>(std::declval<value_type>()))
   {
-    auto refs = [&self]<std::size_t... Is>(std::index_sequence<Is...>) {
-      return std::array{
-          std::ref(self.multivector().template get<Is>().coefficient)...};
-    }(std::make_index_sequence<multivector_type::size>{});
+    detail::precondition(i < multivector_type::size);
 
-    return std::forward_like<Self>(refs[i].get());
+    return std::forward_like<Self>(
+        self.begin()[static_cast<iterator<true>::difference_type>(i)]);
   }
 
   /// equality comparison
