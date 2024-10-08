@@ -109,6 +109,16 @@ struct structural_bitset
     return std::forward<Self>(self);
   }
 
+  template <class Self>
+    requires (not std::is_const_v<std::remove_reference_t<Self>>)
+  constexpr auto reset(this Self&& self, std::size_t pos) -> Self&&
+  {
+    detail::precondition(
+        pos < size, "`pos` exceeds number of bits in `structural_bitset`");
+    self.value_ &= ~(std::uint8_t{1} << pos);
+    return std::forward<Self>(self);
+  }
+
   /// returns the number of bits set to `true`
   ///
   [[nodiscard]]

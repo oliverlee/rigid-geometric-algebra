@@ -39,6 +39,14 @@ auto main() -> int
         eq(1, B2{}.set(1).count()) and eq(2, B2{}.set(0).set(1).count()));
   };
 
+  "reset"_test = [] {
+    return expect(
+        eq(B2{0b10}, B2{0b11}.reset(0)) and eq(B2{0b01}, B2{0b11}.reset(1)) and
+        eq(B2{0b00}, B2{0b11}.reset(0).reset(1)) and
+        eq(B2{0b10}, B2{0b11}.reset(0).reset(0)) and
+        eq(B2{0b01}, B2{0b11}.reset(1).reset(1)));
+  };
+
   "test pre"_test = [] {
     return expect(aborts([] { std::ignore = B2{}.test(4); }));
   };
