@@ -9,6 +9,7 @@ auto main() -> int
 
   using G2 = ::rigid_geometric_algebra::algebra<double, 2>;
   using ::rigid_geometric_algebra::multivector;
+  using ::rigid_geometric_algebra::to_multivector;
 
   "to_multivector(blade)"_test = [] {
     return expect(

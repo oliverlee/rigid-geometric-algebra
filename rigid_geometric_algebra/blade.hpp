@@ -2,6 +2,7 @@
 
 #include "rigid_geometric_algebra/algebra_dimension.hpp"
 #include "rigid_geometric_algebra/algebra_field.hpp"
+#include "rigid_geometric_algebra/blade_sum.hpp"
 #include "rigid_geometric_algebra/canonical_type.hpp"
 #include "rigid_geometric_algebra/detail/are_dimensions_unique.hpp"
 #include "rigid_geometric_algebra/detail/counted_sort.hpp"
@@ -9,10 +10,14 @@
 #include "rigid_geometric_algebra/detail/derive_subtraction.hpp"
 #include "rigid_geometric_algebra/detail/derive_vector_space_operations.hpp"
 #include "rigid_geometric_algebra/detail/indices_array.hpp"
+#include "rigid_geometric_algebra/detail/multivector_sum.hpp"
 #include "rigid_geometric_algebra/detail/negate_if_odd.hpp"
 #include "rigid_geometric_algebra/detail/size_checked_subrange.hpp"
 #include "rigid_geometric_algebra/detail/structural_bitset.hpp"
 #include "rigid_geometric_algebra/glz_fwd.hpp"
+#include "rigid_geometric_algebra/is_blade.hpp"
+#include "rigid_geometric_algebra/is_multivector.hpp"
+#include "rigid_geometric_algebra/to_multivector.hpp"
 #include "rigid_geometric_algebra/wedge.hpp"
 
 #include <array>
@@ -163,13 +168,37 @@ public:
 
   /// add different blades types with the same canonical type
   ///
-  template <detail::decays_to<blade> B1, class B2>
+  template <detail::decays_to<blade> B1, detail::blade B2>
     requires (not detail::decays_to<B2, blade>) and
-             std::is_same_v<canonical_type, canonical_type_t<B2>>
-  friend constexpr auto operator+(B1&& lhs, B2&& rhs) -> canonical_type
+             std::is_same_v<canonical_type, canonical_type_t<B2>> and
+             has_common_algebra_type_v<B1, B2>
+  friend constexpr auto operator+(B1&& b1, B2&& b2) -> canonical_type
   {
-    return std::forward<B1>(lhs).canonical() +
-           std::forward<B2>(rhs).canonical();
+    return std::forward<B1>(b1).canonical() + std::forward<B2>(b2).canonical();
+  }
+
+  /// add different blades types with different canonical type
+  ///
+  template <detail::decays_to<blade> B1, detail::blade B2>
+    requires (not detail::decays_to<B2, blade>) and
+             (not std::is_same_v<canonical_type, canonical_type_t<B2>>) and
+             has_common_algebra_type_v<B1, B2>
+  friend constexpr auto operator+(B1&& b1, B2&& b2)
+      -> decltype(blade_sum(std::forward<B1>(b1), std::forward<B2>(b2)))
+  {
+    return blade_sum(std::forward<B1>(b1), std::forward<B2>(b2));
+  }
+
+  /// add a blade with a multivector
+  ///
+  template <detail::decays_to<blade> B1, detail::multivector V2>
+    requires has_common_algebra_type_v<B1, V2>
+  friend constexpr auto
+  operator+(B1&& b1, V2&& v2) -> decltype(detail::multivector_sum(
+      to_multivector(std::forward<B1>(b1)), std::forward<V2>(v2)))
+  {
+    return detail::multivector_sum(
+        to_multivector(std::forward<B1>(b1)), std::forward<V2>(v2));
   }
 
   /// @}

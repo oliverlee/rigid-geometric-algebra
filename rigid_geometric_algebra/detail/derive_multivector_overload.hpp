@@ -8,7 +8,6 @@
 #include "rigid_geometric_algebra/detail/multivector_promotable.hpp"
 #include "rigid_geometric_algebra/detail/type_filter.hpp"
 #include "rigid_geometric_algebra/detail/type_product.hpp"
-#include "rigid_geometric_algebra/is_blade.hpp"
 #include "rigid_geometric_algebra/is_multivector.hpp"
 #include "rigid_geometric_algebra/multivector_fwd.hpp"
 #include "rigid_geometric_algebra/multivector_type_from_blade_list.hpp"
@@ -104,7 +103,7 @@ public:
       detail::multivector_promotable V1,
       detail::multivector_promotable V2>
     requires has_common_algebra_type_v<V1, V2> and
-             (not(detail::blade<V1> and detail::blade<V2>))
+             (detail::multivector<V1> or detail::multivector<V2>)
   static constexpr auto operator()(V1&& v1, V2&& v2) -> decltype(impl(
       to_multivector(std::forward<V1>(v1)),
       to_multivector(std::forward<V2>(v2))))
