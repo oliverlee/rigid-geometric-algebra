@@ -3,6 +3,7 @@
 #include "rigid_geometric_algebra/algebra_dimension.hpp"
 #include "rigid_geometric_algebra/detail/structural_bitset.hpp"
 
+#include <algorithm>
 #include <compare>
 #include <cstddef>
 
@@ -42,15 +43,14 @@ struct blade_ordering
   ///
   friend constexpr auto
   operator<=>(const blade_ordering& lhs, const blade_ordering& rhs) noexcept
-      -> std::weak_ordering
+      -> std::strong_ordering
   {
     if (lhs.mask.count() != rhs.mask.count()) {
-      return lhs.mask.count() < rhs.mask.count()
-                 ? std::weak_ordering::less
-                 : std::weak_ordering::greater;
+      return lhs.mask.count() <=> rhs.mask.count();
     }
 
-    return lhs.mask.to_unsigned() <=> rhs.mask.to_unsigned();
+    return std::lexicographical_compare_three_way(
+        rhs.mask.begin(), rhs.mask.end(), lhs.mask.begin(), lhs.mask.end());
   }
 };
 
