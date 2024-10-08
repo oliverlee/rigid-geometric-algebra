@@ -4,10 +4,14 @@
 #include <cstddef>
 
 using G2 = ::rigid_geometric_algebra::algebra<double, 2>;
+using G3 = ::rigid_geometric_algebra::algebra<double, 3>;
 using ::rigid_geometric_algebra::blade_ordering;
 
 template <std::size_t... Is>
 constexpr auto ord = blade_ordering<G2>{G2::blade<Is...>::dimension_mask};
+
+template <std::size_t... Is>
+constexpr auto ord3 = blade_ordering<G3>{G3::blade<Is...>::dimension_mask};
 
 auto main() -> int
 {
@@ -28,4 +32,6 @@ auto main() -> int
         lt(ord<>, ord<2>) and lt(ord<0, 1>, ord<0, 2>) and
         lt(ord<0, 2>, ord<1, 2>) and lt(ord<1, 2>, ord<0, 1, 2>));
   };
+
+  "lt"_test = [] { return expect(lt(ord3<0, 3>, ord3<1, 2>)); };
 }
