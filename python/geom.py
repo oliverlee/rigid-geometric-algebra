@@ -45,8 +45,17 @@ class _Data:
 
 
 class Point(_Data):
+    def _invariant(self) -> None:
+        require(
+            self.view[0] != 0,
+            (
+                f"`Point` must contain a non-zero value for the "
+                f"homogeneous coordinate: {self.view}"
+            ),
+        )
+
     def add_to(self, ax: Axes) -> PathCollection:
-        return ax.scatter(*self.view)
+        return ax.scatter(*self.view[1:] / self.view[0])
 
 
 class Line(_Data):
