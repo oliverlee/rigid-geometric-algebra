@@ -10,11 +10,11 @@
 #include "rigid_geometric_algebra/detail/type_product.hpp"
 #include "rigid_geometric_algebra/is_blade.hpp"
 #include "rigid_geometric_algebra/is_multivector.hpp"
-#include "rigid_geometric_algebra/multivector.hpp"
+#include "rigid_geometric_algebra/multivector_fwd.hpp"
 #include "rigid_geometric_algebra/multivector_type_from_blade_list.hpp"
 #include "rigid_geometric_algebra/sorted_canonical_blades.hpp"
 #include "rigid_geometric_algebra/to_multivector.hpp"
-#include "rigid_geometric_algebra/zero_constant.hpp"
+#include "rigid_geometric_algebra/zero_constant_fwd.hpp"
 
 #include <type_traits>
 

@@ -5,7 +5,7 @@
 #include "rigid_geometric_algebra/detail/indices_array.hpp"
 #include "rigid_geometric_algebra/detail/type_list.hpp"
 #include "rigid_geometric_algebra/is_blade.hpp"
-#include "rigid_geometric_algebra/multivector.hpp"
+#include "rigid_geometric_algebra/multivector_fwd.hpp"
 #include "rigid_geometric_algebra/sorted_canonical_blades.hpp"
 
 #include <array>

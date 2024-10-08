@@ -1,9 +1,9 @@
 #pragma once
 
 #include "rigid_geometric_algebra/algebra_field.hpp"
-#include "rigid_geometric_algebra/blade.hpp"
+#include "rigid_geometric_algebra/blade_fwd.hpp"
 #include "rigid_geometric_algebra/glz_fwd.hpp"
-#include "rigid_geometric_algebra/multivector.hpp"
+#include "rigid_geometric_algebra/multivector_fwd.hpp"
 
 #include <array>
 #include <concepts>

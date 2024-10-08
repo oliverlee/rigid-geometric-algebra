@@ -3,15 +3,12 @@
 #include "rigid_geometric_algebra/common_algebra_type.hpp"
 #include "rigid_geometric_algebra/detail/decays_to.hpp"
 #include "rigid_geometric_algebra/detail/derive_subtraction.hpp"
+#include "rigid_geometric_algebra/is_algebra.hpp"
+#include "rigid_geometric_algebra/wedge.hpp"
 
 #include <type_traits>
 
 namespace rigid_geometric_algebra {
-namespace detail {
-// forward declaration
-// this function object is invoked by hidden friend operator^
-class wedge_fn;
-}  // namespace detail
 
 /// compile time zero constant
 /// @tparam A specialization of `algebra`
@@ -20,6 +17,7 @@ class wedge_fn;
 /// v ^ v for a vector v).
 ///
 template <class A>
+  requires is_algebra_v<A>
 struct zero_constant : detail::derive_subtraction<zero_constant<A>>
 {
   /// algebra this element belongs to
@@ -37,11 +35,11 @@ struct zero_constant : detail::derive_subtraction<zero_constant<A>>
   /// * T1 is `zero_constant` xor T2 is `zero_constant`
   /// @returns `zero_constant` value
   ///
-  template <class T, class F = detail::wedge_fn>
-  friend constexpr auto operator^(zero_constant lhs, const T& rhs)
-      -> decltype(std::declval<F>()(lhs, rhs))
+  template <class T>
+  friend constexpr auto
+  operator^(zero_constant lhs, const T& rhs) -> decltype(wedge(lhs, rhs))
   {
-    return F{}(lhs, rhs);
+    return wedge(lhs, rhs);
   }
 
   /// negation

@@ -13,6 +13,7 @@
 #include "rigid_geometric_algebra/detail/size_checked_subrange.hpp"
 #include "rigid_geometric_algebra/detail/structural_bitset.hpp"
 #include "rigid_geometric_algebra/glz_fwd.hpp"
+#include "rigid_geometric_algebra/wedge.hpp"
 
 #include <array>
 #include <concepts>
@@ -37,10 +38,6 @@ struct get_coefficient
     return std::forward<Self>(self).coefficient;
   }
 };
-
-// forward declaration
-// this function object is invoked by hidden friend operator^
-class wedge_fn;
 }  // namespace detail
 
 /// basis element of a geometric algebra
@@ -181,11 +178,11 @@ public:
   ///
   /// @{
 
-  template <class T, class F = detail::wedge_fn>
-  friend constexpr auto operator^(const blade& lhs, const T& rhs)
-      -> decltype(std::declval<F>()(lhs, rhs))
+  template <class T>
+  friend constexpr auto
+  operator^(const blade& lhs, const T& rhs) -> decltype(wedge(lhs, rhs))
   {
-    return F{}(lhs, rhs);
+    return wedge(lhs, rhs);
   }
 
   /// @}

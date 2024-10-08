@@ -1,6 +1,6 @@
 #pragma once
 
-#include "rigid_geometric_algebra/blade.hpp"
+#include "rigid_geometric_algebra/blade_fwd.hpp"
 #include "rigid_geometric_algebra/detail/array_subset.hpp"
 #include "rigid_geometric_algebra/detail/indices_array.hpp"
 #include "rigid_geometric_algebra/detail/structural_bitset.hpp"

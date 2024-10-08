@@ -22,6 +22,7 @@
 #include "rigid_geometric_algebra/is_canonical_blade_order.hpp"
 #include "rigid_geometric_algebra/sorted_canonical_blades.hpp"
 #include "rigid_geometric_algebra/to_multivector.hpp"
+#include "rigid_geometric_algebra/wedge.hpp"
 #include "rigid_geometric_algebra/zero_constant.hpp"
 
 #include <concepts>
@@ -34,11 +35,6 @@
 #include <utility>
 
 namespace rigid_geometric_algebra {
-namespace detail {
-// forward declaration
-// this function object is invoked by hidden friend operator^
-class wedge_fn;
-}  // namespace detail
 
 /// linear combination of basis elements of a geometric algebra
 /// @tparam A specialization of `algebra`
@@ -249,11 +245,11 @@ public:
   /// ~~~
   /// if `(b1...)` and `(b2...)` were valid ranges.
   ///
-  template <class T, class F = detail::wedge_fn>
-  friend constexpr auto operator^(const multivector& lhs, const T& rhs)
-      -> decltype(std::declval<F>()(lhs, rhs))
+  template <class T>
+  friend constexpr auto
+  operator^(const multivector& lhs, const T& rhs) -> decltype(wedge(lhs, rhs))
   {
-    return F{}(lhs, rhs);
+    return wedge(lhs, rhs);
   }
 
   /// @}

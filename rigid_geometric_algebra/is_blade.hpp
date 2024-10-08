@@ -1,6 +1,6 @@
 #pragma once
 
-#include "rigid_geometric_algebra/blade.hpp"
+#include "rigid_geometric_algebra/blade_fwd.hpp"
 
 #include <cstddef>
 #include <type_traits>

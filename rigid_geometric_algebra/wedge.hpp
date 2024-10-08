@@ -1,6 +1,5 @@
 #pragma once
 
-#include "rigid_geometric_algebra/blade.hpp"
 #include "rigid_geometric_algebra/blade_type_from.hpp"
 #include "rigid_geometric_algebra/common_algebra_type.hpp"
 #include "rigid_geometric_algebra/detail/concat_ranges.hpp"
@@ -8,7 +7,7 @@
 #include "rigid_geometric_algebra/detail/linear_operator.hpp"
 #include "rigid_geometric_algebra/detail/negate_if_odd.hpp"
 #include "rigid_geometric_algebra/is_blade.hpp"
-#include "rigid_geometric_algebra/zero_constant.hpp"
+#include "rigid_geometric_algebra/zero_constant_fwd.hpp"
 
 #include <cstddef>
 #include <type_traits>
@@ -62,9 +61,7 @@ public:
   }
 };
 
-// define `wedge_fn` as a type so that it can be forward declared
-class wedge_fn : public detail::linear_operator<detail::wedge_blade_fn>
-{};
+using wedge_fn = detail::linear_operator<detail::wedge_blade_fn>;
 
 }  // namespace detail
 
