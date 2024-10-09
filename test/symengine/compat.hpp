@@ -52,3 +52,7 @@ struct ::rigid_geometric_algebra::
 {
   inline static const auto value = ::SymEngine::Expression{1};
 };
+
+template <>
+inline constexpr auto ::rigid_geometric_algebra::disable_line_invariant<
+    ::SymEngine::Expression> = true;
