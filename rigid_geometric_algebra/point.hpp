@@ -4,6 +4,7 @@
 #include "rigid_geometric_algebra/detail/geometric_interface.hpp"
 #include "rigid_geometric_algebra/glz_fwd.hpp"
 #include "rigid_geometric_algebra/multivector_fwd.hpp"
+#include "rigid_geometric_algebra/wedge.hpp"
 
 #include <cstddef>
 #include <format>
@@ -56,11 +57,10 @@ public:
 
   template <class P>
     requires std::is_same_v<P, point>
-  friend constexpr auto operator^(const P& p, const P& q)
-      // TODO return line
-      -> decltype(p.multivector() ^ q.multivector())
+  friend constexpr auto
+  operator^(const P& p, const P& q) -> decltype(wedge(p, q))
   {
-    return p.multivector() ^ q.multivector();
+    return wedge(p, q);
   }
 
   /// @}
