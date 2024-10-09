@@ -4,13 +4,14 @@
 #include "rigid_geometric_algebra/algebra_field.hpp"
 #include "rigid_geometric_algebra/blade_ordering.hpp"
 #include "rigid_geometric_algebra/blade_sum.hpp"
+#include "rigid_geometric_algebra/blade_type_from.hpp"
+#include "rigid_geometric_algebra/canonical_dimension_order.hpp"
 #include "rigid_geometric_algebra/canonical_type.hpp"
 #include "rigid_geometric_algebra/detail/are_dimensions_unique.hpp"
 #include "rigid_geometric_algebra/detail/counted_sort.hpp"
 #include "rigid_geometric_algebra/detail/decays_to.hpp"
 #include "rigid_geometric_algebra/detail/derive_subtraction.hpp"
 #include "rigid_geometric_algebra/detail/derive_vector_space_operations.hpp"
-#include "rigid_geometric_algebra/detail/indices_array.hpp"
 #include "rigid_geometric_algebra/detail/multivector_sum.hpp"
 #include "rigid_geometric_algebra/detail/negate_if_odd.hpp"
 #include "rigid_geometric_algebra/detail/size_checked_subrange.hpp"
@@ -80,6 +81,15 @@ class blade
           detail::get_coefficient>,
       detail::derive_subtraction<blade<A, Is...>>
 {
+  // some clang bug probably prevents this from being an IIFE
+  static consteval auto
+  canonical_dimensions() -> std::array<std::size_t, sizeof...(Is)>
+  {
+    auto r = std::array<std::size_t, sizeof...(Is)>{Is...};
+    canonical_dimension_order<algebra_dimension_v<A>>(r);
+    return r;
+  }
+
 public:
   /// algebra this blade belongs to
   ///
@@ -114,10 +124,7 @@ public:
   /// blade type with indices in canonical form
   ///
   using canonical_type =
-      decltype([]<std::size_t... Js>(std::index_sequence<Js...>)
-                   -> blade<A, detail::indices_array<dimension_mask>[Js]...> {
-        return {};
-      }(std::make_index_sequence<sizeof...(Is)>{}));
+      blade_type_from_dimensions_t<A, canonical_dimensions()>;
 
   /// blade scalar coefficient
   ///
@@ -163,8 +170,10 @@ public:
   template <class Self>
   constexpr auto canonical(this Self&& self) -> canonical_type
   {
-    return canonical_type{detail::negate_if_odd<detail::counted_sort(
-        auto{dimensions})>{}(std::forward<Self>(self).coefficient)};
+    return canonical_type{detail::negate_if_odd<
+        detail::counted_sort(auto{dimensions}) +
+        detail::counted_sort(auto{canonical_type::dimensions})>{}(
+        std::forward<Self>(self).coefficient)};
   }
 
   /// addition

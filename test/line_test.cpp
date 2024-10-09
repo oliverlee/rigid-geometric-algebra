@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <array>
 #include <format>
+#include <ranges>
 #include <symengine/compat.hpp>
 #include <tuple>
 #include <type_traits>
@@ -91,5 +92,18 @@ auto main() -> int
     const auto l = GS3::line{"v1", "v2", "v3", "m1", "m2", "m3"};
 
     return expect(eq(std::format("{}", l.multivector()), std::format("{}", l)));
+  };
+
+  "join of two points is a line"_test = [] {
+    const auto p = G3::point{1, 1, 1, 0};
+    const auto q = G3::point{1, 1, -1, 0};
+
+    const auto l = p ^ q;
+
+    const auto scale = std::views::transform([alpha = l[1]](auto value) {
+      return value / alpha;
+    });
+
+    return expect(equal(std::array{0, 1, 0, 0, 0, 1}, l | scale));
   };
 }

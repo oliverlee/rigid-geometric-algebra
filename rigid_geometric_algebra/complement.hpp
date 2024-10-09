@@ -1,14 +1,15 @@
 #pragma once
 
-#include "detail/even.hpp"
 #include "rigid_geometric_algebra/blade_complement_type.hpp"
 #include "rigid_geometric_algebra/detail/concat_ranges.hpp"
 #include "rigid_geometric_algebra/detail/counted_sort.hpp"
+#include "rigid_geometric_algebra/detail/even.hpp"
 #include "rigid_geometric_algebra/detail/linear_operator.hpp"
 #include "rigid_geometric_algebra/detail/negate_if_odd.hpp"
 #include "rigid_geometric_algebra/is_blade.hpp"
 
 #include <cstddef>
+#include <ranges>
 #include <type_traits>
 #include <utility>
 
@@ -45,23 +46,20 @@ public:
   template <class Dir, detail::blade B>
   static consteval auto operator()(Dir, std::type_identity<B>) -> bool
   {
-    static constexpr auto odd_number_of_swaps =
-        [](const auto& r1, const auto& r2) {
-          return not detail::even(
-              detail::counted_sort(detail::concat_ranges(r1, r2)));
-        };
+    static_assert(
+        std::is_same_v<Dir, left_t> or std::is_same_v<Dir, right_t>,
+        "invalid direction type");
 
-    if constexpr (std::is_same_v<Dir, left_t>) {
-      return odd_number_of_swaps(
-          blade_complement_type_t<B>::dimensions,
-          std::remove_cvref_t<B>::dimensions);
-    } else if constexpr (std::is_same_v<Dir, right_t>) {
-      return odd_number_of_swaps(
-          std::remove_cvref_t<B>::dimensions,
-          blade_complement_type_t<B>::dimensions);
-    } else {
-      static_assert(false, "invalid direction type");
+    auto left = std::ranges::subrange(blade_complement_type_t<B>::dimensions);
+    auto right = std::ranges::subrange(std::remove_cvref_t<B>::dimensions);
+
+    if (std::is_same_v<Dir, right_t>) {
+      std::swap(left, right);
     }
+
+    const auto num_swaps =
+        detail::counted_sort(detail::concat_ranges(left, right));
+    return not detail::even(num_swaps);
   }
 };
 
