@@ -1,28 +1,36 @@
 #include "rigid_geometric_algebra/rigid_geometric_algebra.hpp"
 #include "skytest/skytest.hpp"
 
+#include <algorithm>
+#include <array>
 #include <format>
 #include <symengine/compat.hpp>
+#include <tuple>
 #include <type_traits>
 #include <utility>
 
 auto main() -> int
 {
   using namespace skytest::literals;
+  using ::skytest::aborts;
   using ::skytest::eq;
   using ::skytest::expect;
+  using ::skytest::pred;
 
   using G2 = ::rigid_geometric_algebra::algebra<double, 2>;
   using GS2 = ::rigid_geometric_algebra::algebra<::SymEngine::Expression, 2>;
   using ::rigid_geometric_algebra::multivector;
 
+  static constexpr auto equal = pred(std::ranges::equal);
+
   "default constructible"_test = [] {
-    return expect(eq(
-        GS2::blade<0>{} + GS2::blade<1>{} + GS2::blade<2>{},
-        GS2::point{}.multivector()));
+    return expect(
+        eq(GS2::blade<0>{} + GS2::blade<1>{} + GS2::blade<2>{},
+           GS2::point{}.multivector()) and
+        equal(G2::point{}, std::array<double, 3>{}));
   };
 
-  "constructor requries all coefficients"_test = [] {
+  "constructor requires all coefficients"_test = [] {
     return expect(
         std::is_constructible_v<GS2::point, int, int, int> and
         (not std::is_constructible_v<GS2::point, int, int>) and
@@ -77,6 +85,12 @@ auto main() -> int
         eq(::SymEngine::Expression{1}, p[0]) and
         eq(::SymEngine::Expression{2}, p[1]) and
         eq(::SymEngine::Expression{0}, p[2]));
+  };
+
+  "index precondition"_test = [] {
+    static constexpr auto p = G2::point{1, 2, 0};
+
+    return expect(aborts([] { std::ignore = p[3]; }));
   };
 
   "wedge"_test = [] {

@@ -31,11 +31,9 @@ struct structural_bitset
     using difference_type = std::ptrdiff_t;
     using pointer = void;
 
-    constexpr const_iterator()
-    {
-      // https://stackoverflow.com/questions/28832492/why-do-iterators-need-to-be-default-constructible
-      detail::precondition(true);
-    }
+    // declare but don't define
+    // https://stackoverflow.com/questions/28832492/why-do-iterators-need-to-be-default-constructible
+    constexpr const_iterator();
 
     constexpr const_iterator(
         const structural_bitset& parent, structural_bitset::value_type pos)
