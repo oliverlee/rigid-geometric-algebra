@@ -1,102 +1,54 @@
 #pragma once
 
-#include "rigid_geometric_algebra/algebra_field.hpp"
 #include "rigid_geometric_algebra/blade_fwd.hpp"
+#include "rigid_geometric_algebra/detail/geometric_interface.hpp"
 #include "rigid_geometric_algebra/glz_fwd.hpp"
 #include "rigid_geometric_algebra/multivector_fwd.hpp"
 
-#include <array>
-#include <concepts>
 #include <cstddef>
 #include <format>
-#include <functional>
-#include <initializer_list>
 #include <type_traits>
 #include <utility>
 
 namespace rigid_geometric_algebra {
+namespace detail {
+
+template <class A>
+  requires is_algebra_v<A>
+using point_multivector_type_t =
+    decltype([]<std::size_t... Is>(std::index_sequence<Is...>)
+                 -> ::rigid_geometric_algebra::multivector<
+                     A,
+                     ::rigid_geometric_algebra::blade<A, Is>...> {
+      return {};
+    }(std::make_index_sequence<algebra_dimension_v<A>>{}));
+
+}  // namespace detail
 
 template <class A>
   requires is_algebra_v<A>
 class point
+    : public detail::geometric_interface<detail::point_multivector_type_t<A>>
 {
-  using multivector_type_ =
-      decltype([]<std::size_t... Is>(std::index_sequence<Is...>)
-                   -> multivector<A, blade<A, Is>...> {
-        return {};
-      }(std::make_index_sequence<algebra_dimension_v<A>>{}));
-
-  multivector_type_ values_{};
+  using base_type =
+      detail::geometric_interface<detail::point_multivector_type_t<A>>;
 
 public:
   /// algebra type
   ///
-  using algebra_type = A;
+  using algebra_type = typename base_type::algebra_type;
 
   /// blade scalar type
   ///
-  using value_type = algebra_field_t<A>;
+  using value_type = typename base_type::value_type;
 
-  /// multivector_type
+  /// multivector type
   ///
-  using multivector_type = multivector_type_;
+  using multivector_type = typename base_type::multivector_type;
 
-  /// construct a zero point
+  /// default geometric type constructors
   ///
-  point() = default;
-
-  /// construct a point, specifying the coefficients
-  /// @tparam Ts types `value_type` is constructible from
-  /// @tparam coeffs coefficient values
-  ///
-  template <class... Ts>
-    requires (sizeof...(Ts) == multivector_type::size()) and
-             (std::constructible_from<value_type, Ts> and ...)
-  constexpr point(Ts&&... coeffs) : values_{std::forward<Ts>(coeffs)...}
-  {}
-
-  /// initializer list constructor
-  /// @param il initializer list of values
-  ///
-  /// @note allows conversions to `value_type` is floating point and if the
-  ///   source can be stored exactly
-  /// @see
-  /// https://en.cppreference.com/w/cpp/language/list_initialization#Narrowing_conversions
-  ///
-  constexpr point(std::initializer_list<value_type> il)
-    requires std::floating_point<value_type>
-      : values_{il}
-  {}
-
-  /// access the underlying `multivector`
-  ///
-  template <class Self>
-  // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward): see forward_like
-  constexpr auto multivector(this Self&& self) noexcept
-      -> decltype(std::forward_like<Self>(self.values_))
-  {
-    return std::forward_like<Self>(self.values_);
-  }
-
-  /// coefficient access
-  /// @tparam Self `this` type
-  /// @param self explicit `this` parameter
-  /// @param i coefficient to access
-  ///
-  /// returns `get<blade<algebra_type, i>>(point.multivector())`
-  ///
-  template <class Self>
-  // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward): see forward_like
-  constexpr auto operator[](this Self&& self, std::size_t i)
-      -> decltype(std::forward_like<Self>(std::declval<value_type>()))
-  {
-    auto refs = [&self]<std::size_t... Is>(std::index_sequence<Is...>) {
-      return std::array{std::ref(
-          get<blade<algebra_type, Is>>(self.multivector()).coefficient)...};
-    }(std::make_index_sequence<multivector_type::size>{});
-
-    return std::forward_like<Self>(refs[i].get());
-  }
+  using base_type::base_type;
 
   /// wedge product
   ///
@@ -124,37 +76,16 @@ public:
 
 }  // namespace rigid_geometric_algebra
 
-template <class A, class CharT>
-struct std::formatter<::rigid_geometric_algebra::point<A>, CharT>
-    : std::formatter<
-          typename ::rigid_geometric_algebra::point<A>::multivector_type,
-          CharT>
-{
-  // https://github.com/llvm/llvm-project/issues/66466
-  template <class O>
-  constexpr auto
-  format(const ::rigid_geometric_algebra::point<A>& p,
-         std::basic_format_context<O, CharT>& ctx) const
-  {
-    return std::formatter<
-        typename ::rigid_geometric_algebra::point<A>::multivector_type,
-        CharT>::format(p.multivector(), ctx);
-  }
-};
+template <class A, class Char>
+struct ::std::formatter<::rigid_geometric_algebra::point<A>, Char>
+    : ::std::formatter<
+          ::rigid_geometric_algebra::detail::geometric_interface<
+              typename ::rigid_geometric_algebra::point<A>::multivector_type>,
+          Char>
+{};
 
 template <class A>
 struct ::glz::meta<::rigid_geometric_algebra::point<A>>
-{
-  template <class P>
-  struct point_wrapper
-  {
-    std::reference_wrapper<P> point;
-  };
-
-  template <class T>
-  point_wrapper(T&) -> point_wrapper<T>;
-
-  static constexpr auto value = [](auto& self) {
-    return point_wrapper{self.multivector().as_tuple()};
-  };
-};
+    : ::glz::meta<::rigid_geometric_algebra::detail::geometric_interface<
+          typename ::rigid_geometric_algebra::point<A>::multivector_type>>
+{};

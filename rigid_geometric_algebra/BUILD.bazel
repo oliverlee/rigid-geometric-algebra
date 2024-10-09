@@ -31,6 +31,7 @@ cc_library(
         "detail/derive_vector_space_operations.hpp",
         "detail/derive_zero_constant_overload.hpp",
         "detail/even.hpp",
+        "detail/geometric_interface.hpp",
         "detail/has_type.hpp",
         "detail/has_value.hpp",
         "detail/indices_array.hpp",
