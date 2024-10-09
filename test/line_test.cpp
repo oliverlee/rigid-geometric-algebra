@@ -92,4 +92,14 @@ auto main() -> int
 
     return expect(eq(std::format("{}", l.multivector()), std::format("{}", l)));
   };
+
+  "join of two points is a line"_test = [] {
+    const auto p = G3::point{1, 1, 1, 0};
+    const auto q = G3::point{1, 1, -1, 0};
+
+    const auto l = p ^ q;  // TODO direction?
+    // int x = l.multivector();
+
+    return expect(eq(G3::line{0, 1, 0, 0, 0, 1}, l));
+  };
 }
