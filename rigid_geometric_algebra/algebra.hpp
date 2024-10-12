@@ -1,5 +1,6 @@
 #pragma once
 
+#include "rigid_geometric_algebra/blade_dimensions.hpp"
 #include "rigid_geometric_algebra/blade_fwd.hpp"
 #include "rigid_geometric_algebra/field.hpp"
 #include "rigid_geometric_algebra/geometric_fwd.hpp"
@@ -30,8 +31,8 @@ struct algebra
   template <std::size_t... Is>
   using blade = ::rigid_geometric_algebra::blade<algebra, Is...>;
 
-  template <class... Bs>
-  using multivector = ::rigid_geometric_algebra::multivector<algebra, Bs...>;
+  template <blade_dimensions... D>
+  using multivector = ::rigid_geometric_algebra::multivector<algebra, D...>;
 
   using scalar = ::rigid_geometric_algebra::scalar_type_t<algebra>;
 

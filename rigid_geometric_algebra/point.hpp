@@ -1,6 +1,5 @@
 #pragma once
 
-#include "rigid_geometric_algebra/blade_fwd.hpp"
 #include "rigid_geometric_algebra/detail/geometric_interface.hpp"
 #include "rigid_geometric_algebra/glz_fwd.hpp"
 #include "rigid_geometric_algebra/multivector_fwd.hpp"
@@ -18,9 +17,7 @@ template <class A>
   requires is_algebra_v<A>
 using point_multivector_type_t =
     decltype([]<std::size_t... Is>(std::index_sequence<Is...>)
-                 -> ::rigid_geometric_algebra::multivector<
-                     A,
-                     ::rigid_geometric_algebra::blade<A, Is>...> {
+                 -> ::rigid_geometric_algebra::multivector<A, { Is }...> {
       return {};
     }(std::make_index_sequence<algebra_dimension_v<A>>{}));
 

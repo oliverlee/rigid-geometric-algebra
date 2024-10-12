@@ -18,13 +18,19 @@ auto main() -> int
 
   "get invocable on tuples"_test = [] {
     return expect(
-        std::is_invocable_v<decltype(get<B0>), multivector<G2, B0>> and
-        std::is_invocable_v<decltype(get<B0>), multivector<G2, B0, B1>>);
+        std::is_invocable_v<
+            decltype(get<B0>),
+            multivector<G2, B0::dimensions>> and
+        std::is_invocable_v<
+            decltype(get<B0>),
+            multivector<G2, B0::dimensions, B1::dimensions>>);
   };
 
   "get not invocable on tuples missing element"_test = [] {
     return expect(
-        (not std::is_invocable_v<decltype(get<B1>), multivector<G2, B0>>));
+        (not std::is_invocable_v<
+            decltype(get<B1>),
+            multivector<G2, B0::dimensions>>));
   };
 
   "get not invocable on tuples"_test = [] {
@@ -36,22 +42,15 @@ auto main() -> int
   };
 
   "get return type"_test = [] {
+    using V = multivector<G2, {B0::dimensions}>;
     return expect(
-        std::is_same_v<
-            B0&,
-            std::invoke_result_t<decltype(get<B0>), multivector<G2, B0>&>> and
+        std::is_same_v<B0&, std::invoke_result_t<decltype(get<B0>), V&>> and
         std::is_same_v<
             const B0&,
-            std::invoke_result_t<
-                decltype(get<B0>),
-                const multivector<G2, B0>&>> and
-        std::is_same_v<
-            B0&&,
-            std::invoke_result_t<decltype(get<B0>), multivector<G2, B0>&&>> and
+            std::invoke_result_t<decltype(get<B0>), const V&>> and
+        std::is_same_v<B0&&, std::invoke_result_t<decltype(get<B0>), V&&>> and
         std::is_same_v<
             const B0&&,
-            std::invoke_result_t<
-                decltype(get<B0>),
-                const multivector<G2, B0>&&>>);
+            std::invoke_result_t<decltype(get<B0>), const V&&>>);
   };
 }

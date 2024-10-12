@@ -1,6 +1,5 @@
 #pragma once
 
-#include "rigid_geometric_algebra/detail/is_specialization_of.hpp"
 #include "rigid_geometric_algebra/multivector_fwd.hpp"
 
 #include <type_traits>
@@ -12,7 +11,11 @@ namespace rigid_geometric_algebra {
 /// @{
 
 template <class T>
-struct is_multivector : detail::is_specialization_of<T, multivector>
+struct is_multivector : std::false_type
+{};
+
+template <class A, auto... D>
+struct is_multivector<multivector<A, D...>> : std::true_type
 {};
 
 template <class T>

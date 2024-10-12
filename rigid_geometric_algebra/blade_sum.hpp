@@ -1,11 +1,10 @@
 #pragma once
 
 #include "rigid_geometric_algebra/canonical_type.hpp"
-#include "rigid_geometric_algebra/common_algebra_type.hpp"
 #include "rigid_geometric_algebra/detail/indices_array.hpp"
 #include "rigid_geometric_algebra/detail/type_list.hpp"
 #include "rigid_geometric_algebra/is_blade.hpp"
-#include "rigid_geometric_algebra/multivector_fwd.hpp"
+#include "rigid_geometric_algebra/multivector_type_from_blade_list.hpp"
 #include "rigid_geometric_algebra/sorted_canonical_blades.hpp"
 
 #include <array>
@@ -45,9 +44,8 @@ class blade_sum_fn
 public:
   template <
       detail::blade... Bs,
-      class A = common_algebra_type_t<Bs...>,
-      class V = typename sorted_canonical_blades_t<canonical_type_t<Bs>...>::
-          template insert_into_t<::rigid_geometric_algebra::multivector<A>>>
+      class V = multivector_type_from_blade_list_t<
+          sorted_canonical_blades_t<canonical_type_t<Bs>...>>>
     requires (sizeof...(Bs) != 0)
   static constexpr auto operator()(Bs&&... bs) -> V
   {

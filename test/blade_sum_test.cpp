@@ -52,7 +52,7 @@ auto main() -> int
     const auto b = G2::blade<1, 2>{4};
     const auto v = blade_sum(a, b);
 
-    return expect(eq(G2::multivector<G2::blade<0>, G2::blade<1, 2>>{3, 4}, v));
+    return expect(eq(G2::multivector<{0}, {1, 2}>{3, 4}, v));
   };
 
   "multiple blades with same canonical form"_test = [] {
@@ -61,6 +61,6 @@ auto main() -> int
     const auto v = blade_sum(a, b);
 
     return expect(
-        eq(G2::multivector<G2::blade<1, 2>>{a.coefficient - b.coefficient}, v));
+        eq(G2::multivector<{1, 2}>{a.coefficient - b.coefficient}, v));
   };
 }

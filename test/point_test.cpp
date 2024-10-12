@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cstddef>
 #include <format>
 #include <symengine/compat.hpp>
 #include <tuple>
@@ -108,15 +109,24 @@ auto main() -> int
         GS3::blade<1, 2>{S{"px"} * S{"qy"} - S{"py"} * S{"qx"}};
 
     const auto compare_each_element =
-        []<class A, class... Bs>(
-            const multivector<A, Bs...>& v1, const auto& v2, auto cmp) {
-          using ::rigid_geometric_algebra::get;
-          return (cmp(get<Bs>(v1), get<Bs>(v2.multivector())) and ...);
+        []<class V>(const V& v1, const auto& v2, auto cmp) {
+          return [&v1, &v2, &cmp]<auto... Is>(std::index_sequence<Is...>) {
+            using ::rigid_geometric_algebra::get;
+            return (
+                cmp(v1.template get<Is>(),
+                    v2.multivector().template get<Is>()) and
+                ...);
+          }(std::make_index_sequence<V::size>{});
         };
 
     const auto cmp = [](const auto& b1, const auto& b2) {
       return eq(b1, b2) or eq(expand(b1.coefficient), expand(b2.coefficient));
     };
+
+    //[[maybe_unused]] int x = (p^q).multivector();
+
+    // using ::rigid_geometric_algebra::multivector2;
+    // [[maybe_unused]] int y = multivector2<GS3, {1}, {2}, {1, 2}>{};
 
     return expect(compare_each_element(l, p ^ q, cmp));
   };

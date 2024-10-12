@@ -9,7 +9,6 @@
 #include "rigid_geometric_algebra/detail/type_filter.hpp"
 #include "rigid_geometric_algebra/detail/type_product.hpp"
 #include "rigid_geometric_algebra/is_multivector.hpp"
-#include "rigid_geometric_algebra/multivector_fwd.hpp"
 #include "rigid_geometric_algebra/multivector_type_from_blade_list.hpp"
 #include "rigid_geometric_algebra/sorted_canonical_blades.hpp"
 #include "rigid_geometric_algebra/to_multivector.hpp"
@@ -66,13 +65,11 @@ class derive_multivector_overload
   template <template <class...> class list, class... Pairs, class V1, class V2>
     requires (sizeof...(Pairs) != 0)
   static constexpr auto
-  impl2(list<Pairs...>, V1&& v1, V2&& v2) -> typename sorted_canonical_blades_t<
-      std::invoke_result_t<
+  impl2(list<Pairs...>, V1&& v1, V2&& v2) -> multivector_type_from_blade_list_t<
+      sorted_canonical_blades_t<std::invoke_result_t<
           F,
           detail::copy_ref_qual_t<V1&&, typename Pairs::first_type>,
-          detail::copy_ref_qual_t<V2&&, typename Pairs::second_type>>...>::
-      template insert_into_t<
-          ::rigid_geometric_algebra::multivector<common_algebra_type_t<V1, V2>>>
+          detail::copy_ref_qual_t<V2&&, typename Pairs::second_type>>...>>
   {
     return blade_sum(F{}(
         get<typename Pairs::first_type>(std::forward<V1>(v1)),

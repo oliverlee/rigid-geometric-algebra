@@ -46,7 +46,7 @@ auto main() -> int
 
   "get return type"_test = [] {
     using B = G2::blade<1>;
-    using V = multivector<G2, B>;
+    using V = multivector<G2, B::dimensions>;
 
     using ::rigid_geometric_algebra::get;
     using F = decltype(get<B>);
@@ -62,8 +62,8 @@ auto main() -> int
     using B1 = G2::blade<1>;
     using B2 = G2::blade<2>;
 
-    using V1 = multivector<G2, B1>;
-    using V2 = multivector<G2, B1, B2>;
+    using V1 = multivector<G2, B1::dimensions>;
+    using V2 = multivector<G2, B1::dimensions, B2::dimensions>;
 
     const auto v1 = V1{B1{1}};
     const auto v2 = V2{v1};
@@ -75,59 +75,54 @@ auto main() -> int
 
   "addition of multivectors with disjoint blade types"_test = [] {
     return expect(eq(
-        multivector<G2, G2::blade<0>, G2::blade<1>>{1, 2},
-        multivector<G2, G2::blade<0>>{1} + multivector<G2, G2::blade<1>>{2}));
+        multivector<G2, {0}, {1}>{1, 2},
+        multivector<G2, {0}>{1} + multivector<G2, {1}>{2}));
   };
 
   "addition of multivectors with overlapping blade types"_test = [] {
     return expect(eq(
-        multivector<G2, G2::blade<0>, G2::blade<1>, G2::blade<2>>{1, 5, 4},
-        multivector<G2, G2::blade<0>, G2::blade<1>>{1, 2} +
-            multivector<G2, G2::blade<1>, G2::blade<2>>{3, 4}));
+        multivector<G2, {0}, {1}, {2}>{1, 5, 4},
+        multivector<G2, {0}, {1}>{1, 2} + multivector<G2, {1}, {2}>{3, 4}));
   };
 
   "addition of multivectors with same blade types"_test = [] {
     return expect(eq(
-        multivector<G2, G2::blade<0>, G2::blade<1>, G2::blade<2>>{5, 7, 9},
-        multivector<G2, G2::blade<0>, G2::blade<1>, G2::blade<2>>{1, 2, 3} +
-            multivector<G2, G2::blade<0>, G2::blade<1>, G2::blade<2>>{
-                4, 5, 6}));
+        multivector<G2, {0}, {1}, {2}>{5, 7, 9},
+        multivector<G2, {0}, {1}, {2}>{1, 2, 3} +
+            multivector<G2, {0}, {1}, {2}>{4, 5, 6}));
   };
 
   "subtraction of multivectors with disjoint blade types"_test = [] {
     return expect(eq(
-        multivector<G2, G2::blade<0>, G2::blade<1>>{1, -2},
-        multivector<G2, G2::blade<0>>{1} - multivector<G2, G2::blade<1>>{2}));
+        multivector<G2, {0}, {1}>{1, -2},
+        multivector<G2, {0}>{1} - multivector<G2, {1}>{2}));
   };
 
   "subtraction of multivectors with overlapping blade types"_test = [] {
     return expect(eq(
-        multivector<G2, G2::blade<0>, G2::blade<1>, G2::blade<2>>{1, -1, -4},
-        multivector<G2, G2::blade<0>, G2::blade<1>>{1, 2} -
-            multivector<G2, G2::blade<1>, G2::blade<2>>{3, 4}));
+        multivector<G2, {0}, {1}, {2}>{1, -1, -4},
+        multivector<G2, {0}, {1}>{1, 2} - multivector<G2, {1}, {2}>{3, 4}));
   };
 
   "subtraction of multivectors with same blade types"_test = [] {
     return expect(eq(
-        multivector<G2, G2::blade<0>, G2::blade<1>, G2::blade<2>>{-3, -3, -3},
-        multivector<G2, G2::blade<0>, G2::blade<1>, G2::blade<2>>{1, 2, 3} -
-            multivector<G2, G2::blade<0>, G2::blade<1>, G2::blade<2>>{
-                4, 5, 6}));
+        multivector<G2, {0}, {1}, {2}>{-3, -3, -3},
+        multivector<G2, {0}, {1}, {2}>{1, 2, 3} -
+            multivector<G2, {0}, {1}, {2}>{4, 5, 6}));
   };
 
   "scalar multiplication of a multivector"_test = [] {
     return expect(eq(
-        multivector<G2, G2::blade<0>, G2::blade<1>, G2::blade<2>>{2, 4, 6},
-        2 * multivector<G2, G2::blade<0>, G2::blade<1>, G2::blade<2>>{
-                1, 2, 3}));
+        multivector<G2, {0}, {1}, {2}>{2, 4, 6},
+        2 * multivector<G2, {0}, {1}, {2}>{1, 2, 3}));
   };
 
   "addition of multivector with blade"_test = [] {
     return expect(
-        eq(multivector<G2, G2::blade<0>, G2::blade<1>>{1, 2},
-           multivector<G2, G2::blade<0>>{1} + G2::blade<1>{2}) and
-        eq(multivector<G2, G2::blade<0>, G2::blade<1>>{1, 2},
-           G2::blade<1>{2} + multivector<G2, G2::blade<0>>{1}));
+        eq(multivector<G2, {0}, {1}>{1, 2},
+           multivector<G2, {0}>{1} + G2::blade<1>{2}) and
+        eq(multivector<G2, {0}, {1}>{1, 2},
+           G2::blade<1>{2} + multivector<G2, {0}>{1}));
   };
 
   "multivector wedge product"_test = [] {
@@ -165,13 +160,13 @@ auto main() -> int
 
   "comparison of different multivector types not hard error"_test = [] {
     using V1 = G2::multivector<>;
-    using V2 = G2::multivector<G2::blade<>, G2::blade<1>>;
+    using V2 = G2::multivector<{}, {1}>;
 
     return expect(not std::is_invocable_v<std::equal_to<>, V1, V2>);
   };
 
   "multivector types usable with structured bindings"_test = [] {
-    const auto v = G2::multivector<G2::blade<>, G2::blade<1>>{0, 1};
+    const auto v = G2::multivector<{}, {1}>{0, 1};
     const auto [a, b] = v;
 
     return expect(eq(get<0>(v), a) and eq(get<1>(v), b));

@@ -14,9 +14,10 @@ struct multivector_type_from_blade_list
 {};
 
 template <template <class...> class list, class... Bs>
+  requires (sizeof...(Bs) != 0)
 struct multivector_type_from_blade_list<list<Bs...>>
 {
-  using type = multivector<common_algebra_type_t<Bs...>, Bs...>;
+  using type = multivector<common_algebra_type_t<Bs...>, Bs::dimensions...>;
 };
 
 template <class BladeList>

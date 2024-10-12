@@ -4,6 +4,7 @@
 #include "rigid_geometric_algebra/algebra_type.hpp"
 #include "rigid_geometric_algebra/detail/contract.hpp"
 #include "rigid_geometric_algebra/detail/decays_to.hpp"
+#include "rigid_geometric_algebra/detail/is_specialization_of.hpp"
 #include "rigid_geometric_algebra/glz_fwd.hpp"
 #include "rigid_geometric_algebra/is_multivector.hpp"
 
