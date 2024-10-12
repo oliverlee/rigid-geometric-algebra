@@ -123,11 +123,6 @@ auto main() -> int
       return eq(b1, b2) or eq(expand(b1.coefficient), expand(b2.coefficient));
     };
 
-    //[[maybe_unused]] int x = (p^q).multivector();
-
-    // using ::rigid_geometric_algebra::multivector2;
-    // [[maybe_unused]] int y = multivector2<GS3, {1}, {2}, {1, 2}>{};
-
     return expect(compare_each_element(l, p ^ q, cmp));
   };
 

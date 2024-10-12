@@ -248,10 +248,10 @@ public:
   friend auto
   operator==(const multivector&, const multivector&) -> bool = default;
 
-  template <auto D2>
-    requires (not std::is_same_v<multivector, multivector<A, D2>>)
+  template <auto... D2>
+    requires (not std::is_same_v<multivector, multivector<A, D2...>>)
   friend auto
-  operator==(const multivector&, const multivector<A, D2>&) -> bool = delete;
+  operator==(const multivector&, const multivector<A, D2...>&) -> bool = delete;
 
   /// @}
 };
