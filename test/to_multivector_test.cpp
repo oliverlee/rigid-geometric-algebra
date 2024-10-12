@@ -13,9 +13,7 @@ auto main() -> int
 
   "to_multivector(blade)"_test = [] {
     return expect(
-        eq(G2::multivector<G2::blade<1, 2>>{1},
-           to_multivector(G2::blade<1, 2>{1})) and
-        eq(G2::multivector<G2::blade<1, 2>>{1},
-           -to_multivector(G2::blade<2, 1>{1})));
+        eq(G2::multivector<{1, 2}>{1}, to_multivector(G2::blade<1, 2>{1})) and
+        eq(G2::multivector<{1, 2}>{1}, -to_multivector(G2::blade<2, 1>{1})));
   };
 }

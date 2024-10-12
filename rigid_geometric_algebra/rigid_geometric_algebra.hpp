@@ -18,6 +18,7 @@ namespace rigid_geometric_algebra {}  // namespace rigid_geometric_algebra
 #include "rigid_geometric_algebra/antiwedge.hpp"
 #include "rigid_geometric_algebra/blade.hpp"
 #include "rigid_geometric_algebra/blade_complement_type.hpp"
+#include "rigid_geometric_algebra/blade_dimensions.hpp"
 #include "rigid_geometric_algebra/blade_sum.hpp"
 #include "rigid_geometric_algebra/blade_type_from.hpp"
 #include "rigid_geometric_algebra/canonical_type.hpp"

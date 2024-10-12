@@ -11,7 +11,7 @@ auto main() -> int
   static_assert(multivector_promotable<G2::blade<0>>);
   static_assert(multivector_promotable<G2::blade<0, 1, 2>>);
   static_assert(multivector_promotable<G2::multivector<>>);
-  static_assert(multivector_promotable<G2::multivector<G2::blade<0, 1, 2>>>);
+  static_assert(multivector_promotable<G2::multivector<{0, 1, 2}>>);
 
   static_assert(multivector_promotable<const G2::blade<>>);
   static_assert(multivector_promotable<G2::blade<>&>);

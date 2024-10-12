@@ -11,6 +11,7 @@ cc_library(
         "antiwedge.hpp",
         "blade.hpp",
         "blade_complement_type.hpp",
+        "blade_dimensions.hpp",
         "blade_fwd.hpp",
         "blade_ordering.hpp",
         "blade_sum.hpp",

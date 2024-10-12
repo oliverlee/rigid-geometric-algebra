@@ -19,13 +19,17 @@ auto main() -> int
 
   "get_or invocable on tuples"_test = [] {
     return expect(
-        std::
-            is_invocable_v<decltype(get_or<B0>), G2::multivector<B0>, dummy> and
-        std::
-            is_invocable_v<decltype(get_or<B0>), G2::multivector<B1>, dummy> and
         std::is_invocable_v<
             decltype(get_or<B0>),
-            G2::multivector<B0, B1>,
+            G2::multivector<B0::dimensions>,
+            dummy> and
+        std::is_invocable_v<
+            decltype(get_or<B0>),
+            G2::multivector<B1::dimensions>,
+            dummy> and
+        std::is_invocable_v<
+            decltype(get_or<B0>),
+            G2::multivector<B0::dimensions, B1::dimensions>,
             dummy>);
   };
 
@@ -34,54 +38,37 @@ auto main() -> int
   };
 
   "get_or return type"_test = [] {
+    using V = G2::multivector<B0::dimensions>;
     return expect(
         std::is_same_v<
             B0&,
-            std::invoke_result_t<
-                decltype(get_or<B0>),
-                G2::multivector<B0>&,
-                dummy>> and
+            std::invoke_result_t<decltype(get_or<B0>), V&, dummy>> and
         std::is_same_v<
             const B0&,
-            std::invoke_result_t<
-                decltype(get_or<B0>),
-                const G2::multivector<B0>&,
-                dummy>> and
+            std::invoke_result_t<decltype(get_or<B0>), const V&, dummy>> and
         std::is_same_v<
             B0&&,
-            std::invoke_result_t<
-                decltype(get_or<B0>),
-                G2::multivector<B0>&&,
-                dummy>> and
+            std::invoke_result_t<decltype(get_or<B0>), V&&, dummy>> and
         std::is_same_v<
             const B0&&,
-            std::invoke_result_t<
-                decltype(get_or<B0>),
-                const G2::multivector<B0>&&,
-                dummy>> and
+            std::invoke_result_t<decltype(get_or<B0>), const V&&, dummy>> and
         std::is_same_v<
             dummy&,
-            std::invoke_result_t<
-                decltype(get_or<B1>),
-                G2::multivector<B0>&,
-                dummy&>> and
+            std::invoke_result_t<decltype(get_or<B1>), V&, dummy&>> and
         std::is_same_v<
             const dummy&,
             std::invoke_result_t<
                 decltype(get_or<B1>),
-                const G2::multivector<B0>&,
+                const V&,
                 const dummy&>> and
         std::is_same_v<
             dummy&&,
-            std::invoke_result_t<
-                decltype(get_or<B1>),
-                G2::multivector<B0>&&,
-                dummy&&>> and
+            std::invoke_result_t<decltype(get_or<B1>), V&&, dummy&&>> and
         std::is_same_v<
             const dummy&&,
             std::invoke_result_t<
                 decltype(get_or<B1>),
-                const G2::multivector<B0>&&,
+                const V&&,
                 const dummy&&>>);
   };
 }

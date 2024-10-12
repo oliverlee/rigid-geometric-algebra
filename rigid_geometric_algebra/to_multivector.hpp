@@ -18,7 +18,7 @@ class fn
   template <detail::blade B>
   static constexpr auto
   impl(detail::priority<1>, B&& b) -> ::rigid_geometric_algebra::
-      multivector<algebra_type_t<B>, canonical_type_t<B>>
+      multivector<algebra_type_t<B>, canonical_type_t<B>::dimensions>
   {
     return {std::forward<B>(b).canonical()};
   }
