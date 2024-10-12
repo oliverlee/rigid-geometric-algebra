@@ -38,7 +38,7 @@ struct sorted_canonical_blades
   using A = common_algebra_type_t<Bs...>;
 
   static constexpr auto sorted = [] {
-    auto blades = std::array{blade_ordering<A>{Bs::dimension_mask}...};
+    auto blades = std::array{Bs::ordering...};
 
     std::ranges::sort(blades);
     const auto [last, _] = std::ranges::unique(blades);

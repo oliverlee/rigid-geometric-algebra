@@ -3,6 +3,7 @@
 #include "rigid_geometric_algebra/algebra_field.hpp"
 #include "rigid_geometric_algebra/algebra_type.hpp"
 #include "rigid_geometric_algebra/blade_dimensions.hpp"
+#include "rigid_geometric_algebra/blade_ordering.hpp"
 #include "rigid_geometric_algebra/blade_type_from.hpp"
 #include "rigid_geometric_algebra/common_algebra_type.hpp"
 #include "rigid_geometric_algebra/detail/copy_ref_qual.hpp"
@@ -22,10 +23,12 @@
 #include "rigid_geometric_algebra/to_multivector.hpp"
 #include "rigid_geometric_algebra/wedge.hpp"
 
+#include <array>
 #include <concepts>
 #include <cstddef>
 #include <format>
 #include <initializer_list>
+#include <ranges>
 #include <tuple>
 #include <type_traits>
 #include <utility>
@@ -55,6 +58,20 @@ class multivector
   struct blade_set : blade_type_from_dimensions_t<A, D>...
   {};
 
+  // can't use immediately invoked lambda, likely due to
+  // https://github.com/llvm/llvm-project/issues/93327
+  // https://www.reddit.com/r/cpp_questions/comments/1961soo/immediatelyinvoked_lambda_in_concept_definition/
+  template <auto... D2>
+  static constexpr auto dimensions_subset() -> bool
+  {
+    constexpr auto r1 = std::array<blade_ordering<A>, sizeof...(D)>{
+        blade_type_from_dimensions_t<A, D>::ordering...};
+    constexpr auto r2 = std::array<blade_ordering<A>, sizeof...(D2)>{
+        blade_type_from_dimensions_t<A, D2>::ordering...};
+
+    return std::includes(r1.begin(), r1.end(), r2.begin(), r2.end());
+  }
+
 public:
   using type = multivector;
 
@@ -82,7 +99,8 @@ public:
 
   /// non-narrowing construction from a different multivector
   ///
-  template <auto... D2>  // TODO: fix constraint
+  template <blade_dimensions... D2>
+    requires (dimensions_subset<D2...>())
   constexpr explicit multivector(const multivector<algebra_type, D2...>& other)
       : base_type{[&other]<class... Bs>(detail::type_list<Bs...>) {
           return base_type{get_or<Bs>(other, Bs{})...};

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "rigid_geometric_algebra/blade_ordering.hpp"
 #include "rigid_geometric_algebra/canonical_type.hpp"
 #include "rigid_geometric_algebra/common_algebra_type.hpp"
 #include "rigid_geometric_algebra/is_blade.hpp"
@@ -39,9 +38,7 @@ public:
     } else if constexpr (
         (std::is_same_v<Bs, canonical_type_t<Bs>> and ...) and
         has_common_algebra_type_v<Bs...>) {
-      using A = common_algebra_type_t<Bs...>;
-      const auto data =
-          std::array<blade_ordering<A>, sizeof...(Bs)>{Bs::dimension_mask...};
+      const auto data = std::array{Bs::ordering...};
       return std::ranges::is_sorted(data, std::ranges::less_equal{});
     }
 

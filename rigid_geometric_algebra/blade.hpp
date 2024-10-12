@@ -2,6 +2,7 @@
 
 #include "rigid_geometric_algebra/algebra_dimension.hpp"
 #include "rigid_geometric_algebra/algebra_field.hpp"
+#include "rigid_geometric_algebra/blade_ordering.hpp"
 #include "rigid_geometric_algebra/blade_sum.hpp"
 #include "rigid_geometric_algebra/canonical_type.hpp"
 #include "rigid_geometric_algebra/detail/are_dimensions_unique.hpp"
@@ -101,6 +102,10 @@ public:
   /// factors
   ///
   static constexpr auto dimensions = std::array<std::size_t, grade>{Is...};
+
+  /// ordering
+  ///
+  static constexpr auto ordering = blade_ordering<algebra_type>{dimension_mask};
 
   /// blade scalar type
   ///

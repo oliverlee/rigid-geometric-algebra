@@ -5,11 +5,16 @@
 #include <functional>
 #include <type_traits>
 
+template <class T, class U>
+static constexpr auto constructible =
+    ::skytest::pred(std::is_constructible<T, U>{});
+
 auto main() -> int
 {
   using namespace skytest::literals;
   using ::skytest::eq;
   using ::skytest::expect;
+  using ::skytest::pred;
 
   using G2 = ::rigid_geometric_algebra::algebra<double, 2>;
   using ::rigid_geometric_algebra::multivector;
@@ -71,6 +76,14 @@ auto main() -> int
     using ::rigid_geometric_algebra::get;
 
     return expect(eq(get<B1>(v1), get<B1>(v2)) and eq(B2{}, get<B2>(v2)));
+  };
+
+  "not constructible from wider multivector"_test = [] {
+    return expect(
+        not constructible<G2::multivector<>, G2::multivector<{0}>>() and
+        not constructible<
+            G2::multivector<{0}, {1}>,
+            G2::multivector<{0}, {2}>>());
   };
 
   "addition of multivectors with disjoint blade types"_test = [] {
