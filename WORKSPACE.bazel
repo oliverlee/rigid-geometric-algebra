@@ -21,6 +21,10 @@ COMMON_CXX_WARNINGS = [
     "-Wdouble-promotion",
     "-Wformat=2",
     "-Wimplicit-fallthrough",
+    "-Wdocumentation-unknown-command",
+    "-Wextra-semi",
+    "-Wunreachable-code",
+    "-Wunreachable-code-return",
 ]
 
 # toolchains_llvm also loads rules_cc but possibly an older version

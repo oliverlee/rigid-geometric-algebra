@@ -76,11 +76,7 @@ auto main() -> int
   {
     int value{};
 
-    auto operator-() const -> A
-    {
-      std::abort();
-      return {};
-    }
+    auto operator-() const -> A { std::abort(); }
 
     constexpr auto operator+(A rhs) const -> A { return {value + rhs.value}; }
     constexpr auto operator-(A rhs) const -> A { return {value - rhs.value}; }
@@ -96,7 +92,6 @@ auto main() -> int
   {
     A value{};
 
-    B() = default;
     constexpr B(int v) : value{v} {}
     constexpr B(A v) : value{v} {}
 

@@ -87,7 +87,7 @@ public:
           }(std::make_index_sequence<multivector_type::size>{});
 
       return refs[index_];
-    };
+    }
 
     constexpr auto operator++() -> iterator&
     {

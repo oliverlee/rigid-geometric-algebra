@@ -45,7 +45,6 @@ inline constexpr class
     if (std::ranges::distance(first, last) <= 1) {
       return 0UZ;
     }
-    const auto rng = std::ranges::subrange{first, last};
 
     auto iter_swap = counted_iter_swap{};
 
