@@ -20,7 +20,7 @@ namespace rigid_geometric_algebra::detail {
 /// The set overload should not be invoked directly, but through
 /// `invoke_prioritized_overload`.
 ///
-/// @notes Mandates:
+/// @note Mandates:
 /// * no other calls to `define_with_priority` with the same `N` and `Op`.
 ///
 template <std::size_t N, class Ov, class F, auto always_eval = [] {}>
