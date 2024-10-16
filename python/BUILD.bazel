@@ -1,11 +1,11 @@
 load("@rules_python//python:defs.bzl", "py_binary", "py_library")
-load("@rules_python//python:pip.bzl", "compile_pip_requirements")
+load("@rules_uv//uv:pip.bzl", "pip_compile")
 load("@pypi//:requirements.bzl", "all_requirements")
 
-compile_pip_requirements(
-    name = "requirements",
-    src = "requirements.in",
-    requirements_txt = "requirements_lock.txt",
+pip_compile(
+    name = "generate_requirements",
+    requirements_in = ":requirements.in",
+    requirements_txt = ":requirements.txt",
 )
 
 py_library(
