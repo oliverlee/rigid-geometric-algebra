@@ -74,6 +74,7 @@ cc_library(
         "multivector_fwd.hpp",
         "multivector_type_from_blade_list.hpp",
         "one.hpp",
+        "plane.hpp",
         "point.hpp",
         "scalar_type.hpp",
         "sorted_canonical_blades.hpp",
