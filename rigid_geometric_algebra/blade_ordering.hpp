@@ -42,15 +42,26 @@ struct blade_ordering
   ///
   friend constexpr auto
   operator<=>(const blade_ordering& lhs, const blade_ordering& rhs) noexcept
-      -> std::weak_ordering
+      -> std::strong_ordering
   {
     if (lhs.mask.count() != rhs.mask.count()) {
-      return lhs.mask.count() < rhs.mask.count()
-                 ? std::weak_ordering::less
-                 : std::weak_ordering::greater;
+      return lhs.mask.count() <=> rhs.mask.count();
     }
 
-    return lhs.mask.to_unsigned() <=> rhs.mask.to_unsigned();
+    if (lhs.mask.test(0) != rhs.mask.test(0)) {
+      return rhs.mask.test(0) <=> lhs.mask.test(0);
+    }
+
+    const auto ml = auto{lhs.mask}.reset(0);
+    const auto mr = auto{rhs.mask}.reset(0);
+
+    if (ml.count() == 1) {
+      return ml.to_unsigned() <=> mr.to_unsigned();
+    }
+    // swapping left/right handles the following case
+    // e23 < e31 < e12
+    // TODO check if this is valid for dimension > 4?
+    return mr.to_unsigned() <=> ml.to_unsigned();
   }
 };
 
