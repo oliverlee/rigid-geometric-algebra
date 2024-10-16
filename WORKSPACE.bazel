@@ -294,12 +294,51 @@ python_register_toolchains(
     python_version = "3.12",
 )
 
+http_archive(
+    name = "rules_uv",
+    integrity = "sha256-/q9niMptIqYq4/B8Z6YrbK3Q9o8fcx6ZPHg82nZk2l8=",
+    strip_prefix = "rules_uv-0.17.0",
+    url = "https://github.com/theoremlp/rules_uv/releases/download/v0.17.0/rules_uv-0.17.0.tar.gz",
+)
+
+# rules_uv doesn't support WORKSPACE files so we use the following workaround:
+# https://github.com/theoremlp/rules_uv/issues/75#issuecomment-2204026374
+#
+# rules_uv deps begin
+
+http_archive(
+    name = "bazel_features",
+    integrity = "sha256-BvArl7a62zIn3yFBpLRiInLNzSlRUm9AqIirX0OJfxQ=",
+    strip_prefix = "bazel_features-1.9.0",
+    url = "https://github.com/bazel-contrib/bazel_features/releases/download/v1.9.0/bazel_features-v1.9.0.tar.gz",
+)
+
+load("@bazel_features//:deps.bzl", "bazel_features_deps")
+
+bazel_features_deps()
+
+http_archive(
+    name = "rules_multitool",
+    integrity = "sha256-eoa0ZTtGpXOlzCX1ovBfEE8cvHOkJ6uJdyk+qwiFokE=",
+    strip_prefix = "rules_multitool-0.10.0",
+    url = "https://github.com/theoremlp/rules_multitool/releases/download/v0.10.0/rules_multitool-0.10.0.tar.gz",
+)
+
+load("@rules_multitool//multitool:multitool.bzl", "multitool")
+
+multitool(
+    name = "multitool",
+    lockfile = "@rules_uv//uv/private:uv.lock.json",
+)
+
+# rules_uv deps end
+
 load("@rules_python//python:pip.bzl", "pip_parse")
 
 pip_parse(
     name = "pypi",
     python_interpreter_target = "@python3_host//:python",
-    requirements_lock = "//python:requirements_lock.txt",
+    requirements_lock = "//python:requirements.txt",
 )
 
 load("@pypi//:requirements.bzl", "install_deps")
