@@ -44,6 +44,8 @@ struct algebra
   using point = ::rigid_geometric_algebra::point<algebra>;
 
   using line = ::rigid_geometric_algebra::line<algebra>;
+
+  using plane = ::rigid_geometric_algebra::plane<algebra>;
 };
 
 }  // namespace rigid_geometric_algebra

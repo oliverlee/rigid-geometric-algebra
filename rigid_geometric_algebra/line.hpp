@@ -48,6 +48,8 @@ class line
     : public detail::geometric_interface<detail::line_multivector_type_t<A>>,
       private detail::check_invariant<line<A>>
 {
+  static_assert(algebra_dimension_v<A> > 2);
+
   using base_type =
       detail::geometric_interface<detail::line_multivector_type_t<A>>;
 

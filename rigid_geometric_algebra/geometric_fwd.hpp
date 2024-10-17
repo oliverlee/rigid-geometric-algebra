@@ -11,4 +11,8 @@ template <class A>
   requires is_algebra_v<A>
 class line;
 
+template <class A>
+  requires is_algebra_v<A>
+class plane;
+
 }  // namespace rigid_geometric_algebra

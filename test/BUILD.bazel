@@ -181,6 +181,17 @@ cc_test(
 )
 
 cc_test(
+    name = "plane_test",
+    size = "small",
+    srcs = ["plane_test.cpp"],
+    deps = [
+        ":symengine_compat",
+        "//rigid_geometric_algebra",
+        "@skytest",
+    ],
+)
+
+cc_test(
     name = "point_test",
     size = "small",
     srcs = ["point_test.cpp"],
