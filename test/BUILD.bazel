@@ -12,6 +12,14 @@ cc_library(
     ],
 )
 
+cc_library(
+    name = "skytest_ext",
+    hdrs = ["skytest_ext.hpp"],
+    deps = [
+        "@skytest",
+    ],
+)
+
 cc_binary(
     name = "symengine_example",
     srcs = ["symengine_example.cpp"],
@@ -153,6 +161,7 @@ cc_test(
     size = "small",
     srcs = ["line_test.cpp"],
     deps = [
+        ":skytest_ext",
         ":symengine_compat",
         "//rigid_geometric_algebra",
         "@skytest",
@@ -185,6 +194,7 @@ cc_test(
     size = "small",
     srcs = ["plane_test.cpp"],
     deps = [
+        ":skytest_ext",
         ":symengine_compat",
         "//rigid_geometric_algebra",
         "@skytest",
@@ -196,6 +206,7 @@ cc_test(
     size = "small",
     srcs = ["point_test.cpp"],
     deps = [
+        ":skytest_ext",
         ":symengine_compat",
         "//rigid_geometric_algebra",
         "@skytest",
