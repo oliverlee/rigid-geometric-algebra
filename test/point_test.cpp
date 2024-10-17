@@ -1,7 +1,8 @@
 #include "rigid_geometric_algebra/rigid_geometric_algebra.hpp"
 #include "skytest/skytest.hpp"
 
-#include <algorithm>
+#include "test/skytest_ext.hpp"
+
 #include <array>
 #include <cstddef>
 #include <format>
@@ -15,20 +16,19 @@ auto main() -> int
   using namespace skytest::literals;
   using ::skytest::aborts;
   using ::skytest::eq;
+  using ::skytest::equal_elements;
+  using ::skytest::equal_ranges;
   using ::skytest::expect;
-  using ::skytest::pred;
 
   using G2 = ::rigid_geometric_algebra::algebra<double, 2>;
   using GS2 = ::rigid_geometric_algebra::algebra<::SymEngine::Expression, 2>;
   using ::rigid_geometric_algebra::multivector;
 
-  static constexpr auto equal = pred(std::ranges::equal);
-
   "default constructible"_test = [] {
     return expect(
         eq(GS2::blade<0>{} + GS2::blade<1>{} + GS2::blade<2>{},
            GS2::point{}.multivector()) and
-        equal(G2::point{}, std::array<double, 3>{}));
+        equal_ranges(G2::point{}, std::array<double, 3>{}));
   };
 
   "constructor requires all coefficients"_test = [] {
@@ -100,30 +100,15 @@ auto main() -> int
     const auto p = GS3::point{"pw", "px", "py", "pz"};
     const auto q = GS3::point{"qw", "qx", "qy", "qz"};
 
-    const auto l =
+    const auto l = GS3::line{
         GS3::blade<0, 1>{S{"qx"} * S{"pw"} - S{"px"} * S{"qw"}} +
         GS3::blade<0, 2>{S{"qy"} * S{"pw"} - S{"py"} * S{"qw"}} +
         GS3::blade<0, 3>{S{"qz"} * S{"pw"} - S{"pz"} * S{"qw"}} +
         GS3::blade<2, 3>{S{"py"} * S{"qz"} - S{"pz"} * S{"qy"}} +
         GS3::blade<3, 1>{S{"pz"} * S{"qx"} - S{"px"} * S{"qz"}} +
-        GS3::blade<1, 2>{S{"px"} * S{"qy"} - S{"py"} * S{"qx"}};
+        GS3::blade<1, 2>{S{"px"} * S{"qy"} - S{"py"} * S{"qx"}}};
 
-    const auto compare_each_element =
-        []<class V>(const V& v1, const auto& v2, auto cmp) {
-          return [&v1, &v2, &cmp]<auto... Is>(std::index_sequence<Is...>) {
-            using ::rigid_geometric_algebra::get;
-            return (
-                cmp(v1.template get<Is>(),
-                    v2.multivector().template get<Is>()) and
-                ...);
-          }(std::make_index_sequence<V::size>{});
-        };
-
-    const auto cmp = [](const auto& b1, const auto& b2) {
-      return eq(b1, b2) or eq(expand(b1.coefficient), expand(b2.coefficient));
-    };
-
-    return expect(compare_each_element(l, p ^ q, cmp));
+    return expect(equal_elements(l, p ^ q));
   };
 
   "formattable"_test = [] {

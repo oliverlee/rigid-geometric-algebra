@@ -1,6 +1,8 @@
 #include "rigid_geometric_algebra/rigid_geometric_algebra.hpp"
 #include "skytest/skytest.hpp"
 
+#include "test/skytest_ext.hpp"
+
 #include <algorithm>
 #include <array>
 #include <format>
@@ -15,6 +17,7 @@ auto main() -> int
   using namespace skytest::literals;
   using ::skytest::aborts;
   using ::skytest::eq;
+  using ::skytest::equal_ranges;
   using ::skytest::expect;
   using ::skytest::pred;
 
@@ -22,10 +25,8 @@ auto main() -> int
   using GS3 = ::rigid_geometric_algebra::algebra<::SymEngine::Expression, 3>;
   using ::rigid_geometric_algebra::multivector;
 
-  static constexpr auto equal = pred(std::ranges::equal);
-
   "default constructible"_test = [] {
-    return expect(equal(std::array<double, 6>{}, G3::line{}));
+    return expect(equal_ranges(std::array<double, 6>{}, G3::line{}));
   };
 
   "constructor requries all coefficients"_test = [] {
@@ -104,6 +105,6 @@ auto main() -> int
       return value / alpha;
     });
 
-    return expect(equal(std::array{0, 1, 0, 0, 0, 1}, l | scale));
+    return expect(equal_ranges(std::array{0, 1, 0, 0, 0, 1}, l | scale));
   };
 }

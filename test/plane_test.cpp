@@ -1,11 +1,11 @@
 #include "rigid_geometric_algebra/rigid_geometric_algebra.hpp"
 #include "skytest/skytest.hpp"
 
-#include <algorithm>
+#include "test/skytest_ext.hpp"
+
 #include <array>
 #include <cstddef>
 #include <format>
-#include <functional>
 #include <symengine/compat.hpp>
 #include <tuple>
 #include <type_traits>
@@ -16,29 +16,20 @@ auto main() -> int
   using namespace skytest::literals;
   using ::skytest::aborts;
   using ::skytest::eq;
+  using ::skytest::equal_elements;
+  using ::skytest::equal_ranges;
   using ::skytest::expect;
-  using ::skytest::pred;
 
   using G3 = ::rigid_geometric_algebra::algebra<double, 3>;
   using GS3 = ::rigid_geometric_algebra::algebra<::SymEngine::Expression, 3>;
   using ::rigid_geometric_algebra::multivector;
-
-  static constexpr auto equal = pred(std::ranges::equal);
-
-  static constexpr auto equal_elements =
-      []<class T, class P = std::identity>(
-          const T& t1, const T& t2, P proj = {}) {
-        return [&]<std::size_t... i>(std::index_sequence<i...>) {
-          return (eq(proj(t1[i]), proj(t2[i])) and ...);
-        }(std::make_index_sequence<T::size>{});
-      };
 
   "default constructible"_test = [] {
     return expect(
         eq(GS3::blade<0, 2, 3>{} + GS3::blade<0, 3, 1>{} +
                GS3::blade<0, 1, 2>{} + GS3::blade<3, 2, 1>{},
            GS3::plane{}.multivector()) and
-        equal(G3::plane{}, std::array<double, 4>{}));
+        equal_ranges(G3::plane{}, std::array<double, 4>{}));
   };
 
   "constructor requires all coefficients"_test = [] {
@@ -157,9 +148,7 @@ auto main() -> int
         get<GS3::blade<1, 2>>(n).coefficient,
         get<GS3::blade<0>>(d).coefficient};
 
-    return expect(equal_elements(g, wedge(p, q, r), [](const auto& element) {
-      return expand(element);
-    }));
+    return expect(equal_elements(g, wedge(p, q, r)));
   };
 
   "formattable"_test = [] {
