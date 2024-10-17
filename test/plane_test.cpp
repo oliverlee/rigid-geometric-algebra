@@ -121,7 +121,7 @@ auto main() -> int
   };
 
   "join of 3 points is a plane"_test = [] {
-    using ::rigid_geometric_algebra::wedge;  // TODO join
+    using ::rigid_geometric_algebra::join;
     using ::rigid_geometric_algebra::right_complement;
     using ::rigid_geometric_algebra::get;
 
@@ -148,7 +148,7 @@ auto main() -> int
         get<GS3::blade<1, 2>>(n).coefficient,
         get<GS3::blade<0>>(d).coefficient};
 
-    return expect(equal_elements(g, wedge(p, q, r)));
+    return expect(equal_elements(g, join(p, q, r)));
   };
 
   "formattable"_test = [] {
