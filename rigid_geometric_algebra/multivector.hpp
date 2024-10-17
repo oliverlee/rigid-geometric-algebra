@@ -58,6 +58,7 @@ class multivector
   struct blade_set : blade_type_from_dimensions_t<A, D>...
   {};
 
+  // clang bug
   // can't use immediately invoked lambda, likely due to
   // https://github.com/llvm/llvm-project/issues/93327
   // https://www.reddit.com/r/cpp_questions/comments/1961soo/immediatelyinvoked_lambda_in_concept_definition/

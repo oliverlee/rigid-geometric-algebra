@@ -16,6 +16,7 @@ cc_library(
         "blade_ordering.hpp",
         "blade_sum.hpp",
         "blade_type_from.hpp",
+        "canonical_dimension_order.hpp",
         "canonical_type.hpp",
         "common_algebra_type.hpp",
         "complement.hpp",

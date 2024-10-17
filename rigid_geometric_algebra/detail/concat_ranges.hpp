@@ -19,13 +19,16 @@ public:
   static constexpr auto operator()(const R1& r1, const R2& r2)
       -> std::vector<std::ranges::range_value_t<R1>>
   {
-    auto out = std::vector<std::ranges::range_value_t<R1>>{};
-    out.resize(r1.size() + r2.size());
+    // clang bug with immediate-escalation
+    if consteval {
+      auto out = std::vector<std::ranges::range_value_t<R1>>{};
+      out.resize(r1.size() + r2.size());
 
-    const auto [_, it] = std::ranges::copy(r1, out.begin());
-    std::ranges::copy(r2, it);
+      const auto [_, it] = std::ranges::copy(r1, out.begin());
+      std::ranges::copy(r2, it);
 
-    return out;
+      return out;
+    }
   }
 } concat_ranges{};
 

@@ -3,7 +3,6 @@
 #include "rigid_geometric_algebra/algebra_dimension.hpp"
 #include "rigid_geometric_algebra/algebra_type.hpp"
 #include "rigid_geometric_algebra/blade_type_from.hpp"
-#include "rigid_geometric_algebra/canonical_type.hpp"
 #include "rigid_geometric_algebra/is_blade.hpp"
 
 #include <algorithm>
@@ -27,13 +26,14 @@ struct blade_complement_type_<true, B>
   using type = blade_type_from_dimensions_t<A, [] {
     auto missing = std::array<std::size_t, algebra_dimension_v<A> - B::grade>{};
 
+    auto sorted = B::dimensions;
+    std::ranges::sort(sorted);
+
     std::ranges::set_difference(
-        std::views::iota(0UZ, algebra_dimension_v<A>),
-        canonical_type_t<B>::dimensions,
-        missing.begin());
+        std::views::iota(0UZ, algebra_dimension_v<A>), sorted, missing.begin());
 
     return missing;
-  }()>;
+  }()>::canonical_type;
 };
 
 }  // namespace detail

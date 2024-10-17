@@ -2,6 +2,7 @@
 
 #include "rigid_geometric_algebra/blade_ordering.hpp"
 #include "rigid_geometric_algebra/blade_type_from.hpp"
+#include "rigid_geometric_algebra/canonical_type.hpp"
 #include "rigid_geometric_algebra/common_algebra_type.hpp"
 #include "rigid_geometric_algebra/detail/array_subset.hpp"
 #include "rigid_geometric_algebra/detail/has_type.hpp"
@@ -50,8 +51,8 @@ struct sorted_canonical_blades
   static_assert(sorted.size() != 0);
 
   template <std::size_t... Is>
-  static constexpr auto impl(std::index_sequence<Is...>)
-      -> detail::type_list<blade_type_from_mask_t<A, sorted[Is].mask>...>;
+  static constexpr auto impl(std::index_sequence<Is...>) -> detail::type_list<
+      canonical_type_t<blade_type_from_mask_t<A, sorted[Is].mask>>...>;
 
   using type = decltype(impl(std::make_index_sequence<sorted.size()>{}));
 };

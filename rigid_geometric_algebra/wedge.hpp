@@ -35,7 +35,7 @@ class wedge_blade_fn
         (std::remove_cvref_t<B1>::dimension_mask |
          std::remove_cvref_t<B2>::dimension_mask);
 
-    return blade_type_from_mask_t<A, mask>{};
+    return typename blade_type_from_mask_t<A, mask>::canonical_type{};
   }());
 
 public:
@@ -46,7 +46,8 @@ public:
     static constexpr auto num_swaps =
         detail::counted_sort(detail::concat_ranges(
             std::remove_cvref_t<B1>::dimensions,
-            std::remove_cvref_t<B2>::dimensions));
+            std::remove_cvref_t<B2>::dimensions)) +
+        detail::counted_sort(auto{blade_result_t<B1, B2>::dimensions});
 
     return blade_result_t<B1, B2>{detail::negate_if_odd<num_swaps>{}(
         std::forward<B1>(b1).coefficient * std::forward<B2>(b2).coefficient)};

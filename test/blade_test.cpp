@@ -3,6 +3,7 @@
 
 #include <format>
 #include <functional>
+#include <type_traits>
 
 auto main() -> int
 {
@@ -14,6 +15,7 @@ auto main() -> int
   using ::skytest::pred;
 
   using G2 = ::rigid_geometric_algebra::algebra<double, 2>;
+  using G3 = ::rigid_geometric_algebra::algebra<double, 3>;
 
   "constructible"_test = [] {
     const auto a = G2::blade<>{};
@@ -65,19 +67,45 @@ auto main() -> int
     return expect(eq(G2::blade<0, 1>{1}, -G2::blade<0, 1>{-1}));
   };
 
-  "canonical form"_test = [] {
+  static constexpr auto equal =
+      []<class T>(const std::type_identity_t<T>& lhs, const T& rhs) {
+        return ::skytest::pred(std::equal_to<>{})(lhs, rhs);
+      };
+
+  "canonical form (G2)"_test = [] {
     return expect(
-        eq(G2::blade<>{}, G2::blade<>{}.canonical()) and
-        eq(G2::blade<0>{}, G2::blade<0>{}.canonical()) and
-        eq(G2::blade<1>{}, G2::blade<1>{}.canonical()) and
-        eq(G2::blade<2>{}, G2::blade<2>{}.canonical()) and
-        eq(G2::blade<0, 1>{}, G2::blade<0, 1>{}.canonical()) and
-        eq(G2::blade<0, 1>{}, G2::blade<1, 0>{}.canonical()) and
-        eq(G2::blade<0, 2>{}, G2::blade<0, 2>{}.canonical()) and
-        eq(G2::blade<0, 2>{}, G2::blade<2, 0>{}.canonical()) and
-        eq(G2::blade<0, 1, 2>{}, G2::blade<0, 2, 1>{}.canonical()) and
-        eq(G2::blade<0, 1, 2>{}, G2::blade<1, 2, 0>{}.canonical()) and
-        eq(G2::blade<0, 1, 2>{}, G2::blade<0, 1, 2>{}.canonical()));
+        equal({}, G2::blade<>::canonical_type::dimensions) and
+        equal({0}, G2::blade<0>::canonical_type::dimensions) and
+        equal({1}, G2::blade<1>::canonical_type::dimensions) and
+        equal({2}, G2::blade<2>::canonical_type::dimensions) and
+        equal({0, 1}, G2::blade<0, 1>::canonical_type::dimensions) and
+        equal({0, 1}, G2::blade<1, 0>::canonical_type::dimensions) and
+        equal({0, 2}, G2::blade<0, 2>::canonical_type::dimensions) and  // FIX
+        equal({0, 2}, G2::blade<2, 0>::canonical_type::dimensions) and  // FIX
+        equal({0, 1, 2}, G2::blade<0, 2, 1>::canonical_type::dimensions) and
+        equal({0, 1, 2}, G2::blade<1, 2, 0>::canonical_type::dimensions) and
+        equal({0, 1, 2}, G2::blade<0, 1, 2>::canonical_type::dimensions));
+  };
+
+  "canonical form (G3)"_test = [] {
+    return expect(
+        equal({}, G3::blade<>::canonical_type::dimensions) and
+        equal({0}, G3::blade<0>::canonical_type::dimensions) and
+        equal({1}, G3::blade<1>::canonical_type::dimensions) and
+        equal({2}, G3::blade<2>::canonical_type::dimensions) and
+        equal({3}, G3::blade<3>::canonical_type::dimensions) and
+        equal({0, 1}, G3::blade<0, 1>::canonical_type::dimensions) and
+        equal({0, 2}, G3::blade<0, 2>::canonical_type::dimensions) and
+        equal({0, 3}, G3::blade<0, 3>::canonical_type::dimensions) and
+        equal({1, 2}, G3::blade<1, 2>::canonical_type::dimensions) and
+        equal({3, 1}, G3::blade<1, 3>::canonical_type::dimensions) and
+        equal({2, 3}, G3::blade<2, 3>::canonical_type::dimensions) and
+        equal({0, 1, 2}, G3::blade<0, 1, 2>::canonical_type::dimensions) and
+        equal({0, 3, 1}, G3::blade<0, 1, 3>::canonical_type::dimensions) and
+        equal({0, 2, 3}, G3::blade<0, 2, 3>::canonical_type::dimensions) and
+        equal({3, 2, 1}, G3::blade<1, 2, 3>::canonical_type::dimensions) and
+        equal({3, 2, 1}, G3::blade<3, 2, 1>::canonical_type::dimensions) and
+        equal({0, 1, 2, 3}, G3::blade<0, 1, 2, 3>::canonical_type::dimensions));
   };
 
   "sign conversion for canonical form"_test = [] {

@@ -88,7 +88,7 @@ auto main() -> int
                 G3::blade<0, 2>,
                 G3::blade<0, 3>,
                 G3::blade<2, 3>,
-                G3::blade<1, 3>,  // TODO fix basis order
+                G3::blade<3, 1>,
                 G3::blade<1, 2>>,
             sorted_canonical_blades_t<
                 G3::blade<0, 1>,
@@ -104,9 +104,9 @@ auto main() -> int
         equal<
             type_list<
                 G3::blade<0, 2, 3>,
-                G3::blade<0, 1, 3>,  // TODO fix basis order
+                G3::blade<0, 3, 1>,
                 G3::blade<0, 1, 2>,
-                G3::blade<1, 2, 3>>,  // TODO fix basis order
+                G3::blade<3, 2, 1>>,
             sorted_canonical_blades_t<
                 G3::blade<0, 2, 3>,
                 G3::blade<0, 3, 1>,
