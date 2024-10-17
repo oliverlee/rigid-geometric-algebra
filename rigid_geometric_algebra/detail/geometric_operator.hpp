@@ -1,7 +1,6 @@
 #pragma once
 
 #include "rigid_geometric_algebra/algebra_type.hpp"
-#include "rigid_geometric_algebra/detail/geometric_interface.hpp"
 #include "rigid_geometric_algebra/geometric_fwd.hpp"
 #include "rigid_geometric_algebra/is_multivector.hpp"
 
@@ -36,7 +35,7 @@ public:
   using to_geometric_type_fn<to>::operator()...;
 };
 
-inline constexpr auto to_geometric = to_geometric_fn<point, line>{};
+inline constexpr auto to_geometric = to_geometric_fn<point, line, plane>{};
 
 /// @}
 
@@ -45,21 +44,16 @@ inline constexpr auto to_geometric = to_geometric_fn<point, line>{};
 class geometric_operator
 {
 public:
-  template <class Self, detail::geometric T1, detail::geometric T2>
+  template <class Self, detail::geometric... Ts>
     requires std::is_invocable_v<
         decltype(to_geometric),
         std::invoke_result_t<
             const Self&,
-            decltype(std::declval<T1>().multivector()),
-            decltype(std::declval<T2>().multivector())>>
-  constexpr auto
-  operator()(this const Self& self, T1&& t1, T2&& t2) -> decltype(to_geometric(
-      self(std::forward<T1>(t1).multivector(),
-           std::forward<T2>(t2).multivector())))
+            decltype(std::declval<Ts>().multivector())...>>
+  constexpr auto operator()(this const Self& self, Ts&&... ts)
+      -> decltype(to_geometric(self(std::forward<Ts>(ts).multivector()...)))
   {
-    return to_geometric(self(
-        std::forward<T1>(t1).multivector(),
-        std::forward<T2>(t2).multivector()));
+    return to_geometric(self(std::forward<Ts>(ts).multivector()...));
   }
 };
 

@@ -96,6 +96,7 @@ public:
     return impl(
         typename std::remove_cvref_t<V>::blade_list_type{}, std::forward<V>(v));
   }
+
   template <
       detail::multivector_promotable V1,
       detail::multivector_promotable V2>
@@ -108,6 +109,26 @@ public:
     return impl(
         to_multivector(std::forward<V1>(v1)),
         to_multivector(std::forward<V2>(v2)));
+  }
+
+  template <
+      detail::multivector_promotable V1,
+      detail::multivector_promotable V2,
+      detail::multivector_promotable... Vs>
+    requires (sizeof...(Vs) > 0) and
+             has_common_algebra_type_v<V1, V2, Vs...> and
+             ((detail::multivector<V1> or detail::multivector<V2>) or ... or
+              detail::multivector<Vs>)
+  static constexpr auto
+  operator()(V1&& v1, V2&& v2, Vs&&... vs) -> decltype(operator()(
+      impl(to_multivector(std::forward<V1>(v1)),
+           to_multivector(std::forward<V2>(v2))),
+      std::forward<Vs>(vs)...))
+  {
+    return operator()(
+        impl(to_multivector(std::forward<V1>(v1)),
+             to_multivector(std::forward<V2>(v2))),
+        std::forward<Vs>(vs)...);
   }
 };
 

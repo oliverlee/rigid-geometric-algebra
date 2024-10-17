@@ -5,6 +5,7 @@
 #include <array>
 #include <cstddef>
 #include <format>
+#include <functional>
 #include <symengine/compat.hpp>
 #include <tuple>
 #include <type_traits>
@@ -23,6 +24,14 @@ auto main() -> int
   using ::rigid_geometric_algebra::multivector;
 
   static constexpr auto equal = pred(std::ranges::equal);
+
+  static constexpr auto equal_elements =
+      []<class T, class P = std::identity>(
+          const T& t1, const T& t2, P proj = {}) {
+        return [&]<std::size_t... i>(std::index_sequence<i...>) {
+          return (eq(proj(t1[i]), proj(t2[i])) and ...);
+        }(std::make_index_sequence<T::size>{});
+      };
 
   "default constructible"_test = [] {
     return expect(
@@ -97,7 +106,7 @@ auto main() -> int
     return expect(aborts([] { std::ignore = g[4]; }));
   };
 
-  "wedge of point and line (multivector representation)"_test = [] {
+  "wedge of point and line"_test = [] {
     const auto p = GS3::point{"1", "px", "py", "pz"};
 
     const auto l = GS3::line{
@@ -117,20 +126,40 @@ auto main() -> int
         "-lmx*px - lmy*py - lmz*pz",
     };
 
-    const auto compare_each_element =
-        []<class V>(const V& v1, const auto& v2, auto cmp) {
-          return [&v1, &v2, &cmp]<auto... Is>(std::index_sequence<Is...>) {
-            using ::rigid_geometric_algebra::get;
-            return (cmp(v1.template get<Is>(), v2.template get<Is>()) and ...);
-          }(std::make_index_sequence<V::size>{});
-        };
+    return expect(equal_elements(g, l ^ p));
+  };
 
-    const auto cmp = [](const auto& b1, const auto& b2) {
-      return eq(b1, b2) or eq(expand(b1.coefficient), expand(b2.coefficient));
-    };
+  "join of 3 points is a plane"_test = [] {
+    using ::rigid_geometric_algebra::wedge;  // TODO join
+    using ::rigid_geometric_algebra::right_complement;
+    using ::rigid_geometric_algebra::get;
 
-    return expect(compare_each_element(
-        g.multivector(), l.multivector() ^ p.multivector(), cmp));
+    const auto p = GS3::point{"1", "px", "py", "pz"};
+    const auto q = GS3::point{"1", "qx", "qy", "qz"};
+    const auto r = GS3::point{"1", "rx", "ry", "rz"};
+
+    // Addition is not defined for geometric types (lines), so we add the
+    // multivector components. The text for eq. 2.40 specifies that the wedge
+    // products occur in three dimensions. We handle this by ignoring elements
+    // containing the 0 basis dimension for n.
+    const auto n =
+        (p ^ q).multivector() + (q ^ r).multivector() + (r ^ p).multivector();
+
+    // sign negation unnecessary since the complement is taken in dimension 4
+    // instead of dimension 3.
+    // see Table 2.5 (e321) and Table 2.28 (antiscalar)
+    const auto d = right_complement((p ^ q ^ r).multivector());
+
+    // see eq. 2.40
+    const auto g = GS3::plane{
+        get<GS3::blade<2, 3>>(n).coefficient,
+        get<GS3::blade<3, 1>>(n).coefficient,
+        get<GS3::blade<1, 2>>(n).coefficient,
+        get<GS3::blade<0>>(d).coefficient};
+
+    return expect(equal_elements(g, wedge(p, q, r), [](const auto& element) {
+      return expand(element);
+    }));
   };
 
   "formattable"_test = [] {
