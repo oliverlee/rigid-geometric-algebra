@@ -157,9 +157,33 @@ cc_test(
 )
 
 cc_test(
+    name = "join_test",
+    size = "small",
+    srcs = ["join_test.cpp"],
+    deps = [
+        ":skytest_ext",
+        ":symengine_compat",
+        "//rigid_geometric_algebra",
+        "@skytest",
+    ],
+)
+
+cc_test(
     name = "line_test",
     size = "small",
     srcs = ["line_test.cpp"],
+    deps = [
+        ":skytest_ext",
+        ":symengine_compat",
+        "//rigid_geometric_algebra",
+        "@skytest",
+    ],
+)
+
+cc_test(
+    name = "meet_test",
+    size = "small",
+    srcs = ["meet_test.cpp"],
     deps = [
         ":skytest_ext",
         ":symengine_compat",
