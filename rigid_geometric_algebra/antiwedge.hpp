@@ -4,6 +4,7 @@
 #include "rigid_geometric_algebra/complement.hpp"
 #include "rigid_geometric_algebra/detail/concat_ranges.hpp"
 #include "rigid_geometric_algebra/detail/counted_sort.hpp"
+#include "rigid_geometric_algebra/detail/geometric_operator.hpp"
 #include "rigid_geometric_algebra/detail/linear_operator.hpp"
 #include "rigid_geometric_algebra/detail/negate_if_odd.hpp"
 #include "rigid_geometric_algebra/is_blade.hpp"
@@ -47,13 +48,21 @@ public:
   }
 };
 
+class antiwedge_fn
+    : public detail::linear_operator<detail::antiwedge_blade_fn>,
+      public detail::geometric_operator
+{
+public:
+  using detail::linear_operator<detail::antiwedge_blade_fn>::operator();
+  using detail::geometric_operator::operator();
+};
+
 }  // namespace detail
 
 /// antiwedge product
 ///
 /// @see eq. 2.25
 ///
-inline constexpr auto antiwedge =
-    detail::linear_operator<detail::antiwedge_blade_fn>{};
+inline constexpr auto antiwedge = detail::antiwedge_fn{};
 
 }  // namespace rigid_geometric_algebra
