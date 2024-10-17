@@ -94,9 +94,47 @@ jobs:
     - run: |
         bazel run //tools:format.check
 
+  clang-tidy-targets:
+    runs-on: ubuntu-latest
+    outputs:
+      targets: ${{ steps.query.outputs.targets}}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: ./.github/actions/ci-env-setup
+      with:
+        buildbuddy-api-key: ${{ secrets.BUILDBUDDY_API_KEY }}
+    - id: query
+      run: |
+        targets=$(\
+          bazel cquery \
+            --extra_toolchains=//tools:clang19_toolchain \
+            --output starlark \
+            --starlark:expr='repr(target).split(" ")[-1].removesuffix(">") if "CcInfo" in providers(target).keys() and not repr(target).startswith("<alias") else ""' \
+            -- \
+            //... | xargs)
+
+        echo "targets=[\"${targets// /\",\"}\"]" >> $GITHUB_OUTPUT
+
+  clang-tidy:
+    runs-on: ubuntu-latest
+    needs:
+      - clang-tidy-targets
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJson(needs.clang-tidy-targets.outputs.targets) }}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: ./.github/actions/ci-env-setup
+      with:
+        buildbuddy-api-key: ${{ secrets.BUILDBUDDY_API_KEY }}
+    - run: |
+        bazel run //tools:clang-tidy -- ${{ matrix.target }}
 
   lint:
     runs-on: ubuntu-latest
+    needs:
+      - clang-tidy
     steps:
     - uses: actions/checkout@v4
     - uses: ./.github/actions/ci-env-setup
