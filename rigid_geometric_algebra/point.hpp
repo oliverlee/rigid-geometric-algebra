@@ -3,11 +3,9 @@
 #include "rigid_geometric_algebra/detail/geometric_interface.hpp"
 #include "rigid_geometric_algebra/glz_fwd.hpp"
 #include "rigid_geometric_algebra/multivector_fwd.hpp"
-#include "rigid_geometric_algebra/wedge.hpp"
 
 #include <cstddef>
 #include <format>
-#include <type_traits>
 #include <utility>
 
 namespace rigid_geometric_algebra {
@@ -49,20 +47,6 @@ public:
   /// default geometric type constructors
   ///
   using base_type::base_type;
-
-  /// wedge product
-  ///
-  /// @{
-
-  template <class P>
-    requires std::is_same_v<P, point>
-  friend constexpr auto
-  operator^(const P& p, const P& q) -> decltype(wedge(p, q))
-  {
-    return wedge(p, q);
-  }
-
-  /// @}
 
   /// equality comparison
   ///

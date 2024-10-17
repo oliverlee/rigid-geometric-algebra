@@ -4,9 +4,9 @@
 #include "rigid_geometric_algebra/algebra_type.hpp"
 #include "rigid_geometric_algebra/detail/contract.hpp"
 #include "rigid_geometric_algebra/detail/decays_to.hpp"
-#include "rigid_geometric_algebra/detail/is_specialization_of.hpp"
 #include "rigid_geometric_algebra/glz_fwd.hpp"
 #include "rigid_geometric_algebra/is_multivector.hpp"
+#include "rigid_geometric_algebra/wedge.hpp"
 
 #include <array>
 #include <compare>
@@ -50,6 +50,10 @@ public:
   /// multivector type
   ///
   using multivector_type = V;
+
+  /// number of blades
+  ///
+  static constexpr auto size = multivector_type::size;
 
   template <bool Const>
   class iterator
@@ -215,8 +219,8 @@ public:
           detail::precondition(
               il.size() == multivector_type::size,
               detail::contract_violation_handler{
-                  "size of initializer_list ({}) must match underlying "
-                  "multivector size ({})",
+                  "size of initializer_list '{}' must match underlying "
+                  "multivector size '{}'",
                   il.size(),
                   multivector_type::size()});
           return il;
@@ -270,7 +274,10 @@ public:
       std::ranges::range_reference_t<Self&&>,
       std::ranges::range_rvalue_reference_t<Self&&>>
   {
-    detail::precondition(i < multivector_type::size);
+    detail::precondition(
+        i < multivector_type::size,
+        detail::contract_violation_handler{
+            "index value '{}' not less than size '{}'", i, size()});
 
     using D = iterator<true>::difference_type;
     using R = std::conditional_t<
@@ -282,6 +289,20 @@ public:
     return static_cast<R>(ref);
   }
 
+  /// wedge product
+  ///
+  /// @{
+
+  template <std::derived_from<geometric_interface> T1, detail::multivector V2>
+  friend constexpr auto
+  operator^(const T1& t1, const geometric_interface<V2>& t2)
+      -> decltype(wedge(t1, t2))
+  {
+    return wedge(t1, t2);
+  }
+
+  /// @}
+
   /// equality comparison
   ///
   /// @{
@@ -291,13 +312,6 @@ public:
 
   /// @}
 };
-
-template <class T>
-concept geometric =
-    requires { typename std::remove_cvref_t<T>::geometric_interface_type; } and
-    detail::is_specialization_of_v<
-        typename std::remove_cvref_t<T>::geometric_interface_type,
-        detail::geometric_interface>;
 
 }  // namespace rigid_geometric_algebra::detail
 
@@ -309,6 +323,7 @@ struct ::std::
               V>::multivector_type,
           Char>
 {
+  // clang bug
   // https://github.com/llvm/llvm-project/issues/66466
   template <class O>
   constexpr auto
