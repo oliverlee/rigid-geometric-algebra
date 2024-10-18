@@ -12,7 +12,20 @@ auto main() -> int
 
   using namespace sym::literals;
 
-  "expression formattable"_test = [] {
+  "copyable"_ctest = [] {
+    using sym::symbol;
+    using sym::expression;
+
+    constexpr auto x1 = expression{"x"_s};
+    constexpr auto x2 = x1;
+
+    return expect(
+        eq(x1.op().name(), "sym::op::identity") and
+        eq(x1.op().name(), x2.op().name()) and
+        std::get<symbol>(x1.args()) == std::get<symbol>(x2.args()));
+  };
+
+  "formattable"_test = [] {
     using sym::expression;
     using sym::op::plus;
 

@@ -51,7 +51,11 @@ inline constexpr struct plus_t : std::plus<>, op_base<plus_t>
 
 template <class F>
 concept operation =
-    std::derived_from<F, op::op_base<F>> and std::default_initializable<F> and
-    std::is_empty_v<F>;
+    std::derived_from<F, op::op_base<F>> and  //
+    std::default_initializable<F> and         //
+    std::is_empty_v<F> and                    //
+    requires {
+      { F::name() } -> std::same_as<std::string_view>;
+    };
 
 }  // namespace sym
