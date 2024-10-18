@@ -47,11 +47,9 @@ struct std::formatter<::SymEngine::Expression, CharT>
 {};
 
 template <>
-struct ::rigid_geometric_algebra::
-    field_identity<::SymEngine::Expression, std::multiplies<>>
-{
-  inline static const auto value = ::SymEngine::Expression{1};
-};
+inline const auto rigid_geometric_algebra::field_identity<
+    ::SymEngine::Expression,
+    std::multiplies<>> = ::SymEngine::Expression{1};
 
 template <>
 inline constexpr auto ::rigid_geometric_algebra::disable_line_invariant<

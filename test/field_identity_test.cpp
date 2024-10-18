@@ -2,6 +2,7 @@
 #include "skytest/skytest.hpp"
 
 #include <functional>
+#include <type_traits>
 
 auto main() -> int
 {
@@ -10,15 +11,18 @@ auto main() -> int
   using ::skytest::expect;
 
   using ::rigid_geometric_algebra::field_identity;
-  using ::rigid_geometric_algebra::detail::has_value_v;
 
-  "field identity value"_test = [] {
+  "field identity"_test = [] {
     return expect(
-        eq(float{1}, field_identity<float, std::multiplies<>>::value) and
-        eq(double{1}, field_identity<double, std::multiplies<>>::value));
+        eq(float{1}, field_identity<float, std::multiplies<>>) and
+        eq(double{1}, field_identity<double, std::multiplies<>>));
   };
 
   "no field identity value"_test = [] {
-    return expect(not has_value_v<field_identity<int, std::multiplies<>>>);
+    return expect(
+        std::is_same_v<
+            rigid_geometric_algebra::unspecified,
+            std::remove_cvref_t<
+                decltype(field_identity<int, std::multiplies<>>)>>);
   };
 }

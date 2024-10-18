@@ -1,19 +1,26 @@
 #pragma once
 
-#include "rigid_geometric_algebra/magma.hpp"
+#include "rigid_geometric_algebra/detail/is_specialization_of.hpp"
 
 #include <complex>
 #include <concepts>
 #include <functional>
-#include <type_traits>
 
 namespace rigid_geometric_algebra {
+
+/// tag type denoting that the field identity value is unspecified
+///
+struct unspecified
+{
+  explicit unspecified() = default;
+};
 
 /// specifies the identity value for a type and a binary operation
 /// @tparam T regular type
 /// @tparam F closed binary operation
 ///
-/// Defines the identity value for a type and closed binary operation.
+/// Defines the identity value for a type and closed binary operation. The
+/// default value is `unspecified`.
 ///
 /// A program may specialize `field_identity` for `T` and
 /// `F = std::multiplies<>` if `T` is a program-defined type in order to
@@ -22,32 +29,14 @@ namespace rigid_geometric_algebra {
 /// @see https://en.wikipedia.org/wiki/Field_(mathematics)
 /// @see https://en.wikipedia.org/wiki/Monoid
 ///
-/// @{
-
 template <std::regular T, class F>
-  requires magma<T, F>
-struct field_identity
-{};
+inline constexpr auto field_identity = unspecified{};
 
-/// specialization for `std::floating_point` types and `std::multiplies<>`
+/// field identity value for multiplication
 ///
-template <std::floating_point T>
-struct field_identity<T, std::multiplies<>> : std::integral_constant<T, T{1}>
-{};
-
-/// specialization for `std::complex` types and `std::multiplies<>`
-///
-template <std::floating_point T>
-struct field_identity<std::complex<T>, std::multiplies<>>
-    : std::integral_constant<T, T{1}>
-{};
-
-/// @}
-
-/// reference to the field identity value
-///
-template <std::regular T, class F>
-  requires magma<T, F>
-inline constexpr const auto& field_identity_v = field_identity<T, F>::value;
+template <std::regular T>
+  requires std::floating_point<T> or
+               detail::is_specialization_of_v<T, std::complex>
+inline constexpr auto field_identity<T, std::multiplies<>> = T{1};
 
 }  // namespace rigid_geometric_algebra

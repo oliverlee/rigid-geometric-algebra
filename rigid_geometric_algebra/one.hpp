@@ -20,6 +20,6 @@ namespace rigid_geometric_algebra {
 template <class A>
   requires is_algebra_v<A>
 inline constexpr const auto& one =
-    field_identity_v<algebra_field_t<A>, std::multiplies<>>;
+    field_identity<algebra_field_t<A>, std::multiplies<>>;
 
 }  // namespace rigid_geometric_algebra
