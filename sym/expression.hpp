@@ -6,8 +6,8 @@
 #include <array>
 #include <cassert>
 #include <concepts>
+#include <cstdint>
 #include <format>
-#include <memory>
 #include <string_view>
 #include <utility>
 #include <variant>
@@ -17,38 +17,50 @@ namespace sym {
 
 class [[nodiscard]] expression
 {
-  // https://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Type_Erasure
   class any_operation
   {
-    struct concept_t
+    enum class member : std::uint8_t
     {
-      virtual ~concept_t() = default;
-      [[nodiscard]]
-      constexpr virtual auto name_() const noexcept -> std::string_view = 0;
+      name,
     };
 
-    template <class F>
-    struct model_t : concept_t
+    union op_args
     {
-      [[nodiscard]]
-      constexpr auto name_() const noexcept -> std::string_view override
+      std::string_view name;
+    };
+
+    using erased_op_type = auto (*)(member, op_args&) -> void;
+    erased_op_type op_;
+
+    // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
+
+    template <class F>
+    struct erased
+    {
+      static constexpr auto op(member which, op_args& args) noexcept
       {
-        return F::name();
+        switch (which) {
+          case member::name:
+            args.name = F::name();
+            break;
+        }
       }
     };
 
-    std::unique_ptr<const concept_t> op_;
-
   public:
-    template <class F>
-    constexpr any_operation(F) : op_{std::make_unique<model_t<F>>()}
+    template <operation F>
+    constexpr any_operation(F) : op_{erased<F>::op}
     {}
 
     [[nodiscard]]
     constexpr auto name() const noexcept -> std::string_view
     {
-      return op_->name_();
+      auto args = op_args{std::string_view{}};
+      op_(member::name, args);
+      return args.name;
     }
+
+    // NOLINTEND(cppcoreguidelines-pro-type-union-access)
   };
 
   using args_type = std::variant<std::vector<expression>, symbol>;
@@ -66,7 +78,7 @@ class [[nodiscard]] expression
   }
 
 public:
-  constexpr expression(symbol s)
+  constexpr expression(symbol s) noexcept
       : op_{op::identity}, args_{std::in_place_index<1>, s}
   {}
 
