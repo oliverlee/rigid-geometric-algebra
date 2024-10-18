@@ -1,0 +1,12 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+cc_library(
+    name = "sym",
+    srcs = [
+        "expression.hpp",
+        "operation.hpp",
+        "symbol.hpp",
+    ],
+    hdrs = ["sym.hpp"],
+    visibility = ["//:__subpackages__"],
+)

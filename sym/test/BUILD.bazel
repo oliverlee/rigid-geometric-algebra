@@ -1,0 +1,21 @@
+load("@rules_cc//cc:defs.bzl", "cc_test")
+
+cc_test(
+    name = "expression_test",
+    size = "small",
+    srcs = ["expression_test.cpp"],
+    deps = [
+        "//sym",
+        "@skytest",
+    ],
+)
+
+cc_test(
+    name = "symbol_test",
+    size = "small",
+    srcs = ["symbol_test.cpp"],
+    deps = [
+        "//sym",
+        "@skytest",
+    ],
+)
