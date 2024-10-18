@@ -1,5 +1,6 @@
 #pragma once
 
+#include "rigid_geometric_algebra/algebra_type.hpp"
 #include "rigid_geometric_algebra/blade_complement_type.hpp"
 #include "rigid_geometric_algebra/detail/concat_ranges.hpp"
 #include "rigid_geometric_algebra/detail/counted_sort.hpp"
@@ -59,7 +60,12 @@ public:
 
     const auto num_swaps =
         detail::counted_sort(detail::concat_ranges(left, right));
-    return not detail::even(num_swaps);
+
+    using algebra_type = algebra_type_t<B>;
+    const auto negative_hypervolume =
+        std::size_t{detail::even(algebra_dimension_v<algebra_type>)};
+
+    return not detail::even(num_swaps + negative_hypervolume);
   }
 };
 
