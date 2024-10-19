@@ -3,6 +3,8 @@ load("@rules_cc//cc:defs.bzl", "cc_library")
 cc_library(
     name = "sym",
     srcs = [
+        "constant.hpp",
+        "eval_type.hpp",
         "expression.hpp",
         "forward.hpp",
         "function.hpp",
