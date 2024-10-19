@@ -70,6 +70,15 @@ auto main() -> int
     };
   }
 
+  "implicit expression construction"_ctest = [] {
+    using sym::expression;
+
+    return expect(
+        eq(expression{plus, "x"_s, "y"_s}, "x"_s + "y"_s) and
+        eq(expression{plus, expression{plus, "x"_s, "y"_s}, "z"_s},
+           "x"_s + "y"_s + "z"_s));
+  };
+
   "formattable"_test = [] {
     using sym::expression;
 

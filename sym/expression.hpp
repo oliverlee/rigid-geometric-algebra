@@ -1,9 +1,9 @@
 #pragma once
 
 #include "sym/operation.hpp"
+#include "sym/sym_invocable.hpp"
 #include "sym/symbol.hpp"
 
-#include <array>
 #include <cassert>
 #include <compare>
 #include <concepts>
@@ -11,6 +11,7 @@
 #include <cstdint>
 #include <format>
 #include <string_view>
+#include <tuple>
 #include <type_traits>
 #include <utility>
 #include <variant>
@@ -120,17 +121,17 @@ public:
       : op_{op::identity}, args_{symbol_index, s}
   {}
 
-  template <operation Op, std::same_as<symbol>... Symbols>
-    requires (Op{} != op::identity) and (sizeof...(Symbols) > 0)
-  constexpr expression(Op op, Symbols... symbols)
+  template <operation Op, class... Args>
+    requires sym_invocable<Op, Args...> and
+                 (not std::same_as<Op, op::identity_t>)
+  constexpr expression(Op op, Args&&... args)
       : op_{op}, args_{subexpressions_index}
   {
     auto& subexpr = alternative<subexpressions_index>(*this);
-    subexpr.reserve(sizeof...(Symbols));
+    subexpr.reserve(sizeof...(Args));
 
-    for (auto s : std::array{symbols...}) {
-      subexpr.emplace_back(s);
-    }
+    std::ignore =
+        ((subexpr.emplace_back(std::forward<Args>(args)), true) and ...);
   }
 
   [[nodiscard]]
