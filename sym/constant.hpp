@@ -6,6 +6,7 @@
 #include <concepts>
 #include <format>
 #include <initializer_list>
+#include <limits>
 #include <type_traits>
 
 namespace sym {
@@ -23,10 +24,23 @@ class [[nodiscard]] constant
     }
   }
 
-  static consteval auto ensure_ordered_value(auto value)
+  static consteval auto ordered(auto value) -> bool
   {
-    ensure((value <=> value_type{}) != std::partial_ordering::unordered);
-    return value;
+    return (value <=> value_type{}) != std::partial_ordering::unordered;
+  }
+
+  // https://en.cppreference.com/w/cpp/language/list_initialization#Narrowing_conversions
+  // https://stackoverflow.com/questions/759201/representing-integers-in-doubles
+  template <class T>
+  static consteval auto non_narrowing(T) -> bool
+  {
+    if constexpr (
+        std::numeric_limits<T>::digits <=
+        std::numeric_limits<eval_type_t<>>::digits) {
+      return true;
+    } else {
+      static_assert(false, "unimplemented");
+    }
   }
 
 public:
@@ -34,18 +48,17 @@ public:
 
   consteval constant() = default;
 
-  consteval explicit constant(
-      std::convertible_to<value_type> auto
-          value) noexcept(std::is_nothrow_copy_constructible_v<value_type>)
-      : value_{ensure_ordered_value(value)}
+  template <class T>
+    requires std::constructible_from<value_type, T>
+  consteval explicit constant(T value) noexcept(
+      std::is_nothrow_constructible_v<value_type, T>)
+      : value_{(
+            ensure(non_narrowing(value) and ordered(value)), value_type(value))}
   {}
 
   consteval explicit constant(std::initializer_list<value_type> il) noexcept(
       std::is_nothrow_copy_constructible_v<value_type>)
-      : value_{ensure_ordered_value([il] {
-          ensure(il.size() == 1);
-          return *il.begin();
-        }())}
+      : value_{(ensure((il.size() == 1) and ordered(*il.begin())), *il.begin())}
   {}
 
   [[nodiscard]]

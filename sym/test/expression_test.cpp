@@ -88,7 +88,9 @@ auto main() -> int
   };
 
   "implicit expressions with constants"_ctest = [] {
-    return expect(eq(expression{plus, constant{}, "y"_s}, constant{} + "y"_s));
+    return expect(
+        eq(expression{plus, constant{}, "y"_s}, constant{} + "y"_s) and
+        eq(expression{plus, constant{1}, "y"_s}, 1 + "y"_s));
   };
 
   "foldable"_ctest = [] {
