@@ -121,6 +121,8 @@ private:
   args_type args_;
 
 public:
+  constexpr expression() noexcept : expression{constant{}} {}
+
   constexpr explicit expression(symbol s) noexcept
       : op_{op::identity}, args_{symbol_index, s}
   {}
