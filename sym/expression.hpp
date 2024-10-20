@@ -5,10 +5,13 @@
 
 #include <array>
 #include <cassert>
+#include <compare>
 #include <concepts>
+#include <cstddef>
 #include <cstdint>
 #include <format>
 #include <string_view>
+#include <type_traits>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -61,36 +64,72 @@ class [[nodiscard]] expression
     }
 
     // NOLINTEND(cppcoreguidelines-pro-type-union-access)
+
+    [[nodiscard]]
+    friend auto operator==(any_operation, any_operation) -> bool = default;
+
+    [[nodiscard]]
+    friend constexpr auto
+    operator<=>(any_operation lhs, any_operation rhs) noexcept
+        -> std::strong_ordering
+    {
+      if (lhs == rhs) {
+        return std::strong_ordering::equal;
+      }
+
+      const auto order = lhs.name() <=> rhs.name();
+      assert(order != std::strong_ordering::equal);
+
+      return order;
+    }
   };
 
   using args_type = std::variant<std::vector<expression>, symbol>;
 
+  template <std::size_t I>
+  struct alternative_t
+  {
+    template <class Self>
+    static constexpr auto operator()(Self& self) -> auto&
+    {
+      auto p = std::get_if<I>(&self.args_);
+      assert(p != nullptr);
+      return *p;
+    }
+  };
+
+  template <std::size_t I>
+  static constexpr auto alternative = alternative_t<I>{};
+
+  template <std::size_t I>
+  struct index
+      : std::in_place_index_t<I>,
+        std::integral_constant<std::size_t, I>
+  {
+    index() = default;
+  };
+
+  static constexpr auto subexpressions_index = index<0>{};
+  static constexpr auto symbol_index = index<1>{};
+
   any_operation op_;
   args_type args_;
 
-  template <class Self>
-  [[nodiscard]]
-  constexpr auto subexpressions(this Self& self) noexcept -> auto&
-  {
-    auto p = std::get_if<0>(&self.args_);
-    assert(p != nullptr);
-    return *p;
-  }
-
 public:
   constexpr expression(symbol s) noexcept
-      : op_{op::identity}, args_{std::in_place_index<1>, s}
+      : op_{op::identity}, args_{symbol_index, s}
   {}
 
   template <operation Op, std::same_as<symbol>... Symbols>
     requires (Op{} != op::identity) and (sizeof...(Symbols) > 0)
   constexpr expression(Op op, Symbols... symbols)
-      : op_{op}, args_{std::in_place_index<0>}
+      : op_{op}, args_{subexpressions_index}
   {
-    subexpressions().reserve(sizeof...(Symbols));
+    auto& subexpr = alternative<subexpressions_index>(*this);
+    subexpr.reserve(sizeof...(Symbols));
 
     for (auto s : std::array{symbols...}) {
-      subexpressions().emplace_back(s);
+      subexpr.emplace_back(s);
     }
   }
 
@@ -104,6 +143,35 @@ public:
   constexpr auto args() const noexcept -> const args_type&
   {
     return args_;
+  }
+
+  [[nodiscard]]
+  friend auto
+  operator==(const expression&, const expression&) -> bool = default;
+
+  [[nodiscard]]
+  friend constexpr auto
+  operator<=>(const expression& lhs, const expression& rhs) noexcept
+      -> std::strong_ordering
+  {
+    if (lhs == rhs) {
+      return std::strong_ordering::equal;
+    }
+
+    const auto relation = [&lhs, &rhs](auto proj) {
+      const auto order = std::invoke(proj, lhs) <=> std::invoke(proj, rhs);
+      assert(order != std::strong_ordering::equal);
+      return order;
+    };
+
+    if (lhs.op() == rhs.op()) {
+      if (lhs.args().index() == subexpressions_index) {
+        return relation(alternative<subexpressions_index>);
+      }
+      return relation(alternative<symbol_index>);
+    }
+
+    return relation(&expression::op);
   }
 };
 
