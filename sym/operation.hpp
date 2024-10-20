@@ -3,6 +3,7 @@
 #include <concepts>
 #include <functional>
 #include <string_view>
+#include <type_traits>
 
 namespace sym {
 namespace op {
@@ -37,12 +38,33 @@ public:
   }
 };
 
+template <class Bop>
+struct fold_adaptor : Bop
+{
+  using Bop::operator();
+
+  template <class T1, class T2, class... Ts>
+    requires (sizeof...(Ts) != 0)
+  static constexpr auto operator()(T1&& t1, T2&& t2, Ts&&... ts) noexcept(
+      noexcept(std::declval<fold_adaptor>()(
+          std::declval<Bop>()(std::forward<T1>(t1), std::forward<T2>(t2)),
+          std::forward<Ts>(ts)...)))
+      -> decltype(std::declval<fold_adaptor>()(
+          std::declval<Bop>()(std::forward<T1>(t1), std::forward<T2>(t2)),
+          std::forward<Ts>(ts)...))
+  {
+    return fold_adaptor{}(
+        Bop{}(std::forward<T1>(t1), std::forward<T2>(t2)),
+        std::forward<Ts>(ts)...);
+  }
+};
+
 inline constexpr struct identity_t : std::identity, op_base<identity_t>
 {
   explicit identity_t() = default;
 } identity{};
 
-inline constexpr struct plus_t : std::plus<>, op_base<plus_t>
+inline constexpr struct plus_t : fold_adaptor<std::plus<>>, op_base<plus_t>
 {
   explicit plus_t() = default;
 } plus{};

@@ -4,7 +4,10 @@ cc_library(
     name = "sym",
     srcs = [
         "expression.hpp",
+        "forward.hpp",
+        "function.hpp",
         "operation.hpp",
+        "sym_invocable.hpp",
         "symbol.hpp",
     ],
     hdrs = ["sym.hpp"],
