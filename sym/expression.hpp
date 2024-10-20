@@ -1,5 +1,6 @@
 #pragma once
 
+#include "sym/constant.hpp"
 #include "sym/operation.hpp"
 #include "sym/sym_invocable.hpp"
 #include "sym/symbol.hpp"
@@ -85,8 +86,22 @@ class [[nodiscard]] expression
     }
   };
 
-  using args_type = std::variant<std::vector<expression>, symbol>;
+  template <std::size_t I>
+  struct index
+      : std::in_place_index_t<I>,
+        std::integral_constant<std::size_t, I>
+  {
+    index() = default;
+  };
 
+  static constexpr auto subexpressions_index = index<0>{};
+  static constexpr auto constant_index = index<1>{};
+  static constexpr auto symbol_index = index<2>{};
+
+public:
+  using args_type = std::variant<std::vector<expression>, constant, symbol>;
+
+private:
   template <std::size_t I>
   struct alternative_t
   {
@@ -102,23 +117,18 @@ class [[nodiscard]] expression
   template <std::size_t I>
   static constexpr auto alternative = alternative_t<I>{};
 
-  template <std::size_t I>
-  struct index
-      : std::in_place_index_t<I>,
-        std::integral_constant<std::size_t, I>
-  {
-    index() = default;
-  };
-
-  static constexpr auto subexpressions_index = index<0>{};
-  static constexpr auto symbol_index = index<1>{};
-
   any_operation op_;
   args_type args_;
 
 public:
-  constexpr expression(symbol s) noexcept
+  constexpr explicit expression(symbol s) noexcept
       : op_{op::identity}, args_{symbol_index, s}
+  {}
+
+  template <class Constant>
+    requires std::constructible_from<constant, Constant>
+  constexpr explicit expression(Constant c) noexcept
+      : op_{op::identity}, args_{constant_index, c}
   {}
 
   template <operation Op, class... Args>
@@ -159,20 +169,13 @@ public:
       return std::strong_ordering::equal;
     }
 
-    const auto relation = [&lhs, &rhs](auto proj) {
-      const auto order = std::invoke(proj, lhs) <=> std::invoke(proj, rhs);
-      assert(order != std::strong_ordering::equal);
-      return order;
-    };
+    const auto order =
+        (lhs.op() != rhs.op())
+            ? lhs.op() <=> rhs.op()
+            : lhs.args() <=> rhs.args();
 
-    if (lhs.op() == rhs.op()) {
-      if (lhs.args().index() == subexpressions_index) {
-        return relation(alternative<subexpressions_index>);
-      }
-      return relation(alternative<symbol_index>);
-    }
-
-    return relation(&expression::op);
+    assert(order != 0);
+    return order;
   }
 };
 
@@ -182,19 +185,39 @@ template <class Char>
 struct ::std::formatter<::sym::expression, Char>
     : std::formatter<std::string_view, Char>
 {
+private:
+  template <std::size_t I>
+  [[nodiscard]]
+  static constexpr auto
+  format_if(std::integral_constant<std::size_t, I>, auto& out, const auto& args)
+      -> bool
+  {
+    const auto p = std::get_if<I>(&args);
+
+    if (p == nullptr) {
+      return false;
+    }
+
+    out = std::format_to(out, "{}", *p);
+    return true;
+  }
+
+public:
   template <class O>
   constexpr auto
   format(const ::sym::expression& expr, std::basic_format_context<O, Char>& ctx)
       const
   {
+    static constexpr auto N = std::variant_size_v<::sym::expression::args_type>;
+
     auto out = std::format_to(ctx.out(), "{{{}: ", expr.op().name());
 
-    if (const auto* args = std::get_if<0>(&expr.args())) {
-      out = std::format_to(out, "{}", *args);
-    }
-    if (const auto* args = std::get_if<1>(&expr.args())) {
-      out = std::format_to(out, "{}", *args);
-    }
+    [&]<std::size_t... I>(std::index_sequence<I...>) {
+      std::ignore =
+          (format_if(
+               std::integral_constant<std::size_t, I>{}, out, expr.args()) or
+           ...);
+    }(std::make_index_sequence<N>{});
 
     return std::format_to(out, "}}");
   }

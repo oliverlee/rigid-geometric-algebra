@@ -12,12 +12,12 @@ auto main() -> int
   using ::skytest::ne;
 
   using namespace sym::literals;
+  using sym::constant;
+  using sym::expression;
+  using sym::symbol;
   using sym::op::plus;
 
   "copyable"_ctest = [] {
-    using sym::symbol;
-    using sym::expression;
-
     constexpr auto x1 = expression{"x"_s};
     constexpr auto x2 = x1;
 
@@ -28,8 +28,6 @@ auto main() -> int
   };
 
   {
-    using sym::expression;
-
     static constexpr auto x = expression{"x"_s};
     static constexpr auto y = expression{"y"_s};
 
@@ -42,7 +40,7 @@ auto main() -> int
           lt(x.op(), xx.op()));
     };
 
-    "expressions are equality comparable"_test = [] {
+    "expressions are equality comparable"_ctest = [] {
       const auto xx = expression{plus, "x"_s, "x"_s};
 
       return expect(
@@ -62,6 +60,18 @@ auto main() -> int
       return expect(lt(x, expression{plus, "x"_s, "x"_s}));
     };
 
+    "constant expression ordered before symbol expression"_ctest = [] {
+      static constexpr auto zero = expression{constant{0.0}};
+      return expect(lt(zero, x));
+    };
+
+    "constant expression ordered before general expression"_ctest = [] {
+      static constexpr auto zero = expression{constant{0.0}};
+      const auto xx = expression{plus, "x"_s, "x"_s};
+
+      return expect(lt(zero, xx));
+    };
+
     "order of plus expressions"_ctest = [] {
       return expect(
           lt(expression{plus, "x"_s, "x"_s}, expression{plus, "x"_s, "y"_s}) and
@@ -71,12 +81,24 @@ auto main() -> int
   }
 
   "implicit expression construction"_ctest = [] {
-    using sym::expression;
-
     return expect(
         eq(expression{plus, "x"_s, "y"_s}, "x"_s + "y"_s) and
         eq(expression{plus, expression{plus, "x"_s, "y"_s}, "z"_s},
            "x"_s + "y"_s + "z"_s));
+  };
+
+  "implicit expressions with constants"_ctest = [] {
+    return expect(eq(expression{plus, constant{}, "y"_s}, constant{} + "y"_s));
+  };
+
+  "foldable"_ctest = [] {
+    const auto f = []<std::size_t... I>(std::index_sequence<I...>) {
+      return (constant{I} + ...);
+    }(std::make_index_sequence<4>{});
+
+    const auto g = constant{0} + (constant{1} + (constant{2} + constant{3}));
+
+    return expect(eq(f, g));
   };
 
   "formattable"_test = [] {
