@@ -103,6 +103,10 @@ auto main() -> int
     return expect(eq(f, g));
   };
 
+  "default constructible"_ctest = [] {
+    return expect(eq(expression{}, expression{constant{}}));
+  };
+
   "formattable"_test = [] {
     using sym::expression;
 
