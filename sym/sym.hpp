@@ -1,6 +1,7 @@
 #pragma once
 
 // IWYU pragma: begin_exports
+#include "sym/constant.hpp"
 #include "sym/expression.hpp"
 #include "sym/function.hpp"
 #include "sym/operation.hpp"
