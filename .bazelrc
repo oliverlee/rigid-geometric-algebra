@@ -15,6 +15,10 @@ build --@rules_clang_tidy//:clang-tidy=@llvm19_toolchain//:clang-tidy
 build --@rules_clang_tidy//:clang-apply-replacements=@llvm19_toolchain//:clang-apply-replacements
 build --@rules_clang_tidy//:config=//:tidy-config
 
+build --aspects=//tools/time_trace:aspect.bzl%time_trace_aspect
+
+build:time_trace --output_groups=time_trace
+
 build:remote --remote_cache=grpcs://oliverlee.buildbuddy.io
 build:remote --remote_download_outputs=minimal
 build:remote --remote_timeout=3600
