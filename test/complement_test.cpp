@@ -63,6 +63,48 @@ auto main() -> int
         left_complement(b) ^ b));
   };
 
+  // table 2.5
+  "left complement sign"_ctest = [] {
+    return expect(
+        eq(G3::unit_hypervolume, left_complement(G3::scalar{1})) and
+        eq(-G3::blade<0, 2, 3>{1}, left_complement(G3::blade<1>{1})) and
+        eq(-G3::blade<0, 3, 1>{1}, left_complement(G3::blade<2>{1})) and
+        eq(-G3::blade<0, 1, 2>{1}, left_complement(G3::blade<3>{1})) and
+        eq(-G3::blade<3, 2, 1>{1}, left_complement(G3::blade<0>{1})) and
+        eq(-G3::blade<2, 3>{1}, left_complement(G3::blade<0, 1>{1})) and
+        eq(-G3::blade<3, 1>{1}, left_complement(G3::blade<0, 2>{1})) and
+        eq(-G3::blade<1, 2>{1}, left_complement(G3::blade<0, 3>{1})) and
+        eq(-G3::blade<0, 1>{1}, left_complement(G3::blade<2, 3>{1})) and
+        eq(-G3::blade<0, 2>{1}, left_complement(G3::blade<3, 1>{1})) and
+        eq(-G3::blade<0, 3>{1}, left_complement(G3::blade<1, 2>{1})) and
+        eq(G3::blade<1>{1}, left_complement(G3::blade<0, 2, 3>{1})) and
+        eq(G3::blade<2>{1}, left_complement(G3::blade<0, 3, 1>{1})) and
+        eq(G3::blade<3>{1}, left_complement(G3::blade<0, 1, 2>{1})) and
+        eq(G3::blade<0>{1}, left_complement(G3::blade<3, 2, 1>{1})) and
+        eq(G3::scalar{1}, left_complement(G3::unit_hypervolume)));
+  };
+
+  // table 2.5
+  "right complement sign"_ctest = [] {
+    return expect(
+        eq(G3::unit_hypervolume, right_complement(G3::scalar{1})) and
+        eq(G3::blade<0, 2, 3>{1}, right_complement(G3::blade<1>{1})) and
+        eq(G3::blade<0, 3, 1>{1}, right_complement(G3::blade<2>{1})) and
+        eq(G3::blade<0, 1, 2>{1}, right_complement(G3::blade<3>{1})) and
+        eq(G3::blade<3, 2, 1>{1}, right_complement(G3::blade<0>{1})) and
+        eq(-G3::blade<2, 3>{1}, right_complement(G3::blade<0, 1>{1})) and
+        eq(-G3::blade<3, 1>{1}, right_complement(G3::blade<0, 2>{1})) and
+        eq(-G3::blade<1, 2>{1}, right_complement(G3::blade<0, 3>{1})) and
+        eq(-G3::blade<0, 1>{1}, right_complement(G3::blade<2, 3>{1})) and
+        eq(-G3::blade<0, 2>{1}, right_complement(G3::blade<3, 1>{1})) and
+        eq(-G3::blade<0, 3>{1}, right_complement(G3::blade<1, 2>{1})) and
+        eq(-G3::blade<1>{1}, right_complement(G3::blade<0, 2, 3>{1})) and
+        eq(-G3::blade<2>{1}, right_complement(G3::blade<0, 3, 1>{1})) and
+        eq(-G3::blade<3>{1}, right_complement(G3::blade<0, 1, 2>{1})) and
+        eq(-G3::blade<0>{1}, right_complement(G3::blade<3, 2, 1>{1})) and
+        eq(G3::scalar{1}, right_complement(G3::unit_hypervolume)));
+  };
+
   "right complement property"_ctest * param_ref<params> = []<class B>(B b) {
     using A = algebra_type_t<B>;
 
